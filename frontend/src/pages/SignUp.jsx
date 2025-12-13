@@ -5,28 +5,17 @@ export default function SignUp() {
     <div className="min-h-screen flex bg-black">
       {/* Left Side - Gradient Background */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800">
-        {/* Video Background */}
-        <div className="absolute inset-0 z-0">
-          <iframe
-            src="https://drive.google.com/file/d/1K8gNcui3wqtnW5YclI2xQScpR_9e-SNA/preview"
-            className="w-full h-full"
-            allow="autoplay; fullscreen"
-            title="Intelliax Platform"
-            style={{ border: 'none', pointerEvents: 'none' }}
-          />
-        </div>
-
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none"></div>
-
-        {/* Content Overlay */}
-        <div className="relative z-20 flex flex-col justify-between p-12 text-white">
+        {/* Animated gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
+        
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
           {/* Logo */}
           <div className="flex items-center">
             <img 
               src="/intelliax-logo.png" 
               alt="Intelliax" 
-              className="h-12 w-auto"
+              className="h-14 w-auto"
             />
           </div>
 

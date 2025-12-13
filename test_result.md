@@ -207,6 +207,18 @@ backend:
         comment: "LLM chat integration working with OpenAI GPT-4o"
 
 frontend:
+  - task: "LiveKit Voice Chat UI"
+    implemented: true
+    working: true
+    file: "frontend/src/components/voice/AgentVoiceChat.jsx, frontend/src/hooks/useLiveKitAgent.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "NEW - LiveKit React components integrated: AgentVoiceChat component with audio controls, useLiveKitAgent hook for connection management, voice chat modal in Agents page. LiveKit dependencies installed (@livekit/components-react, livekit-client, @livekit/components-styles). REACT_APP_LIVEKIT_URL configured."
+
   - task: "Dashboard Page UI"
     implemented: true
     working: true

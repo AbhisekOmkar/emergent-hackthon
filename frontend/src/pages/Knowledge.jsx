@@ -149,42 +149,39 @@ export default function Knowledge() {
   );
 
   return (
-    <div data-testid="knowledge-page">
+    <div data-testid="knowledge-page" className="min-h-screen">
       {/* Header */}
       <div className="content-header px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-orange-600" />
-            </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Knowledge Base</h1>
-              <p className="text-gray-500 text-sm">Upload documents and data to train your agents</p>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Knowledge Base</h1>
+              <p className="text-gray-600 text-sm">Upload documents and data to train your agents</p>
             </div>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Knowledge Base
+            </Button>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Knowledge Base
-          </Button>
-        </div>
 
-        {/* Search */}
-        <div className="relative max-w-md mt-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search knowledge bases..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white border-gray-200"
-          />
+          {/* Search */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search knowledge bases..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white border-gray-200 h-10 rounded-lg shadow-sm"
+            />
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="p-8">
+      <div className="p-8 max-w-7xl mx-auto">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="glass-card">

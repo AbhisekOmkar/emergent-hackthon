@@ -271,7 +271,7 @@ function FlowCanvas() {
                   className={`flex items-center gap-3 p-3 rounded-lg ${node.bg} border border-transparent hover:border-white/20 cursor-grab transition-colors`}
                 >
                   <Icon className={`w-4 h-4 ${node.color}`} />
-                  <span className="text-sm text-white">{node.label}</span>
+                  <span className="text-sm text-zinc-900">{node.label}</span>
                 </div>
               );
             })}

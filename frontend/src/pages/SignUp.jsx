@@ -1,11 +1,10 @@
 import { SignUp as ClerkSignUp } from "@clerk/clerk-react";
-import { Sparkles } from "lucide-react";
 
 export default function SignUp() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Video */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
         {/* Video Background */}
         <div className="absolute inset-0">
           <iframe

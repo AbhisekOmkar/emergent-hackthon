@@ -25,7 +25,7 @@ function ProtectedRoute({ children }) {
     <>
       <SignedIn>{children}</SignedIn>
       <SignedOut>
-        <RedirectToSignIn />
+        <Navigate to="/signin" replace />
       </SignedOut>
     </>
   );
@@ -33,13 +33,19 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <ClerkProvider publishableKey={clerkPubKey}>
+    <ClerkProvider 
+      publishableKey={clerkPubKey}
+      signInUrl="/signin"
+      signUpUrl="/signup"
+      afterSignInUrl="/"
+      afterSignUpUrl="/"
+    >
       <div className="App min-h-screen bg-slate-50">
         <BrowserRouter>
           <Routes>
             {/* Public Routes */}
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
+            <Route path="/signin/*" element={<SignIn />} />
+            <Route path="/signup/*" element={<SignUp />} />
             
             {/* Protected Routes */}
             <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>

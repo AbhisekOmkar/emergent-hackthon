@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
   ArrowLeft, Send, Mic, MicOff, Volume2, 
-  VolumeX, RefreshCw, Bot, User, Loader2
+  VolumeX, RefreshCw, Bot, User, Loader2, Phone
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -11,8 +11,58 @@ import { Badge } from "../components/ui/badge";
 import { ScrollArea } from "../components/ui/scroll-area";
 import { useAgentStore } from "../stores/agentStore";
 import axios from "axios";
+import {
+  LiveKitRoom,
+  RoomAudioRenderer,
+  BarVisualizer,
+  useLocalParticipant,
+  useVoiceAssistant,
+} from "@livekit/components-react";
+import "@livekit/components-styles";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+function SimpleVoiceVisualizer() {
+  const { state, audioTrack } = useVoiceAssistant();
+  return (
+    <div className="h-16 flex items-center justify-center gap-1">
+      <BarVisualizer
+        state={state}
+        barCount={5}
+        trackRef={audioTrack}
+        className="h-full w-32"
+        options={{ minHeight: 10, maxHeight: 40 }}
+      />
+    </div>
+  );
+}
+
+function ControlSection({ isRecording, onToggleMic, onDisconnect }) {
+  const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
+  
+  return (
+    <div className="flex gap-2">
+      <Button
+        variant="outline"
+        size="icon"
+        className={`border-zinc-700 h-12 w-12 rounded-full ${
+          isMicrophoneEnabled ? "bg-red-500/20 border-red-500 text-red-500" : ""
+        }`}
+        onClick={() => localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)}
+      >
+        {isMicrophoneEnabled ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+      </Button>
+      <Button
+        variant="destructive"
+        className="rounded-full px-6"
+        onClick={onDisconnect}
+      >
+        <Phone className="w-4 h-4 mr-2" />
+        End Call
+      </Button>
+    </div>
+  );
+}
 
 export default function AgentTest() {
   const { agentId } = useParams();
@@ -22,8 +72,12 @@ export default function AgentTest() {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
   const scrollRef = useRef(null);
+
+  // LiveKit State
+  const [token, setToken] = useState("");
+  const [serverUrl, setServerUrl] = useState("");
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
 
   useEffect(() => {
     if (agentId) {
@@ -32,7 +86,6 @@ export default function AgentTest() {
   }, [agentId, fetchAgent]);
 
   useEffect(() => {
-    // Add greeting message when agent loads
     if (currentAgent && messages.length === 0) {
       setMessages([
         {
@@ -45,7 +98,6 @@ export default function AgentTest() {
   }, [currentAgent, messages.length]);
 
   useEffect(() => {
-    // Scroll to bottom on new messages
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -97,6 +149,28 @@ export default function AgentTest() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handleVoiceToggle = async () => {
+    if (isVoiceActive) {
+      setIsVoiceActive(false);
+      setToken("");
+      return;
+    }
+
+    try {
+      const roomName = `room-${agentId}-${Math.random().toString(36).substring(7)}`;
+      const participantName = "user-" + Math.random().toString(36).substring(7);
+      
+      const { data } = await axios.post(`${API}/token?room=${roomName}&participant=${participantName}`);
+      
+      setToken(data.token);
+      setServerUrl(data.serverUrl);
+      setIsVoiceActive(true);
+    } catch (error) {
+      console.error("Failed to get token", error);
+      alert("Failed to connect to voice server. Please check your configuration.");
     }
   };
 
@@ -164,10 +238,46 @@ export default function AgentTest() {
         </div>
       </div>
 
-      {/* Chat Interface */}
+      {/* Main Interface */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chat Area */}
-        <Card className="glass-card lg:col-span-2 flex flex-col">
+        <Card className="glass-card lg:col-span-2 flex flex-col overflow-hidden relative">
+          {isVoiceActive ? (
+            <div className="absolute inset-0 z-10 bg-zinc-950/95 flex flex-col items-center justify-center p-8 backdrop-blur-sm">
+              <LiveKitRoom
+                video={false}
+                audio={true}
+                token={token}
+                serverUrl={serverUrl}
+                data-lk-theme="default"
+                className="flex flex-col items-center justify-center gap-8 w-full"
+                onDisconnected={() => setIsVoiceActive(false)}
+              >
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500/20 to-blue-600/20 flex items-center justify-center animate-pulse">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                      <Bot className="w-10 h-10 text-white" />
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-green-500 text-white border-green-400">Live</Badge>
+                  </div>
+                </div>
+                
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-medium text-white">Voice Session Active</h3>
+                  <p className="text-zinc-400">Listening to you...</p>
+                </div>
+
+                <SimpleVoiceVisualizer />
+                <RoomAudioRenderer />
+                <ControlSection 
+                  onDisconnect={() => setIsVoiceActive(false)} 
+                />
+              </LiveKitRoom>
+            </div>
+          ) : null}
+
           <CardContent className="flex-1 flex flex-col p-0">
             {/* Messages */}
             <ScrollArea className="flex-1 p-6" ref={scrollRef}>
@@ -230,22 +340,16 @@ export default function AgentTest() {
             {/* Input Area */}
             <div className="p-4 border-t border-zinc-800">
               <div className="flex gap-3">
-                {currentAgent?.type === "voice" || currentAgent?.type === "multi-modal" ? (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className={`border-zinc-700 ${
-                      isRecording ? "bg-red-500/20 border-red-500" : ""
-                    }`}
-                    onClick={() => setIsRecording(!isRecording)}
-                  >
-                    {isRecording ? (
-                      <MicOff className="w-4 h-4 text-red-400" />
-                    ) : (
-                      <Mic className="w-4 h-4" />
-                    )}
-                  </Button>
-                ) : null}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={`border-zinc-700 ${
+                    isVoiceActive ? "bg-green-500/20 border-green-500 text-green-500 hover:text-green-400" : ""
+                  }`}
+                  onClick={handleVoiceToggle}
+                >
+                  <Mic className="w-4 h-4" />
+                </Button>
                 <Input
                   placeholder="Type your message..."
                   value={inputValue}
@@ -253,10 +357,11 @@ export default function AgentTest() {
                   onKeyPress={handleKeyPress}
                   className="flex-1 bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
                   data-testid="chat-input"
+                  disabled={isVoiceActive}
                 />
                 <Button
                   onClick={handleSend}
-                  disabled={!inputValue.trim() || loading}
+                  disabled={!inputValue.trim() || loading || isVoiceActive}
                   className="bg-amber-500 hover:bg-amber-600 text-black"
                   data-testid="send-message-btn"
                 >

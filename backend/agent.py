@@ -1,10 +1,9 @@
 import logging
-import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
-from livekit.agents.voice import Agent, AgentSession
+from livekit import agents, rtc
+from livekit.agents import AgentServer, AgentSession, Agent, room_io, llm
 from livekit.plugins import openai, deepgram, elevenlabs, silero
 
 # Load environment variables
@@ -15,41 +14,42 @@ load_dotenv(ROOT_DIR / '.env')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("voice-agent")
 
-async def entrypoint(ctx: JobContext):
+class Assistant(Agent):
+    def __init__(self) -> None:
+        super().__init__(
+            instructions=(
+                "You are a helpful and friendly AI assistant. "
+                "You are concise in your responses and speak in a conversational tone. "
+                "You can help with scheduling, answering questions, and general assistance."
+            ),
+        )
+
+server = AgentServer()
+
+@server.rtc_session()
+async def my_agent(ctx: agents.JobContext):
     logger.info(f"connecting to room {ctx.room.name}")
     
-    # Connect to the room
-    await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
+    # Preload VAD
+    vad = await silero.VAD.load()
     
-    # Wait for participant to connect
-    participant = await ctx.wait_for_participant()
-    logger.info(f"starting voice agent for participant {participant.identity}")
-
-    # Initialize Agent (Configuration)
-    agent = Agent(
-        vad=ctx.proc.userdata.get("vad") or silero.VAD.load(),
+    session = AgentSession(
+        vad=vad,
         stt=deepgram.STT(),
         llm=openai.LLM(model="gpt-4o"),
         tts=elevenlabs.TTS(),
-        instructions=(
-            "You are a helpful and friendly AI assistant. "
-            "You are concise in your responses and speak in a conversational tone. "
-            "You can help with scheduling, answering questions, and general assistance."
-        )
     )
 
-    # Initialize Session (Runtime)
-    session = AgentSession()
-    
-    # Start the agent session
-    await session.start(agent, room=ctx.room)
+    await session.start(
+        room=ctx.room,
+        agent=Assistant(),
+    )
 
-    # Initial greeting
-    await session.say("Hello! I am your AI assistant. How can I help you today?", allow_interruptions=True)
+    await session.generate_reply(
+        instructions="Greet the user and offer your assistance."
+    )
 
 if __name__ == "__main__":
-    cli.run_app(
-        WorkerOptions(
-            entrypoint_fnc=entrypoint,
-        )
-    )
+    # Download models if needed (optional check)
+    # agents.cli.run_app(server, download_files=True) 
+    agents.cli.run_app(server)

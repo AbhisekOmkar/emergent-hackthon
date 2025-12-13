@@ -268,7 +268,7 @@ function FlowCanvas() {
                   key={node.type}
                   draggable
                   onDragStart={(e) => onDragStart(e, node.type)}
-                  className={`flex items-center gap-3 p-3 rounded-lg ${node.bg} border border-transparent hover:border-white/20 cursor-grab transition-colors`}
+                  className={`flex items-center gap-3 p-3 rounded-lg ${node.bg} border border-transparent hover:border-zinc-200 cursor-grab transition-colors`}
                 >
                   <Icon className={`w-4 h-4 ${node.color}`} />
                   <span className="text-sm text-zinc-900">{node.label}</span>

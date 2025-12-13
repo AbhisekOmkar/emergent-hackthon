@@ -575,6 +575,46 @@ async def get_livekit_token(room: str, participant: str):
         
     return {"token": token, "serverUrl": livekit_url}
 
+# ========== SUPABASE SYNC ==========
+from supabase_client import get_supabase_client
+
+async def sync_agent_to_supabase(agent: Agent):
+    """Sync agent data to Supabase"""
+    supabase = get_supabase_client()
+    if not supabase:
+        return
+    
+    try:
+        data = {
+            "id": agent.id,
+            "name": agent.name,
+            "description": agent.description,
+            "type": agent.type,
+            "status": agent.status,
+            "system_prompt": agent.system_prompt,
+            "config": {
+                "voice_config": agent.voice_config,
+                "chat_config": agent.chat_config,
+                "tools": agent.tools,
+                "knowledge_bases": agent.knowledge_bases
+            },
+            "created_at": agent.created_at.isoformat(),
+            "updated_at": agent.updated_at.isoformat()
+        }
+        
+        # Upsert data
+        supabase.table("agents").upsert(data).execute()
+        logger.info(f"Synced agent {agent.id} to Supabase")
+    except Exception as e:
+        logger.error(f"Failed to sync agent to Supabase: {e}")
+
+@api_router.post("/agents/{agent_id}/sync")
+async def manual_sync_agent(agent_id: str, background_tasks: BackgroundTasks):
+    agent = await get_agent(agent_id)
+    background_tasks.add_task(sync_agent_to_supabase, agent)
+    return {"message": "Sync started"}
+
+
     return {"response": response, "provider": provider, "model": model}
 
 # ========== INTEGRATIONS ==========

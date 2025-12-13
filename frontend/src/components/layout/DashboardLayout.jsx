@@ -77,11 +77,11 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
+    <div className="flex h-screen bg-[#fafafa] overflow-hidden">
       {/* Sidebar - Dark */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen sidebar transition-all duration-300",
+          "fixed left-0 top-0 z-40 h-screen sidebar transition-all duration-200 ease-out",
           sidebarOpen ? "w-60" : "w-16"
         )}
       >

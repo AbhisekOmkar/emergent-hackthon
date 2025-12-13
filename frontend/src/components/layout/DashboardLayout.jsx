@@ -151,22 +151,26 @@ export default function DashboardLayout() {
 
           {/* Footer */}
           {sidebarOpen && (
-            <div className="p-3 border-t border-gray-800">
+            <div className="p-3 border-t border-white/5">
               {/* Upgrade Card */}
-              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-500/20 mb-3">
+              <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 mb-3 transition-all hover:border-blue-500/30">
                 <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-white">Pro Plan</span>
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-sm font-semibold text-white block">Upgrade to Pro</span>
+                    <span className="text-[10px] text-gray-500">Unlimited everything</span>
+                  </div>
                 </div>
-                <p className="text-xs text-gray-400 mb-2">Unlock unlimited agents & flows</p>
-                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 rounded-md font-medium shadow-sm">
                   Upgrade Now
                 </Button>
               </div>
               
               {/* Status */}
-              <div className="flex items-center gap-2 text-xs text-gray-500 px-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>All systems operational</span>
               </div>
             </div>

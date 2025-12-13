@@ -20,6 +20,9 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
+from livekit import api
+from livekit.protocol import models as lk_models
+
 app = FastAPI(title="AI Agent Builder API", version="1.0.0")
 
 # Create a router with the /api prefix

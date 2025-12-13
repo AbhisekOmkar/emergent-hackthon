@@ -42,7 +42,7 @@ export default function Settings() {
     <div className="space-y-6" data-testid="settings-page">
       {/* Header */}
       <div>
-        <h1 className="font-outfit font-bold text-3xl text-zinc-900">Settings</h1>
+        <h1 className="font-sans font-bold text-3xl text-zinc-900">Settings</h1>
         <p className="text-zinc-400 mt-1">Manage your account and preferences</p>
       </div>
 
@@ -266,7 +266,7 @@ export default function Settings() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-zinc-900">Current Plan</p>
-                    <p className="text-2xl font-outfit font-bold text-amber-400">Pro Plan</p>
+                    <p className="text-2xl font-sans font-bold text-amber-400">Pro Plan</p>
                   </div>
                   <Button variant="outline" className="border-amber-500 text-amber-400">
                     Upgrade
@@ -276,17 +276,17 @@ export default function Settings() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 rounded-lg bg-zinc-800/30">
                   <p className="text-sm text-zinc-400">Calls Used</p>
-                  <p className="text-2xl font-outfit font-bold text-zinc-900">1,234</p>
+                  <p className="text-2xl font-sans font-bold text-zinc-900">1,234</p>
                   <p className="text-xs text-zinc-500">of 5,000 / month</p>
                 </div>
                 <div className="p-4 rounded-lg bg-zinc-800/30">
                   <p className="text-sm text-zinc-400">Agents</p>
-                  <p className="text-2xl font-outfit font-bold text-zinc-900">5</p>
+                  <p className="text-2xl font-sans font-bold text-zinc-900">5</p>
                   <p className="text-xs text-zinc-500">of 10 max</p>
                 </div>
                 <div className="p-4 rounded-lg bg-zinc-800/30">
                   <p className="text-sm text-zinc-400">Storage</p>
-                  <p className="text-2xl font-outfit font-bold text-zinc-900">2.4 GB</p>
+                  <p className="text-2xl font-sans font-bold text-zinc-900">2.4 GB</p>
                   <p className="text-xs text-zinc-500">of 10 GB</p>
                 </div>
               </div>

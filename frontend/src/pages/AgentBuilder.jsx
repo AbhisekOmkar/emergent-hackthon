@@ -258,7 +258,7 @@ function FlowCanvas() {
       <div className="absolute left-4 top-20 bottom-4 w-64 z-10">
         <Card className="glass-panel h-full">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-300">Node Palette</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-900">Node Palette</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {nodeCategories.map((node) => {

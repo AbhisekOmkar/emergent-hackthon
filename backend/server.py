@@ -249,6 +249,14 @@ async def create_agent(agent_data: AgentCreate):
     )
     doc = agent.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
+    
+    # Sync to Supabase
+    background_tasks = BackgroundTasks() # Wait, I can't inject here easily without changing signature.
+    # But I can just call it (it's async but supabase client is sync? No, supabase-py is sync usually).
+    # Wait, supabase-py is sync.
+    # I should run it in a thread or background task.
+    # Let's change the route signature to accept BackgroundTasks.
+
     doc['updated_at'] = doc['updated_at'].isoformat()
     await db.agents.insert_one(doc)
     return agent

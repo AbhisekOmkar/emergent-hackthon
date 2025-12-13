@@ -560,7 +560,7 @@ async def get_livekit_token(room: str, participant: str):
     if not all([livekit_api_key, livekit_api_secret, livekit_url]):
         raise HTTPException(status_code=500, detail="LiveKit credentials not configured")
     
-    grant = api.VideoGrant(
+    grant = api.VideoGrants(
         room_join=True,
         room=room,
         can_publish=True,

@@ -112,40 +112,37 @@ export default function Integrations() {
   );
 
   return (
-    <div data-testid="integrations-page">
+    <div data-testid="integrations-page" className="min-h-screen">
       {/* Header */}
       <div className="content-header px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-              <Plug className="w-6 h-6 text-purple-600" />
-            </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Integrations</h1>
-              <p className="text-gray-500 text-sm">Connect your favorite tools and services</p>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Integrations</h1>
+              <p className="text-gray-600 text-sm">Connect your favorite tools and services</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge className="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1.5 rounded-lg font-medium">
+                <Zap className="w-3.5 h-3.5 mr-1.5" />
+                Powered by Unified.to
+              </Badge>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Integration
+              </Button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge className="bg-blue-100 text-blue-700 border-0 px-3 py-1">
-              <Zap className="w-3 h-3 mr-1" />
-              Powered by Unified.to
-            </Badge>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Integration
-            </Button>
-          </div>
-        </div>
 
-        {/* Search */}
-        <div className="relative max-w-md mt-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search integrations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white border-gray-200"
-          />
+          {/* Search */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search integrations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white border-gray-200 h-10 rounded-lg shadow-sm"
+            />
+          </div>
         </div>
       </div>
 

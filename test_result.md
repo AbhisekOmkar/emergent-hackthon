@@ -114,7 +114,7 @@ backend:
         comment: "NEW - Added general flow endpoints: GET /api/flows, POST /api/flows, GET /api/flows/{id}, PUT /api/flows/{id}, DELETE /api/flows/{id}. Flows now support optional agent_id."
       - working: true
         agent: "testing"
-        comment: "COMPREHENSIVE TESTING COMPLETED - All Flow API endpoints working perfectly: ✅ POST /api/flows (with/without agent), ✅ GET /api/flows (list all), ✅ GET /api/flows/{id} (specific flow), ✅ PUT /api/flows/{id} (update), ✅ DELETE /api/flows/{id} (delete). All CRUD operations verified, proper error handling (404s), flow model includes all required fields (id, agent_id, name, description, status, nodes, edges, nodes_count, runs, last_run, created_at, updated_at). Agent assignment validation working correctly."
+        comment: "All Flow API endpoints tested and working perfectly: Create with/without agent, List, Get, Update, Delete. Error handling validated (404s). Model fields confirmed."
 
   - task: "Health Check API"
     implemented: true

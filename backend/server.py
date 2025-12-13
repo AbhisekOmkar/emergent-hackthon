@@ -279,7 +279,7 @@ async def get_agent(agent_id: str):
     return agent
 
 @api_router.put("/agents/{agent_id}", response_model=Agent)
-async def update_agent(agent_id: str, agent_data: AgentUpdate):
+async def update_agent(agent_id: str, agent_data: AgentUpdate, background_tasks: BackgroundTasks):
     update_dict = {k: v for k, v in agent_data.model_dump().items() if v is not None}
     if 'voice_config' in update_dict and update_dict['voice_config']:
         update_dict['voice_config'] = update_dict['voice_config']
@@ -290,7 +290,10 @@ async def update_agent(agent_id: str, agent_data: AgentUpdate):
     result = await db.agents.update_one({"id": agent_id}, {"$set": update_dict})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Agent not found")
-    return await get_agent(agent_id)
+    
+    agent = await get_agent(agent_id)
+    background_tasks.add_task(sync_agent_to_supabase, agent)
+    return agent
 
 @api_router.delete("/agents/{agent_id}")
 async def delete_agent(agent_id: str):

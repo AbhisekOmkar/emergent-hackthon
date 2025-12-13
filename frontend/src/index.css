@@ -284,3 +284,135 @@ input:focus, textarea:focus, select:focus {
 .shadow-premium-lg {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
 }
+
+/* ========================================
+   Clerk Auth Component Overrides
+   ======================================== */
+
+.cl-rootBox {
+    width: 100% !important;
+    max-width: 420px !important;
+}
+
+.cl-card {
+    width: 100% !important;
+    gap: 0 !important;
+}
+
+.cl-header {
+    text-align: center !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.cl-headerTitle {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #18181b !important;
+}
+
+.cl-headerSubtitle {
+    font-size: 0.875rem !important;
+    color: #71717a !important;
+    margin-top: 0.5rem !important;
+}
+
+/* Social buttons grid layout */
+.cl-socialButtons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    padding: 1rem !important;
+    border: 1px solid #f4f4f5 !important;
+    border-radius: 0.75rem !important;
+    background: #fafafa !important;
+}
+
+.cl-socialButtonsBlockButton {
+    width: 100% !important;
+    margin: 0 !important;
+    height: 48px !important;
+}
+
+/* Divider alignment */
+.cl-dividerRow {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    margin: 1.5rem 0 !important;
+}
+
+.cl-dividerLine {
+    flex: 1 !important;
+    background: #e4e4e7 !important;
+}
+
+.cl-dividerText {
+    color: #a1a1aa !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* Form elements */
+.cl-main {
+    width: 100% !important;
+}
+
+.cl-form {
+    width: 100% !important;
+}
+
+.cl-formFieldRow {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+}
+
+.cl-formFieldLabel {
+    display: block !important;
+    margin-bottom: 0.5rem !important;
+    font-weight: 500 !important;
+    color: #3f3f46 !important;
+}
+
+.cl-formFieldInput {
+    width: 100% !important;
+    height: 48px !important;
+    box-sizing: border-box !important;
+}
+
+.cl-formButtonPrimary {
+    width: 100% !important;
+    height: 48px !important;
+    margin-top: 0.5rem !important;
+}
+
+/* Footer styling */
+.cl-footer {
+    margin-top: 1.5rem !important;
+    text-align: center !important;
+}
+
+.cl-footerActionText {
+    color: #71717a !important;
+}
+
+.cl-footerActionLink {
+    color: #4f46e5 !important;
+    font-weight: 500 !important;
+}
+
+.cl-footerActionLink:hover {
+    color: #4338ca !important;
+}
+
+/* Internal element fixes */
+.cl-internal-b3fm6y {
+    width: 100% !important;
+}
+
+.cl-formFieldRow__identifier,
+.cl-formFieldRow__password {
+    width: 100% !important;
+}

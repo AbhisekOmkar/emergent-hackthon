@@ -3,8 +3,9 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
-from livekit.agents.pipeline import VoicePipelineAgent
+from livekit.agents import JobContext, WorkerOptions, cli, llm
+from livekit.agents.job import AutoSubscribe
+from livekit.agents.voice_assistant import VoiceAssistant
 from livekit.plugins import openai, deepgram, elevenlabs, silero
 
 # Load environment variables
@@ -25,8 +26,8 @@ async def entrypoint(ctx: JobContext):
     participant = await ctx.wait_for_participant()
     logger.info(f"starting voice agent for participant {participant.identity}")
 
-    # Initialize Voice Pipeline Agent
-    agent = VoicePipelineAgent(
+    # Initialize Voice Assistant (formerly VoicePipelineAgent)
+    agent = VoiceAssistant(
         vad=ctx.proc.userdata.get("vad") or silero.VAD.load(),
         stt=deepgram.STT(),
         llm=openai.LLM(model="gpt-4o"),

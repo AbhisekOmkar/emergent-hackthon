@@ -162,17 +162,22 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="pt-4">
               {recentAgents.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                    <Bot className="w-8 h-8 text-gray-400" />
+                <div className="text-center py-16 fade-in">
+                  <div className="empty-state-image max-w-sm mx-auto mb-6">
+                    <img 
+                      src="https://images.unsplash.com/photo-1617791160536-598cf32026fb?w=600&h=400&fit=crop" 
+                      alt="AI Brain" 
+                      className="w-full h-64 object-cover rounded-xl opacity-70"
+                    />
                   </div>
-                  <p className="text-gray-500 mb-4">No agents yet. Create your first agent!</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No agents yet</h3>
+                  <p className="text-gray-500 mb-6 max-w-md mx-auto">Get started by creating your first AI agent. Build intelligent assistants for voice, chat, or multi-modal interactions.</p>
                   <Button 
                     onClick={() => setShowCreateModal(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Agent
+                    Create Your First Agent
                   </Button>
                 </div>
               ) : (

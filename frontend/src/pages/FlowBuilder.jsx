@@ -264,6 +264,17 @@ export default function FlowBuilder() {
     return matchesSearch && matchesCategory;
   });
 
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading flow...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen flex bg-gray-50" data-testid="flow-builder-page">
       {/* Left Sidebar - Node Palette */}

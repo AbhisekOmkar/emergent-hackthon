@@ -1,95 +1,115 @@
 import { SignIn as ClerkSignIn } from "@clerk/clerk-react";
+import { CheckCircle2 } from "lucide-react";
 
 export default function SignIn() {
   return (
-    <div className="min-h-screen flex bg-white">
-      {/* Left Side - Gradient Background */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700">
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.1),rgba(255,255,255,0))]"></div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl"></div>
+    <div className="min-h-screen flex bg-white font-sans text-slate-900">
+      {/* Left Side - Dark Premium Background */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#09090b] text-white flex-col justify-between p-12 lg:p-16">
+        {/* Abstract Ambient Background */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full bg-indigo-500/10 blur-[120px]" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full bg-blue-600/10 blur-[120px]" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+        </div>
         
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
+        <div className="relative z-10 flex flex-col h-full justify-between">
           {/* Logo */}
-          <div className="flex items-center">
-            <img 
-              src="/intelliax-logo.png" 
-              alt="Intelliax" 
-              className="h-14 w-auto drop-shadow-lg"
-            />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+              Intelliax
+            </span>
           </div>
 
-          {/* Bottom Content */}
-          <div className="space-y-6">
-            <h2 className="text-5xl font-bold leading-tight drop-shadow-md">
-              Build Intelligent<br />AI Agents
-            </h2>
-            <p className="text-xl text-white/90 max-w-md leading-relaxed">
-              Create, deploy, and manage powerful AI agents that automate workflows and enhance productivity.
+          {/* Main Text */}
+          <div className="space-y-8 max-w-lg">
+            <h1 className="text-5xl font-bold leading-tight tracking-tight">
+              The operating system for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">AI Agents</span>
+            </h1>
+            <p className="text-lg text-zinc-400 leading-relaxed">
+              Build, deploy, and orchestrate intelligent agents that work alongside your team. Enterprise-grade reliability meets cutting-edge capability.
             </p>
             
-            {/* Stats */}
-            <div className="flex items-center gap-8 pt-4">
-              <div>
-                <p className="text-3xl font-bold">500+</p>
-                <p className="text-sm text-white/70">Active Agents</p>
+            {/* Features/Stats */}
+            <div className="grid grid-cols-2 gap-6 pt-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-indigo-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="font-semibold">Enterprise Ready</span>
+                </div>
+                <p className="text-sm text-zinc-500 pl-7">SOC2 Type II compliant security</p>
               </div>
-              <div>
-                <p className="text-3xl font-bold">1M+</p>
-                <p className="text-sm text-white/70">Conversations</p>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-indigo-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="font-semibold">99.99% Uptime</span>
+                </div>
+                <p className="text-sm text-zinc-500 pl-7">Reliability you can trust</p>
               </div>
-              <div>
-                <p className="text-3xl font-bold">99.9%</p>
-                <p className="text-sm text-white/70">Uptime</p>
-              </div>
+            </div>
+          </div>
+
+          {/* Testimonial or Footer */}
+          <div className="pt-8 border-t border-white/10">
+            <p className="text-sm text-zinc-500">
+              Trusted by forward-thinking companies worldwide
+            </p>
+            <div className="flex gap-6 mt-4 opacity-50 grayscale mix-blend-screen">
+              {/* Simple text placeholders for logos or actual svgs */}
+              <div className="h-6 w-20 bg-white/20 rounded"></div>
+              <div className="h-6 w-20 bg-white/20 rounded"></div>
+              <div className="h-6 w-20 bg-white/20 rounded"></div>
+              <div className="h-6 w-20 bg-white/20 rounded"></div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Right Side - Sign In Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center p-8 bg-white lg:bg-zinc-50/50">
+        <div className="w-full max-w-[400px] bg-white lg:p-10 lg:rounded-2xl lg:shadow-xl lg:shadow-zinc-200/50 lg:border lg:border-zinc-100">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex justify-center mb-10">
-            <img 
-              src="/intelliax-logo.png" 
-              alt="Intelliax" 
-              className="h-12 w-auto"
-            />
+          <div className="lg:hidden flex justify-center mb-8">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
           </div>
 
-          {/* Sign In Header */}
+          {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-            <p className="text-gray-600">Sign in to continue to Intelliax</p>
+            <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
+            <p className="text-slate-500 mt-2">Enter your credentials to access your account</p>
           </div>
 
-          {/* Clerk Sign In Component */}
+          {/* Clerk Component */}
           <ClerkSignIn 
             appearance={{
               elements: {
                 rootBox: "w-full",
-                card: "bg-white shadow-none border-0 p-0",
+                card: "bg-transparent shadow-none border-0 p-0",
                 headerTitle: "hidden",
                 headerSubtitle: "hidden",
-                socialButtonsBlockButton: "bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 rounded-xl h-12 font-semibold transition-all shadow-sm",
-                socialButtonsBlockButtonText: "font-semibold text-sm",
-                formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-semibold transition-all shadow-md hover:shadow-lg",
-                formFieldInput: "bg-white border-2 border-gray-200 text-gray-900 rounded-xl h-12 px-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-gray-400",
-                formFieldLabel: "text-gray-700 text-sm font-semibold mb-2",
-                footerActionLink: "text-blue-600 hover:text-blue-700 font-semibold",
-                identityPreviewText: "text-gray-900",
-                identityPreviewEditButton: "text-blue-600 hover:text-blue-700",
-                formFieldInputShowPasswordButton: "text-gray-500 hover:text-gray-700",
-                dividerLine: "bg-gray-200",
-                dividerText: "text-gray-500 text-sm",
-                footer: "bg-white border-t border-gray-100 mt-8 pt-6",
-                footerActionText: "text-gray-600",
+                socialButtonsBlockButton: "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg h-10 font-medium transition-all",
+                socialButtonsBlockButtonText: "font-medium text-sm",
+                formButtonPrimary: "bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg h-10 font-medium transition-all shadow-sm hover:shadow-indigo-500/25",
+                formFieldInput: "bg-white border border-zinc-200 text-zinc-900 rounded-lg h-10 px-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-400",
+                formFieldLabel: "text-zinc-700 text-sm font-medium mb-1.5",
+                footerActionLink: "text-indigo-600 hover:text-indigo-700 font-medium",
+                identityPreviewText: "text-zinc-700",
+                identityPreviewEditButton: "text-indigo-600 hover:text-indigo-700",
+                formFieldInputShowPasswordButton: "text-zinc-400 hover:text-zinc-600",
+                dividerLine: "bg-zinc-100",
+                dividerText: "text-zinc-400 text-xs uppercase tracking-wider bg-white px-2",
+                footer: "bg-transparent border-t border-zinc-100 mt-6 pt-6",
+                footerActionText: "text-zinc-500",
                 logoBox: "hidden",
               },
               layout: {
@@ -103,18 +123,6 @@ export default function SignIn() {
             redirectUrl="/"
             afterSignInUrl="/"
           />
-          
-          {/* Terms */}
-          <p className="text-center text-xs text-gray-500 mt-8">
-            By signing in, you agree to our{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-              Terms
-            </a>{" "}
-            and{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-              Privacy Policy
-            </a>
-          </p>
         </div>
       </div>
     </div>

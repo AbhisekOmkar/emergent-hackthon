@@ -10,11 +10,13 @@ export default function SignUp() {
         <div className="absolute inset-0">
           <iframe
             src="https://drive.google.com/file/d/1K8gNcui3wqtnW5YclI2xQScpR_9e-SNA/preview"
-            className="w-full h-full object-cover"
+            className="w-full h-full"
             allow="autoplay"
+            allowFullScreen
             title="Intelliax Platform"
+            style={{ border: 'none' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
         </div>
 
         {/* Content Overlay */}

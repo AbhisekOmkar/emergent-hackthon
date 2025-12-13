@@ -122,7 +122,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] bg-[#0F0F12] border-zinc-800 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-outfit text-xl text-white">
+          <DialogTitle className="font-sans text-xl text-white">
             Create Custom Tool
           </DialogTitle>
           <DialogDescription>

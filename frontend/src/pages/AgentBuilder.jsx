@@ -213,7 +213,7 @@ function FlowCanvas() {
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-outfit font-semibold text-xl text-white">
+              <h1 className="font-sans font-semibold text-xl text-white">
                 {currentAgent?.name || "Agent Builder"}
               </h1>
               {currentAgent && (

@@ -42,7 +42,7 @@ export default function Settings() {
     <div className="space-y-6" data-testid="settings-page">
       {/* Header */}
       <div>
-        <h1 className="font-outfit font-bold text-3xl text-white">Settings</h1>
+        <h1 className="font-outfit font-bold text-3xl text-zinc-900">Settings</h1>
         <p className="text-zinc-400 mt-1">Manage your account and preferences</p>
       </div>
 
@@ -71,7 +71,7 @@ export default function Settings() {
         <TabsContent value="profile">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-white">Profile Information</CardTitle>
+              <CardTitle className="text-zinc-900">Profile Information</CardTitle>
               <CardDescription>Update your account details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -114,7 +114,7 @@ export default function Settings() {
         <TabsContent value="api-keys">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-white">API Keys</CardTitle>
+              <CardTitle className="text-zinc-900">API Keys</CardTitle>
               <CardDescription>Configure your service API keys</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -210,13 +210,13 @@ export default function Settings() {
         <TabsContent value="notifications">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-white">Notification Preferences</CardTitle>
+              <CardTitle className="text-zinc-900">Notification Preferences</CardTitle>
               <CardDescription>Configure how you receive notifications</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-white">Email Alerts</p>
+                  <p className="font-medium text-zinc-900">Email Alerts</p>
                   <p className="text-sm text-zinc-400">Receive alerts via email</p>
                 </div>
                 <Switch
@@ -228,7 +228,7 @@ export default function Settings() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-white">Call Notifications</p>
+                  <p className="font-medium text-zinc-900">Call Notifications</p>
                   <p className="text-sm text-zinc-400">Get notified for each call</p>
                 </div>
                 <Switch
@@ -240,7 +240,7 @@ export default function Settings() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-white">Weekly Reports</p>
+                  <p className="font-medium text-zinc-900">Weekly Reports</p>
                   <p className="text-sm text-zinc-400">Receive weekly analytics reports</p>
                 </div>
                 <Switch
@@ -258,14 +258,14 @@ export default function Settings() {
         <TabsContent value="billing">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-white">Billing & Usage</CardTitle>
+              <CardTitle className="text-zinc-900">Billing & Usage</CardTitle>
               <CardDescription>Manage your subscription and view usage</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-white">Current Plan</p>
+                    <p className="font-medium text-zinc-900">Current Plan</p>
                     <p className="text-2xl font-outfit font-bold text-amber-400">Pro Plan</p>
                   </div>
                   <Button variant="outline" className="border-amber-500 text-amber-400">
@@ -276,17 +276,17 @@ export default function Settings() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 rounded-lg bg-zinc-800/30">
                   <p className="text-sm text-zinc-400">Calls Used</p>
-                  <p className="text-2xl font-outfit font-bold text-white">1,234</p>
+                  <p className="text-2xl font-outfit font-bold text-zinc-900">1,234</p>
                   <p className="text-xs text-zinc-500">of 5,000 / month</p>
                 </div>
                 <div className="p-4 rounded-lg bg-zinc-800/30">
                   <p className="text-sm text-zinc-400">Agents</p>
-                  <p className="text-2xl font-outfit font-bold text-white">5</p>
+                  <p className="text-2xl font-outfit font-bold text-zinc-900">5</p>
                   <p className="text-xs text-zinc-500">of 10 max</p>
                 </div>
                 <div className="p-4 rounded-lg bg-zinc-800/30">
                   <p className="text-sm text-zinc-400">Storage</p>
-                  <p className="text-2xl font-outfit font-bold text-white">2.4 GB</p>
+                  <p className="text-2xl font-outfit font-bold text-zinc-900">2.4 GB</p>
                   <p className="text-xs text-zinc-500">of 10 GB</p>
                 </div>
               </div>

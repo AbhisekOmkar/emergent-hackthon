@@ -61,7 +61,6 @@ export default function SignIn() {
               Trusted by forward-thinking companies worldwide
             </p>
             <div className="flex gap-6 mt-4 opacity-50 grayscale mix-blend-screen">
-              {/* Simple text placeholders for logos or actual svgs */}
               <div className="h-6 w-20 bg-white/20 rounded"></div>
               <div className="h-6 w-20 bg-white/20 rounded"></div>
               <div className="h-6 w-20 bg-white/20 rounded"></div>
@@ -72,8 +71,8 @@ export default function SignIn() {
       </div>
 
       {/* Right Side - Sign In Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white lg:bg-zinc-50/50">
-        <div className="w-full max-w-[400px] flex flex-col items-center bg-white lg:p-10 lg:rounded-2xl lg:shadow-xl lg:shadow-zinc-200/50 lg:border lg:border-zinc-100">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white lg:bg-zinc-50/30">
+        <div className="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.05)]">
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-8">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
@@ -84,48 +83,70 @@ export default function SignIn() {
           </div>
 
           {/* Header */}
-          <div className="text-center mb-8 w-full">
-            <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
-            <p className="text-slate-500 mt-2">Enter your credentials to access your account</p>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Welcome back</h2>
+            <p className="text-sm text-slate-500 mt-2">Enter your credentials to access your account</p>
           </div>
 
           {/* Clerk Component */}
-          <div className="w-full">
-            <ClerkSignIn 
-              appearance={{
-                elements: {
-                  rootBox: "w-full flex justify-center",
-                  card: "w-full shadow-none border-0 p-0 bg-transparent",
-                  headerTitle: "hidden",
-                  headerSubtitle: "hidden",
-                  socialButtonsBlockButton: "w-full bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg h-10 font-medium transition-all",
-                  socialButtonsBlockButtonText: "font-medium text-sm",
-                  formButtonPrimary: "w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg h-10 font-medium transition-all shadow-sm hover:shadow-indigo-500/25",
-                  formFieldInput: "w-full bg-white border border-zinc-200 text-zinc-900 rounded-lg h-10 px-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-400 box-border",
-                  formFieldLabel: "text-zinc-700 text-sm font-medium mb-1.5",
-                  footerActionLink: "text-indigo-600 hover:text-indigo-700 font-medium",
-                  identityPreviewText: "text-zinc-700",
-                  identityPreviewEditButton: "text-indigo-600 hover:text-indigo-700",
-                  formFieldInputShowPasswordButton: "text-zinc-400 hover:text-zinc-600",
-                  dividerLine: "bg-zinc-100",
-                  dividerText: "text-zinc-400 text-xs uppercase tracking-wider bg-white px-2",
-                  footer: "w-full bg-transparent border-t border-zinc-100 mt-6 pt-6 flex justify-center",
-                  footerActionText: "text-zinc-500",
-                  logoBox: "hidden",
-                  main: "w-full gap-4",
-                  form: "w-full gap-4"
-                },
-                layout: {
-                  socialButtonsPlacement: "top",
-                  socialButtonsVariant: "blockButton",
-                },
-              }}
-              routing="path"
-              path="/signin"
-              signUpUrl="/signup"
-              redirectUrl="/"
-              afterSignInUrl="/"
-            />
+          <ClerkSignIn 
+            appearance={{
+              layout: {
+                socialButtonsPlacement: "top",
+                socialButtonsVariant: "blockButton",
+              },
+              variables: {
+                colorPrimary: '#4f46e5', // indigo-600
+                fontFamily: 'inherit',
+                borderRadius: '0.5rem',
+              },
+              elements: {
+                // Main containers
+                rootBox: "w-full",
+                card: "w-full shadow-none border-0 p-0 bg-transparent gap-6",
+                headerTitle: "hidden",
+                headerSubtitle: "hidden",
+                
+                // Social Buttons
+                socialButtonsBlockButton: "w-full min-h-[44px] bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg text-sm font-medium transition-all shadow-sm flex items-center justify-center gap-2",
+                socialButtonsBlockButtonText: "font-medium text-sm text-zinc-700",
+                socialButtonsBlockButtonArrow: "hidden",
+                
+                // Divider
+                dividerRow: "my-6",
+                dividerLine: "bg-zinc-100 h-[1px]",
+                dividerText: "text-zinc-400 text-xs font-medium uppercase tracking-wider bg-white px-2",
+                
+                // Form Fields
+                formFieldRow: "mb-4 block",
+                formFieldLabel: "block text-zinc-700 text-sm font-medium mb-1.5",
+                formFieldInput: "w-full h-11 px-3 bg-white border border-zinc-200 text-zinc-900 rounded-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-400 outline-none block box-border",
+                formFieldAction: "text-indigo-600 hover:text-indigo-700 text-sm font-medium",
+                
+                // Submit Button
+                formButtonPrimary: "w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow-indigo-500/25 mt-2",
+                
+                // Footer
+                footer: "hidden", // Hiding default footer to reduce clutter, layout issues
+                
+                // Alerts/Errors
+                alert: "bg-red-50 border border-red-100 text-red-600 rounded-lg p-3 text-sm mb-4",
+                alertText: "text-red-600",
+              }
+            }}
+            routing="path"
+            path="/signin"
+            signUpUrl="/signup"
+            redirectUrl="/"
+            afterSignInUrl="/"
+          />
+          
+          {/* Custom Footer Links */}
+          <div className="mt-6 text-center text-sm text-zinc-500">
+            Don't have an account?{" "}
+            <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
+              Sign up
+            </a>
           </div>
         </div>
       </div>

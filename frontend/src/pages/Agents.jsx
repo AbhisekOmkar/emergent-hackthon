@@ -73,77 +73,74 @@ export default function Agents() {
   };
 
   return (
-    <div data-testid="agents-page">
+    <div data-testid="agents-page" className="min-h-screen">
       {/* Header with gradient */}
       <div className="content-header px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-              <Bot className="w-6 h-6 text-blue-600" />
-            </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Agents</h1>
-              <p className="text-gray-500 text-sm">Design, deploy, and manage intelligent voice and chat agents</p>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Agents</h1>
+              <p className="text-gray-600 text-sm">Design, deploy, and manage intelligent voice and chat agents</p>
             </div>
+            <Button 
+              onClick={() => setShowCreateModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm"
+              data-testid="create-agent-btn"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Agent
+            </Button>
           </div>
-          <Button 
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
-            data-testid="create-agent-btn"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Agent
-          </Button>
-        </div>
 
-        {/* Search and Filter */}
-        <div className="flex items-center gap-4 mt-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search by Agent name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-gray-200"
-              data-testid="search-agents"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={filterType === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterType("all")}
-              className={filterType === "all" ? "bg-blue-600 text-white" : "bg-white border-gray-200"}
-            >
-              All
-            </Button>
-            <Button
-              variant={filterType === "chat" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterType("chat")}
-              className={filterType === "chat" ? "bg-blue-600 text-white" : "bg-white border-gray-200"}
-            >
-              <MessageSquare className="w-3 h-3 mr-1" />
-              Chat
-            </Button>
-            <Button
-              variant={filterType === "voice" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterType("voice")}
-              className={filterType === "voice" ? "bg-purple-600 text-white" : "bg-white border-gray-200"}
-            >
-              <Mic className="w-3 h-3 mr-1" />
-              Voice
-            </Button>
-            <Button
-              variant={filterType === "multi-modal" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterType("multi-modal")}
-              className={filterType === "multi-modal" ? "bg-indigo-600 text-white" : "bg-white border-gray-200"}
-            >
-              <Bot className="w-3 h-3 mr-1" />
-              Multi-modal
-            </Button>
+          {/* Search and Filter */}
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search agents..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-white border-gray-200 h-10 rounded-lg shadow-sm"
+                data-testid="search-agents"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={filterType === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterType("all")}
+                className={filterType === "all" ? "bg-blue-600 text-white border-0 h-10 rounded-lg font-medium" : "bg-white border-gray-200 h-10 rounded-lg hover:bg-gray-50"}
+              >
+                All
+              </Button>
+              <Button
+                variant={filterType === "chat" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterType("chat")}
+                className={filterType === "chat" ? "bg-blue-600 text-white border-0 h-10 rounded-lg font-medium" : "bg-white border-gray-200 h-10 rounded-lg hover:bg-gray-50"}
+              >
+                <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
+                Chat
+              </Button>
+              <Button
+                variant={filterType === "voice" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterType("voice")}
+                className={filterType === "voice" ? "bg-purple-600 text-white border-0 h-10 rounded-lg font-medium" : "bg-white border-gray-200 h-10 rounded-lg hover:bg-gray-50"}
+              >
+                <Mic className="w-3.5 h-3.5 mr-1.5" />
+                Voice
+              </Button>
+              <Button
+                variant={filterType === "multi-modal" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterType("multi-modal")}
+                className={filterType === "multi-modal" ? "bg-indigo-600 text-white border-0 h-10 rounded-lg font-medium" : "bg-white border-gray-200 h-10 rounded-lg hover:bg-gray-50"}
+              >
+                <Bot className="w-3.5 h-3.5 mr-1.5" />
+                Multi-modal
+              </Button>
+            </div>
           </div>
         </div>
       </div>

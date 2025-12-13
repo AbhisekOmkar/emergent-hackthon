@@ -6,28 +6,28 @@ export default function SignUp() {
       {/* Left Side - Video */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
         {/* Video Background */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 z-0">
           <iframe
             src="https://drive.google.com/file/d/1K8gNcui3wqtnW5YclI2xQScpR_9e-SNA/preview"
             className="w-full h-full"
-            allow="autoplay"
-            allowFullScreen
+            allow="autoplay; fullscreen"
             title="Intelliax Platform"
-            style={{ border: 'none' }}
+            style={{ border: 'none', pointerEvents: 'none' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
         </div>
 
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none"></div>
+
         {/* Content Overlay */}
-        <div className="relative z-10 flex flex-col justify-between p-12 text-white">
+        <div className="relative z-20 flex flex-col justify-between p-12 text-white">
+          {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Intelliax</h1>
-              <p className="text-sm text-white/80">AI Agent Platform</p>
-            </div>
+            <img 
+              src="/intelliax-logo.png" 
+              alt="Intelliax" 
+              className="h-10 w-auto"
+            />
           </div>
 
           <div className="space-y-4">

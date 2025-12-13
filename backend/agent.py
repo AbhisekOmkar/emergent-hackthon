@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
 from livekit.agents.pipeline import VoicePipelineAgent
-from livekit.plugins import openai, deepgram, elevenlabs
+from livekit.plugins import openai, deepgram, elevenlabs, silero
 
 # Load environment variables
 ROOT_DIR = Path(__file__).parent
@@ -27,7 +27,7 @@ async def entrypoint(ctx: JobContext):
 
     # Initialize Voice Pipeline Agent
     agent = VoicePipelineAgent(
-        vad=ctx.proc.userdata["vad"],
+        vad=ctx.proc.userdata.get("vad") or silero.VAD.load(),
         stt=deepgram.STT(),
         llm=openai.LLM(model="gpt-4o"),
         tts=elevenlabs.TTS(),

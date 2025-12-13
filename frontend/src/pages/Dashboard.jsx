@@ -181,30 +181,31 @@ export default function Dashboard() {
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {recentAgents.map((agent) => (
+                <div className="space-y-2">
+                  {recentAgents.map((agent, idx) => (
                     <Link
                       key={agent.id}
                       to={`/agents/${agent.id}/builder`}
-                      className="block"
+                      className="block slide-in"
+                      style={{ animationDelay: `${idx * 50}ms` }}
                       data-testid={`agent-card-${agent.id}`}
                     >
-                      <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                          agent.type === 'voice' ? 'bg-purple-100' :
-                          agent.type === 'chat' ? 'bg-blue-100' : 'bg-indigo-100'
+                      <div className="flex items-center gap-4 p-4 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 group">
+                        <div className={`w-11 h-11 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${
+                          agent.type === 'voice' ? 'bg-purple-50' :
+                          agent.type === 'chat' ? 'bg-blue-50' : 'bg-indigo-50'
                         }`}>
                           {agent.type === 'voice' ? (
-                            <Mic className="w-6 h-6 text-purple-600" />
+                            <Mic className="w-5 h-5 text-purple-600" />
                           ) : agent.type === 'chat' ? (
-                            <MessageSquare className="w-6 h-6 text-blue-600" />
+                            <MessageSquare className="w-5 h-5 text-blue-600" />
                           ) : (
-                            <Bot className="w-6 h-6 text-indigo-600" />
+                            <Bot className="w-5 h-5 text-indigo-600" />
                           )}
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-gray-900">{agent.name}</h3>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="font-semibold text-gray-900 text-sm truncate">{agent.name}</h3>
                             <Badge 
                               variant="outline" 
                               className={
@@ -215,9 +216,9 @@ export default function Dashboard() {
                               {agent.type}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-500 mt-0.5">{agent.description || 'No description'}</p>
+                          <p className="text-xs text-gray-500 truncate">{agent.description || 'No description'}</p>
                         </div>
-                        <div className="text-right">
+                        <div className="flex items-center gap-4">
                           <Badge 
                             variant="outline"
                             className={
@@ -227,9 +228,13 @@ export default function Dashboard() {
                           >
                             {agent.status}
                           </Badge>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {agent.calls_count || 0} calls
-                          </p>
+                          <div className="text-right">
+                            <p className="text-xs font-medium text-gray-900">
+                              {agent.calls_count || 0}
+                            </p>
+                            <p className="text-[10px] text-gray-400">calls</p>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     </Link>

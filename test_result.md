@@ -233,6 +233,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "NEW - React Flow visual builder with node palette, drag-drop, canvas implemented"
+      - working: true
+        agent: "main"
+        comment: "UPDATED - Connected to backend API for saving/loading flow state (nodes, edges, name)"
 
   - task: "Tools Page UI"
     implemented: true

@@ -101,6 +101,18 @@
 user_problem_statement: Build a production-grade AI Agent Builder platform similar to Giga.ai or Voiceflow with dark sidebar, light content area UI theme with blue accents. Add Flow builder as separate page with React Flow.
 
 backend:
+  - task: "Flows API (General Endpoints)"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "NEW - Added general flow endpoints: GET /api/flows, POST /api/flows, GET /api/flows/{id}, PUT /api/flows/{id}, DELETE /api/flows/{id}. Flows now support optional agent_id."
+
   - task: "Health Check API"
     implemented: true
     working: true

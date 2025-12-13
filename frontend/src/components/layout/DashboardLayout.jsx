@@ -9,28 +9,40 @@ import {
   Settings,
   Menu,
   X,
-  Phone,
-  MessageSquare,
-  Workflow,
   Plug,
-  MonitorPlay,
+  Workflow,
+  BookOpen,
+  Sparkles,
+  HelpCircle,
+  Bell,
+  User,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Badge } from "../ui/badge";
 
 const buildItems = [
-  { path: "/agents", icon: Bot, label: "Agents" },
-  { path: "/tools", icon: Wrench, label: "Tools" },
+  { path: "/agents", icon: Bot, label: "Agents", description: "AI assistants" },
+  { path: "/flows", icon: Workflow, label: "Flows", description: "Visual builder" },
+  { path: "/tools", icon: Wrench, label: "Tools", description: "Custom actions" },
 ];
 
 const manageItems = [
-  { path: "/knowledge", icon: Database, label: "Knowledge" },
-  { path: "/integrations", icon: Plug, label: "Integrations" },
+  { path: "/knowledge", icon: BookOpen, label: "Knowledge", description: "Training data" },
+  { path: "/integrations", icon: Plug, label: "Integrations", description: "Connect apps" },
 ];
 
 const monitorItems = [
-  { path: "/analytics", icon: BarChart3, label: "Analytics" },
-  { path: "/settings", icon: Settings, label: "Settings" },
+  { path: "/analytics", icon: BarChart3, label: "Analytics", description: "Performance" },
+  { path: "/settings", icon: Settings, label: "Settings", description: "Configuration" },
 ];
 
 export default function DashboardLayout() {
@@ -47,12 +59,19 @@ export default function DashboardLayout() {
         to={item.path}
         data-testid={`nav-${item.label.toLowerCase()}`}
         className={cn(
-          "sidebar-item",
+          "sidebar-item group",
           isActive && "active"
         )}
       >
-        <Icon className="w-5 h-5" />
-        {sidebarOpen && <span>{item.label}</span>}
+        <Icon className="w-5 h-5 flex-shrink-0" />
+        {sidebarOpen && (
+          <div className="flex-1 min-w-0">
+            <span className="block truncate">{item.label}</span>
+            {item.description && (
+              <span className="text-xs opacity-60 block truncate">{item.description}</span>
+            )}
+          </div>
+        )}
       </NavLink>
     );
   };
@@ -63,18 +82,21 @@ export default function DashboardLayout() {
       <aside
         className={cn(
           "fixed left-0 top-0 z-40 h-screen sidebar transition-all duration-300",
-          sidebarOpen ? "w-56" : "w-16"
+          sidebarOpen ? "w-60" : "w-16"
         )}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-14 items-center justify-between px-4 border-b border-gray-800">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
+          <div className="flex h-16 items-center justify-between px-4 border-b border-gray-800">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               {sidebarOpen && (
-                <span className="font-semibold text-white text-lg">AgentForge</span>
+                <div>
+                  <span className="font-bold text-white text-lg tracking-tight">AgentForge</span>
+                  <span className="text-[10px] text-gray-500 block -mt-1">AI Platform</span>
+                </div>
               )}
             </div>
             <Button
@@ -89,18 +111,23 @@ export default function DashboardLayout() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-2 overflow-y-auto scrollbar-thin">
+          <nav className="flex-1 p-3 overflow-y-auto scrollbar-thin">
             {/* Dashboard */}
             <NavLink
               to="/"
               data-testid="nav-dashboard"
               className={cn(
-                "sidebar-item mb-2",
+                "sidebar-item group mb-2",
                 location.pathname === "/" && "active"
               )}
             >
-              <LayoutDashboard className="w-5 h-5" />
-              {sidebarOpen && <span>Dashboard</span>}
+              <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+              {sidebarOpen && (
+                <div className="flex-1 min-w-0">
+                  <span className="block truncate">Dashboard</span>
+                  <span className="text-xs opacity-60 block truncate">Overview</span>
+                </div>
+              )}
             </NavLink>
 
             {/* BUILD Section */}
@@ -125,8 +152,21 @@ export default function DashboardLayout() {
           {/* Footer */}
           {sidebarOpen && (
             <div className="p-3 border-t border-gray-800">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
+              {/* Upgrade Card */}
+              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-500/20 mb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-medium text-white">Pro Plan</span>
+                </div>
+                <p className="text-xs text-gray-400 mb-2">Unlock unlimited agents & flows</p>
+                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                  Upgrade Now
+                </Button>
+              </div>
+              
+              {/* Status */}
+              <div className="flex items-center gap-2 text-xs text-gray-500 px-2">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span>All systems operational</span>
               </div>
             </div>
@@ -138,10 +178,57 @@ export default function DashboardLayout() {
       <main
         className={cn(
           "flex-1 overflow-auto transition-all duration-300",
-          sidebarOpen ? "ml-56" : "ml-16"
+          sidebarOpen ? "ml-60" : "ml-16"
         )}
       >
-        <div className="min-h-screen">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-30 h-14 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6">
+          <div className="flex items-center gap-4">
+            {/* Breadcrumb or search could go here */}
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900">
+              <HelpCircle className="w-5 h-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900 relative">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+            </Button>
+            <div className="w-px h-6 bg-gray-200" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 hover:bg-gray-100">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white border-gray-200">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium text-gray-900">John Doe</p>
+                  <p className="text-xs text-gray-500">john@example.com</p>
+                </div>
+                <DropdownMenuSeparator className="bg-gray-100" />
+                <DropdownMenuItem>
+                  <User className="w-4 h-4 mr-2" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-gray-100" />
+                <DropdownMenuItem className="text-red-600">
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Page Content */}
+        <div className="min-h-[calc(100vh-3.5rem)]">
           <Outlet />
         </div>
       </main>

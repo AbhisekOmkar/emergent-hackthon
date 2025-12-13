@@ -31,6 +31,7 @@ export default function Agents() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [voiceChatAgent, setVoiceChatAgent] = useState(null);
 
   useEffect(() => {
     fetchAgents();

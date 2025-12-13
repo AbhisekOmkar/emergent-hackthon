@@ -130,3 +130,4 @@ livekit-plugins-deepgram==0.6.0
 livekit-plugins-elevenlabs==0.6.0
 livekit-api==0.6.0
 livekit-plugins-silero==0.6.0
+supabase==2.3.0

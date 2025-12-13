@@ -25,6 +25,7 @@ class AgentBuilderAPITester:
         # Test data storage
         self.created_agent_id = None
         self.created_kb_id = None
+        self.created_flow_ids = []
         
     def log_test(self, name: str, success: bool, details: str = "", response_data: Any = None):
         """Log test result"""

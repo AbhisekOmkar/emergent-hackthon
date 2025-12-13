@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 import {
   LayoutDashboard,
   Bot,
@@ -17,6 +18,7 @@ import {
   Bell,
   User,
   ChevronDown,
+  LogOut,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";

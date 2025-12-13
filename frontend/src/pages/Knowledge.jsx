@@ -183,41 +183,41 @@ export default function Knowledge() {
       {/* Main Content */}
       <div className="p-8 max-w-7xl mx-auto">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="glass-card">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                <FolderOpen className="w-6 h-6 text-blue-600" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <Card className="stat-card">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-lg bg-blue-50 flex items-center justify-center">
+                <FolderOpen className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-semibold text-gray-900">{knowledgeBases.length}</p>
-                <p className="text-sm text-gray-500">Knowledge Bases</p>
+                <p className="text-2xl font-bold text-gray-900 tracking-tight">{knowledgeBases.length}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Knowledge Bases</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="glass-card">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                <File className="w-6 h-6 text-green-600" />
+          <Card className="stat-card">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <File className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-2xl font-bold text-gray-900 tracking-tight">
                   {knowledgeBases.reduce((acc, kb) => acc + (kb.documents_count || 0), 0)}
                 </p>
-                <p className="text-sm text-gray-500">Total Documents</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Documents</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="glass-card">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-purple-600" />
+          <Card className="stat-card">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="w-11 h-11 rounded-lg bg-purple-50 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-semibold text-gray-900">
+                <p className="text-2xl font-bold text-gray-900 tracking-tight">
                   {knowledgeBases.filter(kb => (kb.documents_count || 0) > 0).length}
                 </p>
-                <p className="text-sm text-gray-500">Active Bases</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Active Bases</p>
               </div>
             </CardContent>
           </Card>

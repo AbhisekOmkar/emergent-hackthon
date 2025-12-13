@@ -76,8 +76,8 @@ export default function SignUp() {
       </div>
 
       {/* Right Side - Sign Up Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white lg:bg-zinc-50/50">
-        <div className="w-full max-w-[400px] bg-white lg:p-10 lg:rounded-2xl lg:shadow-xl lg:shadow-zinc-200/50 lg:border lg:border-zinc-100">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white lg:bg-zinc-50/50">
+        <div className="w-full max-w-[400px] flex flex-col items-center bg-white lg:p-10 lg:rounded-2xl lg:shadow-xl lg:shadow-zinc-200/50 lg:border lg:border-zinc-100">
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-8">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
@@ -88,45 +88,49 @@ export default function SignUp() {
           </div>
 
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 w-full">
             <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
             <p className="text-slate-500 mt-2">Start your 14-day free trial</p>
           </div>
 
           {/* Clerk Component */}
-          <ClerkSignUp 
-            appearance={{
-              elements: {
-                rootBox: "w-full",
-                card: "bg-transparent shadow-none border-0 p-0",
-                headerTitle: "hidden",
-                headerSubtitle: "hidden",
-                socialButtonsBlockButton: "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg h-10 font-medium transition-all",
-                socialButtonsBlockButtonText: "font-medium text-sm",
-                formButtonPrimary: "bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg h-10 font-medium transition-all shadow-sm hover:shadow-indigo-500/25",
-                formFieldInput: "bg-white border border-zinc-200 text-zinc-900 rounded-lg h-10 px-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-400",
-                formFieldLabel: "text-zinc-700 text-sm font-medium mb-1.5",
-                footerActionLink: "text-indigo-600 hover:text-indigo-700 font-medium",
-                identityPreviewText: "text-zinc-700",
-                identityPreviewEditButton: "text-indigo-600 hover:text-indigo-700",
-                formFieldInputShowPasswordButton: "text-zinc-400 hover:text-zinc-600",
-                dividerLine: "bg-zinc-100",
-                dividerText: "text-zinc-400 text-xs uppercase tracking-wider bg-white px-2",
-                footer: "bg-transparent border-t border-zinc-100 mt-6 pt-6",
-                footerActionText: "text-zinc-500",
-                logoBox: "hidden",
-              },
-              layout: {
-                socialButtonsPlacement: "top",
-                socialButtonsVariant: "blockButton",
-              },
-            }}
-            routing="path"
-            path="/signup"
-            signInUrl="/signin"
-            redirectUrl="/"
-            afterSignUpUrl="/"
-          />
+          <div className="w-full">
+            <ClerkSignUp 
+              appearance={{
+                elements: {
+                  rootBox: "w-full flex justify-center",
+                  card: "w-full shadow-none border-0 p-0 bg-transparent",
+                  headerTitle: "hidden",
+                  headerSubtitle: "hidden",
+                  socialButtonsBlockButton: "w-full bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg h-10 font-medium transition-all",
+                  socialButtonsBlockButtonText: "font-medium text-sm",
+                  formButtonPrimary: "w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg h-10 font-medium transition-all shadow-sm hover:shadow-indigo-500/25",
+                  formFieldInput: "w-full bg-white border border-zinc-200 text-zinc-900 rounded-lg h-10 px-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-400 box-border",
+                  formFieldLabel: "text-zinc-700 text-sm font-medium mb-1.5",
+                  footerActionLink: "text-indigo-600 hover:text-indigo-700 font-medium",
+                  identityPreviewText: "text-zinc-700",
+                  identityPreviewEditButton: "text-indigo-600 hover:text-indigo-700",
+                  formFieldInputShowPasswordButton: "text-zinc-400 hover:text-zinc-600",
+                  dividerLine: "bg-zinc-100",
+                  dividerText: "text-zinc-400 text-xs uppercase tracking-wider bg-white px-2",
+                  footer: "w-full bg-transparent border-t border-zinc-100 mt-6 pt-6 flex justify-center",
+                  footerActionText: "text-zinc-500",
+                  logoBox: "hidden",
+                  main: "w-full gap-4",
+                  form: "w-full gap-4"
+                },
+                layout: {
+                  socialButtonsPlacement: "top",
+                  socialButtonsVariant: "blockButton",
+                },
+              }}
+              routing="path"
+              path="/signup"
+              signInUrl="/signin"
+              redirectUrl="/"
+              afterSignUpUrl="/"
+            />
+          </div>
         </div>
       </div>
     </div>

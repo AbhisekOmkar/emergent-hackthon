@@ -413,9 +413,9 @@ class AgentBuilderAPITester:
         success, data = self.make_request('DELETE', f'/flows/{flow_id}', expected_status=200)
         
         if success and isinstance(data, dict) and 'message' in data:
-            # Verify deletion by trying to get the flow
+            # Verify deletion by trying to get the flow (should return 404)
             verify_success, verify_data = self.make_request('GET', f'/flows/{flow_id}', expected_status=404)
-            if not verify_success:  # Should fail with 404
+            if verify_success:  # Should succeed with 404 (flow not found)
                 self.created_flow_ids.remove(flow_id)  # Remove from cleanup list
                 self.log_test("Delete Flow", True, f"Flow {flow_id} deleted successfully", data)
             else:

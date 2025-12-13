@@ -51,30 +51,34 @@
     }
 }
 
-/* Sidebar Styles - Dark */
+/* Sidebar Styles - Dark Premium */
 .sidebar {
-    background: linear-gradient(180deg, #1a1c20 0%, #16181c 100%);
+    background: linear-gradient(180deg, #0f1117 0%, #0a0b0f 100%);
     color: #9ca3af;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-sm;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm mb-1;
     color: #9ca3af;
 }
 
 .sidebar-item:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     color: #fff;
 }
 
 .sidebar-item.active {
-    background: rgba(59, 130, 246, 0.15);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%);
     color: #fff;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .sidebar-section {
-    @apply text-xs font-semibold uppercase tracking-wider px-4 py-2 mt-4;
-    color: #6b7280;
+    @apply text-[10px] font-bold uppercase tracking-widest px-3 py-2 mt-5 mb-1;
+    color: #4b5563;
+    letter-spacing: 0.1em;
 }
 
 /* Content Area Styles */

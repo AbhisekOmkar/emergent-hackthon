@@ -181,12 +181,12 @@ export default function DashboardLayout() {
       {/* Main Content */}
       <main
         className={cn(
-          "flex-1 overflow-auto transition-all duration-300",
+          "flex-1 overflow-auto transition-all duration-200 ease-out",
           sidebarOpen ? "ml-60" : "ml-16"
         )}
       >
         {/* Top Bar */}
-        <div className="sticky top-0 z-30 h-14 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6">
+        <div className="sticky top-0 z-30 h-14 bg-white/90 backdrop-blur-xl border-b border-black/[0.06] flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
             {/* Breadcrumb or search could go here */}
           </div>

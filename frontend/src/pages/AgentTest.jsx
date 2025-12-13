@@ -126,7 +126,7 @@ export default function AgentTest() {
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-outfit font-semibold text-xl text-white">
+              <h1 className="font-sans font-semibold text-xl text-white">
                 Test: {currentAgent?.name || "Agent"}
               </h1>
               {currentAgent && (
@@ -270,7 +270,7 @@ export default function AgentTest() {
         {/* Agent Info Panel */}
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="font-outfit text-lg text-white">Agent Details</CardTitle>
+            <CardTitle className="font-sans text-lg text-white">Agent Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {currentAgent ? (

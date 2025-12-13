@@ -113,19 +113,24 @@ class FlowEdge(BaseModel):
 class FlowCreate(BaseModel):
     name: str
     description: Optional[str] = ""
+    agent_id: Optional[str] = None
     nodes: List[Dict] = []
     edges: List[Dict] = []
 
 class Flow(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    agent_id: str
+    agent_id: Optional[str] = None
     name: str
     description: str = ""
     version: int = 1
+    status: str = "draft"
     is_active: bool = True
     nodes: List[Dict] = []
     edges: List[Dict] = []
+    nodes_count: int = 0
+    runs: int = 0
+    last_run: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -363,6 +368,76 @@ async def delete_flow(agent_id: str, flow_id: str):
         raise HTTPException(status_code=404, detail="Flow not found")
     return {"message": "Flow deleted successfully"}
 
+# ========== GENERAL FLOWS (not tied to agents) ==========
+@api_router.get("/flows", response_model=List[Flow])
+async def list_all_flows():
+    """List all flows, optionally filter by agent"""
+    flows = await db.flows.find({}, {"_id": 0}).to_list(100)
+    for f in flows:
+        if isinstance(f.get('created_at'), str):
+            f['created_at'] = datetime.fromisoformat(f['created_at'])
+        if isinstance(f.get('updated_at'), str):
+            f['updated_at'] = datetime.fromisoformat(f['updated_at'])
+    return flows
+
+@api_router.post("/flows", response_model=Flow)
+async def create_general_flow(flow_data: FlowCreate):
+    """Create a flow without requiring an agent"""
+    # If agent_id is provided, verify it exists
+    if flow_data.agent_id:
+        agent = await db.agents.find_one({"id": flow_data.agent_id}, {"_id": 0})
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+    
+    flow = Flow(
+        agent_id=flow_data.agent_id,
+        name=flow_data.name,
+        description=flow_data.description or "",
+        nodes=flow_data.nodes,
+        edges=flow_data.edges,
+        nodes_count=len(flow_data.nodes),
+    )
+    doc = flow.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    await db.flows.insert_one(doc)
+    return flow
+
+@api_router.get("/flows/{flow_id}", response_model=Flow)
+async def get_general_flow(flow_id: str):
+    """Get a specific flow by ID"""
+    flow = await db.flows.find_one({"id": flow_id}, {"_id": 0})
+    if not flow:
+        raise HTTPException(status_code=404, detail="Flow not found")
+    if isinstance(flow.get('created_at'), str):
+        flow['created_at'] = datetime.fromisoformat(flow['created_at'])
+    if isinstance(flow.get('updated_at'), str):
+        flow['updated_at'] = datetime.fromisoformat(flow['updated_at'])
+    return flow
+
+@api_router.put("/flows/{flow_id}", response_model=Flow)
+async def update_general_flow(flow_id: str, flow_data: FlowCreate):
+    """Update a flow"""
+    update_dict = flow_data.model_dump()
+    update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+    update_dict['nodes_count'] = len(flow_data.nodes)
+    
+    result = await db.flows.update_one(
+        {"id": flow_id}, 
+        {"$set": update_dict}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Flow not found")
+    return await get_general_flow(flow_id)
+
+@api_router.delete("/flows/{flow_id}")
+async def delete_general_flow(flow_id: str):
+    """Delete a flow"""
+    result = await db.flows.delete_one({"id": flow_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Flow not found")
+    return {"message": "Flow deleted successfully"}
+
 # ========== TOOLS ==========
 @api_router.post("/tools", response_model=Tool)
 async def create_tool(tool_data: ToolCreate):
@@ -575,8 +650,12 @@ async def list_connections():
     connections = await db.integrations.find({}, {"_id": 0}).to_list(100)
     return connections
 
-# Include the router in the main app
+# Import voice routes
+from routes.voice_routes import router as voice_router
+
+# Include the routers in the main app
 app.include_router(api_router)
+app.include_router(voice_router)
 
 app.add_middleware(
     CORSMiddleware,

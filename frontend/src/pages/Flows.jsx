@@ -37,42 +37,9 @@ import axios from "axios";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const mockFlows = [
-  {
-    id: "1",
-    name: "Customer Support Flow",
-    description: "Handle incoming customer inquiries with AI",
-    status: "active",
-    nodes_count: 8,
-    agent: "Support Bot",
-    last_run: "2 hours ago",
-    runs: 156,
-  },
-  {
-    id: "2",
-    name: "Lead Qualification",
-    description: "Qualify and route incoming leads",
-    status: "active",
-    nodes_count: 12,
-    agent: "Sales Agent",
-    last_run: "30 min ago",
-    runs: 89,
-  },
-  {
-    id: "3",
-    name: "Appointment Booking",
-    description: "Schedule appointments with calendar integration",
-    status: "draft",
-    nodes_count: 6,
-    agent: null,
-    last_run: null,
-    runs: 0,
-  },
-];
-
 export default function Flows() {
   const navigate = useNavigate();
-  const [flows, setFlows] = useState(mockFlows);
+  const [flows, setFlows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newFlow, setNewFlow] = useState({
@@ -84,8 +51,19 @@ export default function Flows() {
   const [agents, setAgents] = useState([]);
 
   useEffect(() => {
+    fetchFlows();
     fetchAgents();
   }, []);
+
+  const fetchFlows = async () => {
+    try {
+      const response = await axios.get(`${API}/flows`);
+      setFlows(response.data);
+    } catch (error) {
+      console.error("Failed to fetch flows:", error);
+      toast.error("Failed to load flows");
+    }
+  };
 
   const fetchAgents = async () => {
     try {
@@ -103,45 +81,63 @@ export default function Flows() {
     }
     setLoading(true);
     
-    const flow = {
-      id: Date.now().toString(),
-      ...newFlow,
-      status: "draft",
-      nodes_count: 0,
-      runs: 0,
-      last_run: null,
-    };
-    
-    setFlows(prev => [...prev, flow]);
-    toast.success("Flow created!");
-    setShowCreateModal(false);
-    setNewFlow({ name: "", description: "", agent_id: "" });
-    setLoading(false);
-    
-    // Navigate after a short delay to ensure state updates complete
-    setTimeout(() => {
-      navigate(`/flows/${flow.id}/builder`);
-    }, 100);
-  };
-
-  const handleDelete = (flowId) => {
-    if (window.confirm("Are you sure you want to delete this flow?")) {
-      setFlows(prev => prev.filter(f => f.id !== flowId));
-      toast.success("Flow deleted");
+    try {
+      const flowData = {
+        name: newFlow.name,
+        description: newFlow.description,
+        agent_id: newFlow.agent_id === "none" || !newFlow.agent_id ? null : newFlow.agent_id,
+        nodes: [],
+        edges: [],
+      };
+      
+      const response = await axios.post(`${API}/flows`, flowData);
+      const createdFlow = response.data;
+      
+      setFlows(prev => [...prev, createdFlow]);
+      toast.success("Flow created!");
+      setShowCreateModal(false);
+      setNewFlow({ name: "", description: "", agent_id: "" });
+      
+      // Navigate to flow builder
+      navigate(`/flows/${createdFlow.id}/builder`);
+    } catch (error) {
+      console.error("Failed to create flow:", error);
+      toast.error("Failed to create flow");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDuplicate = (flow) => {
-    const newFlowCopy = {
-      ...flow,
-      id: Date.now().toString(),
-      name: `${flow.name} (Copy)`,
-      status: "draft",
-      runs: 0,
-      last_run: null,
-    };
-    setFlows(prev => [...prev, newFlowCopy]);
-    toast.success("Flow duplicated");
+  const handleDelete = async (flowId) => {
+    if (window.confirm("Are you sure you want to delete this flow?")) {
+      try {
+        await axios.delete(`${API}/flows/${flowId}`);
+        setFlows(prev => prev.filter(f => f.id !== flowId));
+        toast.success("Flow deleted");
+      } catch (error) {
+        console.error("Failed to delete flow:", error);
+        toast.error("Failed to delete flow");
+      }
+    }
+  };
+
+  const handleDuplicate = async (flow) => {
+    try {
+      const flowData = {
+        name: `${flow.name} (Copy)`,
+        description: flow.description,
+        agent_id: flow.agent_id,
+        nodes: flow.nodes || [],
+        edges: flow.edges || [],
+      };
+      
+      const response = await axios.post(`${API}/flows`, flowData);
+      setFlows(prev => [...prev, response.data]);
+      toast.success("Flow duplicated");
+    } catch (error) {
+      console.error("Failed to duplicate flow:", error);
+      toast.error("Failed to duplicate flow");
+    }
   };
 
   const filteredFlows = flows.filter(flow =>

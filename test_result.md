@@ -101,6 +101,33 @@
 user_problem_statement: Build a production-grade AI Agent Builder platform similar to Giga.ai or Voiceflow with dark sidebar, light content area UI theme with blue accents. Add Flow builder as separate page with React Flow.
 
 backend:
+  - task: "LiveKit Voice API"
+    implemented: true
+    working: true
+    file: "backend/services/token_service.py, backend/routes/voice_routes.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "NEW - LiveKit integration: Token generation service, agent dispatch service, voice API endpoints (POST /api/voice/token, POST /api/voice/start-conversation, POST /api/voice/refresh-token). All dependencies installed (livekit, livekit-api, livekit-agents, plugins for OpenAI, Deepgram, ElevenLabs). Token generation tested successfully."
+
+  - task: "Flows API (General Endpoints)"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "NEW - Added general flow endpoints: GET /api/flows, POST /api/flows, GET /api/flows/{id}, PUT /api/flows/{id}, DELETE /api/flows/{id}. Flows now support optional agent_id."
+      - working: true
+        agent: "testing"
+        comment: "All Flow API endpoints tested and working perfectly: Create with/without agent, List, Get, Update, Delete. Error handling validated (404s). Model fields confirmed."
+
   - task: "Health Check API"
     implemented: true
     working: true
@@ -180,6 +207,18 @@ backend:
         comment: "LLM chat integration working with OpenAI GPT-4o"
 
 frontend:
+  - task: "LiveKit Voice Chat UI"
+    implemented: true
+    working: true
+    file: "frontend/src/components/voice/AgentVoiceChat.jsx, frontend/src/hooks/useLiveKitAgent.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "NEW - LiveKit React components integrated: AgentVoiceChat component with audio controls, useLiveKitAgent hook for connection management, voice chat modal in Agents page. LiveKit dependencies installed (@livekit/components-react, livekit-client, @livekit/components-styles). REACT_APP_LIVEKIT_URL configured."
+
   - task: "Dashboard Page UI"
     implemented: true
     working: true
@@ -218,6 +257,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "NEW - Flows page with flow cards, search, and create modal implemented"
+      - working: true
+        agent: "main"
+        comment: "UPDATED - Connected to real backend API for CRUD operations (create, list, update, delete, duplicate)"
 
   - task: "Flow Builder UI (React Flow)"
     implemented: true
@@ -230,6 +272,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "NEW - React Flow visual builder with node palette, drag-drop, canvas implemented"
+      - working: true
+        agent: "main"
+        comment: "UPDATED - Connected to backend API for saving/loading flow state (nodes, edges, name)"
 
   - task: "Tools Page UI"
     implemented: true
@@ -305,8 +350,8 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "1.1"
-  test_sequence: 2
+  version: "1.2"
+  test_sequence: 3
   run_ui: true
 
 test_plan:
@@ -325,3 +370,8 @@ agent_communication:
     message: "Major UI overhaul completed: 1) Added Flows as separate sidebar item with new Flows page 2) Created React Flow visual builder 3) New Integrations page with connected integrations and categories 4) Updated Knowledge page with stats cards 5) Updated sidebar with better icons, descriptions, and Pro upgrade card. Please test navigation and new pages."
   - agent: "main"
     message: "Linear-inspired UI transformation completed with Intelliax branding: 1) Rebranded from AgentForge to Intelliax throughout 2) Enhanced CSS with Linear-style minimalism, refined shadows, typography 3) Updated Dashboard with hero section and AI illustrations 4) Improved stat cards with hover effects 5) Enhanced empty states with professional images 6) Updated all page headers (Agents, Flows, Knowledge, Integrations) with consistent styling 7) Added smooth animations and transitions 8) Refined sidebar with better gradients and active states. All images are integrated from Unsplash."
+    message: "Connected Flows to Backend API: 1) Updated Flow model to have optional agent_id, status, nodes_count, runs, last_run 2) Added general flow endpoints (GET/POST/PUT/DELETE /api/flows) 3) Updated Flows.jsx to fetch/create/update/delete flows via API 4) Updated FlowBuilder.jsx to save/load flow state from backend 5) Ready for backend testing of flow CRUD operations"
+  - agent: "main"
+    message: "LiveKit Voice Integration Complete (Phase 1): 1) Backend: Token generation service, agent dispatch service, voice API endpoints, all LiveKit dependencies installed 2) Frontend: AgentVoiceChat component, useLiveKitAgent hook, voice chat modal integrated into Agents page 3) API keys configured (LiveKit, Deepgram, ElevenLabs, OpenAI) 4) Token generation endpoint tested successfully 5) Voice agents can now initiate calls via 'Call' button on voice-type agents. NOTE: Full voice agent server implementation (with STT/TTS/LLM pipeline) requires separate agent server process - currently provides infrastructure for voice connections."
+  - agent: "testing"
+    message: "FLOWS API TESTING COMPLETE ✅ - All Flow API endpoints thoroughly tested and working perfectly. Comprehensive validation completed: CREATE flows (with/without agents), READ (list all + specific), UPDATE (name, description, nodes, edges), DELETE with proper verification. Error handling validated (404s for non-existent resources, invalid agent IDs). Flow model structure confirmed with all required fields. Backend API is production-ready for Flow management."

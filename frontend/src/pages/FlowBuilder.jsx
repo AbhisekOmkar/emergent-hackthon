@@ -94,6 +94,66 @@ export default function FlowBuilder() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [flowName, setFlowName] = useState("New Flow");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load flow data on mount
+  useEffect(() => {
+    if (flowId) {
+      loadFlow();
+    } else {
+      setIsLoading(false);
+    }
+  }, [flowId]);
+
+  const loadFlow = async () => {
+    try {
+      const response = await axios.get(`${API}/flows/${flowId}`);
+      const flow = response.data;
+      
+      setFlowName(flow.name);
+      
+      // Load nodes if they exist
+      if (flow.nodes && flow.nodes.length > 0) {
+        // Reconstruct node labels with React components
+        const loadedNodes = flow.nodes.map(node => {
+          const nodeTypeInfo = nodeTypes.find(n => n.id === node.data?.nodeType);
+          if (!nodeTypeInfo) return node;
+          
+          const Icon = nodeTypeInfo.icon;
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              label: (
+                <div className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-lg ${nodeTypeInfo.color} flex items-center justify-center`}>
+                    <Icon className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900">{nodeTypeInfo.name}</div>
+                    <div className="text-xs text-gray-500">Configure</div>
+                  </div>
+                </div>
+              ),
+            },
+          };
+        });
+        setNodes(loadedNodes);
+      }
+      
+      // Load edges if they exist
+      if (flow.edges && flow.edges.length > 0) {
+        setEdges(flow.edges);
+      }
+      
+      toast.success("Flow loaded");
+    } catch (error) {
+      console.error("Failed to load flow:", error);
+      toast.error("Failed to load flow");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge({
@@ -165,18 +225,37 @@ export default function FlowBuilder() {
   };
 
   const handleSave = async () => {
+    if (!flowId) {
+      toast.error("No flow ID found");
+      return;
+    }
+    
     setIsSaving(true);
     try {
+      // Clean nodes data for saving (remove React elements)
+      const cleanNodes = nodes.map(n => ({
+        id: n.id,
+        type: n.type,
+        position: n.position,
+        data: { nodeType: n.data?.nodeType || "start" },
+        style: n.style,
+      }));
+      
       const flowData = {
         name: flowName,
-        nodes: nodes.map(n => ({ ...n, data: { nodeType: n.data?.nodeType || "start" } })),
+        description: "",
+        nodes: cleanNodes,
         edges: edges,
       };
+      
+      await axios.put(`${API}/flows/${flowId}`, flowData);
       toast.success("Flow saved successfully!");
     } catch (error) {
+      console.error("Failed to save flow:", error);
       toast.error("Failed to save flow");
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   const filteredNodeTypes = nodeTypes.filter(node => {
@@ -184,6 +263,17 @@ export default function FlowBuilder() {
     const matchesCategory = selectedCategory === "all" || node.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading flow...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex bg-gray-50" data-testid="flow-builder-page">

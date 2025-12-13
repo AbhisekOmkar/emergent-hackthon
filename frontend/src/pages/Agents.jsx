@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { 
   Bot, Plus, Search, MoreVertical, 
-  Mic, MessageSquare, Play, Pause, Trash2, Settings, FlaskConical
+  Mic, MessageSquare, Play, Pause, Trash2, Settings, FlaskConical, Phone
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -15,8 +15,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { useAgentStore } from "../stores/agentStore";
 import CreateAgentModal from "../components/agents/CreateAgentModal";
+import { AgentVoiceChat } from "../components/voice/AgentVoiceChat";
 import { toast } from "sonner";
 
 export default function Agents() {
@@ -24,6 +31,7 @@ export default function Agents() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [voiceChatAgent, setVoiceChatAgent] = useState(null);
 
   useEffect(() => {
     fetchAgents();
@@ -299,6 +307,15 @@ export default function Agents() {
                         Edit Flow
                       </Button>
                     </Link>
+                    {agent.type === 'voice' && (
+                      <Button 
+                        onClick={() => setVoiceChatAgent(agent)}
+                        className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+                      >
+                        <Phone className="w-4 h-4" />
+                        Call
+                      </Button>
+                    )}
                     <Link to={`/agents/${agent.id}/test`}>
                       <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                         Test
@@ -317,6 +334,26 @@ export default function Agents() {
         isOpen={showCreateModal} 
         onClose={() => setShowCreateModal(false)} 
       />
+
+      {/* Voice Chat Modal */}
+      <Dialog open={!!voiceChatAgent} onOpenChange={() => setVoiceChatAgent(null)}>
+        <DialogContent className="max-w-2xl h-[600px] p-0">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle className="text-xl font-semibold">
+              Voice Chat with {voiceChatAgent?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {voiceChatAgent && (
+            <AgentVoiceChat
+              agentId={voiceChatAgent.id}
+              userId={`user-${Date.now()}`}
+              agentName={voiceChatAgent.name}
+              voiceModel={voiceChatAgent.voice_config?.voice_model || 'nova'}
+              onClose={() => setVoiceChatAgent(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

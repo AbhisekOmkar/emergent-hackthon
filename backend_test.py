@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional
 
 class AgentBuilderAPITester:
     def __init__(self, base_url="https://intelliax-ui-boost.preview.emergentagent.com/api"):
+        main
         self.base_url = base_url
         self.session = requests.Session()
         self.session.headers.update({'Content-Type': 'application/json'})
@@ -25,6 +26,7 @@ class AgentBuilderAPITester:
         # Test data storage
         self.created_agent_id = None
         self.created_kb_id = None
+        self.created_flow_ids = []
         
     def log_test(self, name: str, success: bool, details: str = "", response_data: Any = None):
         """Log test result"""
@@ -241,6 +243,228 @@ class AgentBuilderAPITester:
             
         return success
     
+    def test_create_flow_without_agent(self):
+        """Test creating a flow without agent assignment"""
+        flow_data = {
+            "name": f"Test Flow {datetime.now().strftime('%H%M%S')}",
+            "description": "Test flow without agent assignment",
+            "nodes": [
+                {
+                    "id": "start-1",
+                    "type": "start",
+                    "position": {"x": 100, "y": 100},
+                    "data": {"label": "Start Node"}
+                }
+            ],
+            "edges": []
+        }
+        
+        success, data = self.make_request('POST', '/flows', flow_data, 200)
+        
+        if success and isinstance(data, dict) and 'id' in data:
+            flow_id = data['id']
+            self.created_flow_ids.append(flow_id)
+            # Verify flow properties
+            expected_fields = ['id', 'name', 'description', 'status', 'nodes', 'edges', 'nodes_count', 'runs', 'created_at', 'updated_at']
+            has_fields = all(field in data for field in expected_fields)
+            if has_fields and data.get('agent_id') is None:
+                self.log_test("Create Flow (No Agent)", True, f"Flow ID: {flow_id}, nodes_count: {data.get('nodes_count')}", data)
+            else:
+                self.log_test("Create Flow (No Agent)", False, f"Missing fields or unexpected agent_id: {data}")
+        else:
+            self.log_test("Create Flow (No Agent)", False, str(data))
+            
+        return success
+    
+    def test_create_flow_with_agent(self):
+        """Test creating a flow with agent assignment"""
+        if not self.created_agent_id:
+            self.log_test("Create Flow (With Agent)", False, "No agent ID available")
+            return False
+        
+        flow_data = {
+            "name": f"Agent Flow {datetime.now().strftime('%H%M%S')}",
+            "description": "Test flow with agent assignment",
+            "agent_id": self.created_agent_id,
+            "nodes": [
+                {
+                    "id": "start-1",
+                    "type": "start",
+                    "position": {"x": 100, "y": 100},
+                    "data": {"label": "Start Node"}
+                },
+                {
+                    "id": "llm-1",
+                    "type": "llm",
+                    "position": {"x": 300, "y": 100},
+                    "data": {"label": "LLM Node", "prompt": "Process user input"}
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e1-2",
+                    "source": "start-1",
+                    "target": "llm-1"
+                }
+            ]
+        }
+        
+        success, data = self.make_request('POST', '/flows', flow_data, 200)
+        
+        if success and isinstance(data, dict) and 'id' in data:
+            flow_id = data['id']
+            self.created_flow_ids.append(flow_id)
+            # Verify flow properties
+            if (data.get('agent_id') == self.created_agent_id and 
+                data.get('nodes_count') == 2 and 
+                len(data.get('nodes', [])) == 2 and 
+                len(data.get('edges', [])) == 1):
+                self.log_test("Create Flow (With Agent)", True, f"Flow ID: {flow_id}, Agent: {self.created_agent_id}", data)
+            else:
+                self.log_test("Create Flow (With Agent)", False, f"Incorrect flow data: {data}")
+        else:
+            self.log_test("Create Flow (With Agent)", False, str(data))
+            
+        return success
+    
+    def test_list_flows(self):
+        """Test listing all flows"""
+        success, data = self.make_request('GET', '/flows')
+        
+        if success and isinstance(data, list):
+            # Should contain our created flows
+            created_count = len([f for f in data if f.get('id') in self.created_flow_ids])
+            self.log_test("List All Flows", True, f"Found {len(data)} flows, {created_count} are ours", data)
+        else:
+            self.log_test("List All Flows", False, str(data))
+            
+        return success
+    
+    def test_get_specific_flow(self):
+        """Test getting a specific flow by ID"""
+        if not self.created_flow_ids:
+            self.log_test("Get Specific Flow", False, "No flow IDs available")
+            return False
+        
+        flow_id = self.created_flow_ids[0]
+        success, data = self.make_request('GET', f'/flows/{flow_id}')
+        
+        if success and isinstance(data, dict) and data.get('id') == flow_id:
+            self.log_test("Get Specific Flow", True, f"Retrieved flow: {data.get('name')}", data)
+        else:
+            self.log_test("Get Specific Flow", False, str(data))
+            
+        return success
+    
+    def test_update_flow(self):
+        """Test updating a flow"""
+        if not self.created_flow_ids:
+            self.log_test("Update Flow", False, "No flow IDs available")
+            return False
+        
+        flow_id = self.created_flow_ids[0]
+        update_data = {
+            "name": f"Updated Flow {datetime.now().strftime('%H%M%S')}",
+            "description": "Updated flow description",
+            "nodes": [
+                {
+                    "id": "start-1",
+                    "type": "start",
+                    "position": {"x": 100, "y": 100},
+                    "data": {"label": "Updated Start Node"}
+                },
+                {
+                    "id": "end-1",
+                    "type": "end",
+                    "position": {"x": 300, "y": 100},
+                    "data": {"label": "End Node"}
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e1-end",
+                    "source": "start-1",
+                    "target": "end-1"
+                }
+            ]
+        }
+        
+        success, data = self.make_request('PUT', f'/flows/{flow_id}', update_data, 200)
+        
+        if success and isinstance(data, dict):
+            if (data.get('id') == flow_id and 
+                data.get('name').startswith('Updated Flow') and
+                data.get('nodes_count') == 2):
+                self.log_test("Update Flow", True, f"Updated flow: {data.get('name')}", data)
+            else:
+                self.log_test("Update Flow", False, f"Update verification failed: {data}")
+        else:
+            self.log_test("Update Flow", False, str(data))
+            
+        return success
+    
+    def test_delete_flow(self):
+        """Test deleting a flow"""
+        if len(self.created_flow_ids) < 2:
+            self.log_test("Delete Flow", False, "Need at least 2 flows for delete test")
+            return False
+        
+        # Delete the second flow (keep first for other tests)
+        flow_id = self.created_flow_ids[1]
+        success, data = self.make_request('DELETE', f'/flows/{flow_id}', expected_status=200)
+        
+        if success and isinstance(data, dict) and 'message' in data:
+            # Verify deletion by trying to get the flow (should return 404)
+            verify_success, verify_data = self.make_request('GET', f'/flows/{flow_id}', expected_status=404)
+            if verify_success:  # Should succeed with 404 (flow not found)
+                self.created_flow_ids.remove(flow_id)  # Remove from cleanup list
+                self.log_test("Delete Flow", True, f"Flow {flow_id} deleted successfully", data)
+            else:
+                self.log_test("Delete Flow", False, f"Flow still exists after deletion: {verify_data}")
+        else:
+            self.log_test("Delete Flow", False, str(data))
+            
+        return success
+    
+    def test_flow_error_handling(self):
+        """Test flow API error handling"""
+        # Test getting non-existent flow
+        success, data = self.make_request('GET', '/flows/non-existent-id', expected_status=404)
+        error_test_1 = success  # Should succeed with 404
+        
+        # Test creating flow with invalid agent_id
+        invalid_flow_data = {
+            "name": "Invalid Agent Flow",
+            "description": "Flow with non-existent agent",
+            "agent_id": "non-existent-agent-id",
+            "nodes": [],
+            "edges": []
+        }
+        success, data = self.make_request('POST', '/flows', invalid_flow_data, expected_status=404)
+        error_test_2 = success  # Should succeed with 404
+        
+        # Test updating non-existent flow
+        success, data = self.make_request('PUT', '/flows/non-existent-id', {"name": "Test"}, expected_status=404)
+        error_test_3 = success  # Should succeed with 404
+        
+        # Test deleting non-existent flow
+        success, data = self.make_request('DELETE', '/flows/non-existent-id', expected_status=404)
+        error_test_4 = success  # Should succeed with 404
+        
+        all_errors_handled = error_test_1 and error_test_2 and error_test_3 and error_test_4
+        
+        if all_errors_handled:
+            self.log_test("Flow Error Handling", True, "All error cases handled correctly")
+        else:
+            failed_cases = []
+            if not error_test_1: failed_cases.append("GET non-existent")
+            if not error_test_2: failed_cases.append("POST invalid agent")
+            if not error_test_3: failed_cases.append("PUT non-existent")
+            if not error_test_4: failed_cases.append("DELETE non-existent")
+            self.log_test("Flow Error Handling", False, f"Failed cases: {', '.join(failed_cases)}")
+            
+        return all_errors_handled
+    
     def cleanup_test_data(self):
         """Clean up created test data"""
         cleanup_results = []
@@ -254,6 +478,11 @@ class AgentBuilderAPITester:
         if self.created_kb_id:
             success, data = self.make_request('DELETE', f'/knowledge/{self.created_kb_id}', expected_status=200)
             cleanup_results.append(f"KB cleanup: {'✅' if success else '❌'}")
+        
+        # Delete created flows
+        for flow_id in self.created_flow_ids:
+            success, data = self.make_request('DELETE', f'/flows/{flow_id}', expected_status=200)
+            cleanup_results.append(f"Flow {flow_id[:8]} cleanup: {'✅' if success else '❌'}")
         
         if cleanup_results:
             print(f"\n🧹 Cleanup: {', '.join(cleanup_results)}")
@@ -287,6 +516,16 @@ class AgentBuilderAPITester:
         
         # LLM integration test (most critical)
         self.test_chat_with_agent()
+        
+        # Flow API tests (NEW)
+        print("\n🔄 Testing Flow API Endpoints...")
+        self.test_create_flow_without_agent()
+        self.test_create_flow_with_agent()
+        self.test_list_flows()
+        self.test_get_specific_flow()
+        self.test_update_flow()
+        self.test_delete_flow()
+        self.test_flow_error_handling()
         
         # Cleanup
         self.cleanup_test_data()

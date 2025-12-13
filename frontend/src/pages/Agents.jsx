@@ -319,6 +319,26 @@ export default function Agents() {
         isOpen={showCreateModal} 
         onClose={() => setShowCreateModal(false)} 
       />
+
+      {/* Voice Chat Modal */}
+      <Dialog open={!!voiceChatAgent} onOpenChange={() => setVoiceChatAgent(null)}>
+        <DialogContent className="max-w-2xl h-[600px] p-0">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle className="text-xl font-semibold">
+              Voice Chat with {voiceChatAgent?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {voiceChatAgent && (
+            <AgentVoiceChat
+              agentId={voiceChatAgent.id}
+              userId={`user-${Date.now()}`}
+              agentName={voiceChatAgent.name}
+              voiceModel={voiceChatAgent.voice_config?.voice_model || 'nova'}
+              onClose={() => setVoiceChatAgent(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

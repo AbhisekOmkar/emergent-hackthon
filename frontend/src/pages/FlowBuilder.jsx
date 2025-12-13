@@ -225,18 +225,37 @@ export default function FlowBuilder() {
   };
 
   const handleSave = async () => {
+    if (!flowId) {
+      toast.error("No flow ID found");
+      return;
+    }
+    
     setIsSaving(true);
     try {
+      // Clean nodes data for saving (remove React elements)
+      const cleanNodes = nodes.map(n => ({
+        id: n.id,
+        type: n.type,
+        position: n.position,
+        data: { nodeType: n.data?.nodeType || "start" },
+        style: n.style,
+      }));
+      
       const flowData = {
         name: flowName,
-        nodes: nodes.map(n => ({ ...n, data: { nodeType: n.data?.nodeType || "start" } })),
+        description: "",
+        nodes: cleanNodes,
         edges: edges,
       };
+      
+      await axios.put(`${API}/flows/${flowId}`, flowData);
       toast.success("Flow saved successfully!");
     } catch (error) {
+      console.error("Failed to save flow:", error);
       toast.error("Failed to save flow");
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   const filteredNodeTypes = nodeTypes.filter(node => {

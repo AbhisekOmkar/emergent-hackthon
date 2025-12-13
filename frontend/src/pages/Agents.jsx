@@ -292,6 +292,15 @@ export default function Agents() {
                         Edit Flow
                       </Button>
                     </Link>
+                    {agent.type === 'voice' && (
+                      <Button 
+                        onClick={() => setVoiceChatAgent(agent)}
+                        className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+                      >
+                        <Phone className="w-4 h-4" />
+                        Call
+                      </Button>
+                    )}
                     <Link to={`/agents/${agent.id}/test`}>
                       <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                         Test

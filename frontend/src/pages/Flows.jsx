@@ -118,7 +118,10 @@ export default function Flows() {
     setNewFlow({ name: "", description: "", agent_id: "" });
     setLoading(false);
     
-    navigate(`/flows/${flow.id}/builder`);
+    // Navigate after a short delay to ensure state updates complete
+    setTimeout(() => {
+      navigate(`/flows/${flow.id}/builder`);
+    }, 100);
   };
 
   const handleDelete = (flowId) => {

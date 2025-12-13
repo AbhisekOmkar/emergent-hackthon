@@ -95,6 +95,8 @@ export default function SignIn() {
               routing="path"
               path="/signin"
               signUpUrl="/signup"
+              redirectUrl="/"
+              afterSignInUrl="/"
             />
           </div>
 

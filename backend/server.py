@@ -650,8 +650,12 @@ async def list_connections():
     connections = await db.integrations.find({}, {"_id": 0}).to_list(100)
     return connections
 
-# Include the router in the main app
+# Import voice routes
+from routes.voice_routes import router as voice_router
+
+# Include the routers in the main app
 app.include_router(api_router)
+app.include_router(voice_router)
 
 app.add_middleware(
     CORSMiddleware,

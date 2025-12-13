@@ -331,4 +331,6 @@ agent_communication:
   - agent: "main"
     message: "Updated Login and Signup UI to match the Linear-inspired theme. Replaced the generic blue gradient with a professional dark theme, improved typography, and added premium stats/features section on the left side. Also refined the Clerk component styling to blend seamlessly."
   - agent: "main"
+    message: "Refined Login/Signup UI with a cleaner, 'Linear-like' design. Simplified Clerk overrides to avoid layout breaking, enforced strict width controls, and added a polished card container with proper shadows. Removed conflicting flex properties and cleaned up the visual hierarchy."
+  - agent: "main"
     message: "Fixed Clerk UI alignment issues in SignIn and SignUp pages. Implemented flex-col centering on parent containers and added 'w-full' to all Clerk component elements (rootBox, card, buttons, inputs) to ensure proper layout. Also added 'box-border' to inputs to prevent overflow."

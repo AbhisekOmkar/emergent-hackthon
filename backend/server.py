@@ -119,13 +119,17 @@ class FlowCreate(BaseModel):
 class Flow(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    agent_id: str
+    agent_id: Optional[str] = None
     name: str
     description: str = ""
     version: int = 1
+    status: str = "draft"
     is_active: bool = True
     nodes: List[Dict] = []
     edges: List[Dict] = []
+    nodes_count: int = 0
+    runs: int = 0
+    last_run: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

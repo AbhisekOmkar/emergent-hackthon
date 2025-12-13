@@ -59,32 +59,63 @@ export default function Dashboard() {
   const recentAgents = agents.slice(0, 4);
 
   return (
-    <div data-testid="dashboard">
-      {/* Header with gradient */}
-      <div className="content-header px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-              <LayoutDashboard className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-              <p className="text-gray-500 text-sm">Welcome back! Here's your agent overview.</p>
+    <div data-testid="dashboard" className="min-h-screen">
+      {/* Hero Section with Image */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-black/5">
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+        <div className="px-8 py-10 relative">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="text-xs font-medium text-blue-700">AI Agent Platform</span>
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-3">
+                    Welcome to <span className="gradient-text">Intelliax</span>
+                  </h1>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    Build, deploy, and manage intelligent AI agents that automate your workflows and enhance productivity.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Button 
+                    onClick={() => setShowCreateModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm hover:shadow-md transition-all"
+                    data-testid="create-agent-btn"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Agent
+                  </Button>
+                  <Link to="/agents">
+                    <Button 
+                      variant="outline"
+                      className="border-gray-200 hover:bg-gray-50 font-medium px-6 h-11 rounded-lg"
+                    >
+                      View All Agents
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="hidden lg:block">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-black/10">
+                  <img 
+                    src="https://images.unsplash.com/photo-1655393001768-d946c97d6fd1?w=800&h=600&fit=crop" 
+                    alt="AI Dashboard" 
+                    className="w-full h-[400px] object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                </div>
+              </div>
             </div>
           </div>
-          <Button 
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
-            data-testid="create-agent-btn"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Agent
-          </Button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="p-8 space-y-8">
+      <div className="p-8 space-y-8 max-w-7xl mx-auto">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => {

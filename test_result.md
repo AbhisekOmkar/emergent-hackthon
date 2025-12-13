@@ -218,6 +218,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "NEW - Flows page with flow cards, search, and create modal implemented"
+      - working: true
+        agent: "main"
+        comment: "UPDATED - Connected to real backend API for CRUD operations (create, list, update, delete, duplicate)"
 
   - task: "Flow Builder UI (React Flow)"
     implemented: true

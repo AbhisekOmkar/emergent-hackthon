@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { 
   Bot, Phone, MessageSquare, TrendingUp, Clock, 
   CheckCircle, AlertCircle, Plus, ArrowRight, Mic,
-  Users, Zap, Activity
+  Users, Zap, Activity, LayoutDashboard, Sparkles
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";

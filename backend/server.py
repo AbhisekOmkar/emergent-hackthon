@@ -113,6 +113,7 @@ class FlowEdge(BaseModel):
 class FlowCreate(BaseModel):
     name: str
     description: Optional[str] = ""
+    agent_id: Optional[str] = None
     nodes: List[Dict] = []
     edges: List[Dict] = []
 

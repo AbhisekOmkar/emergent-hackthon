@@ -235,7 +235,7 @@ async def health_check():
 
 # ========== AGENTS ==========
 @api_router.post("/agents", response_model=Agent)
-async def create_agent(agent_data: AgentCreate):
+async def create_agent(agent_data: AgentCreate, background_tasks: BackgroundTasks):
     agent = Agent(
         name=agent_data.name,
         description=agent_data.description or "",
@@ -249,16 +249,12 @@ async def create_agent(agent_data: AgentCreate):
     )
     doc = agent.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
-    
-    # Sync to Supabase
-    background_tasks = BackgroundTasks() # Wait, I can't inject here easily without changing signature.
-    # But I can just call it (it's async but supabase client is sync? No, supabase-py is sync usually).
-    # Wait, supabase-py is sync.
-    # I should run it in a thread or background task.
-    # Let's change the route signature to accept BackgroundTasks.
-
     doc['updated_at'] = doc['updated_at'].isoformat()
     await db.agents.insert_one(doc)
+    
+    # Sync to Supabase
+    background_tasks.add_task(sync_agent_to_supabase, agent)
+    
     return agent
 
 @api_router.get("/agents", response_model=List[Agent])

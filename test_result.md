@@ -101,6 +101,18 @@
 user_problem_statement: Build a production-grade AI Agent Builder platform similar to Giga.ai or Voiceflow with dark sidebar, light content area UI theme with blue accents. Add Flow builder as separate page with React Flow.
 
 backend:
+  - task: "LiveKit Voice API"
+    implemented: true
+    working: true
+    file: "backend/services/token_service.py, backend/routes/voice_routes.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "NEW - LiveKit integration: Token generation service, agent dispatch service, voice API endpoints (POST /api/voice/token, POST /api/voice/start-conversation, POST /api/voice/refresh-token). All dependencies installed (livekit, livekit-api, livekit-agents, plugins for OpenAI, Deepgram, ElevenLabs). Token generation tested successfully."
+
   - task: "Flows API (General Endpoints)"
     implemented: true
     working: true

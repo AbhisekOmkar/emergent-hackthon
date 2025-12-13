@@ -200,16 +200,17 @@ export default function Agents() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAgents.map((agent) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredAgents.map((agent, idx) => (
               <Card 
                 key={agent.id} 
-                className="glass-card card-hover group"
+                className="glass-card card-hover group slide-in"
+                style={{ animationDelay: `${idx * 50}ms` }}
                 data-testid={`agent-card-${agent.id}`}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`w-14 h-14 rounded-xl ${getAgentIconBg(agent.type)} flex items-center justify-center`}>
+                    <div className={`w-12 h-12 rounded-lg ${getAgentIconBg(agent.type)} flex items-center justify-center transition-transform group-hover:scale-110`}>
                       {getAgentIcon(agent.type)}
                     </div>
                     <DropdownMenu>

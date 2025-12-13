@@ -50,6 +50,8 @@ const monitorItems = [
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   const NavItem = ({ item }) => {
     const Icon = item.icon;

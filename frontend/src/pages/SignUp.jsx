@@ -22,11 +22,11 @@ export default function SignUp() {
         {/* Content Overlay */}
         <div className="relative z-20 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center">
             <img 
               src="/intelliax-logo.png" 
               alt="Intelliax" 
-              className="h-10 w-auto"
+              className="h-12 w-auto"
             />
           </div>
 

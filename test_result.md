@@ -341,3 +341,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Major UI overhaul completed: 1) Added Flows as separate sidebar item with new Flows page 2) Created React Flow visual builder 3) New Integrations page with connected integrations and categories 4) Updated Knowledge page with stats cards 5) Updated sidebar with better icons, descriptions, and Pro upgrade card. Please test navigation and new pages."
+  - agent: "main"
+    message: "Connected Flows to Backend API: 1) Updated Flow model to have optional agent_id, status, nodes_count, runs, last_run 2) Added general flow endpoints (GET/POST/PUT/DELETE /api/flows) 3) Updated Flows.jsx to fetch/create/update/delete flows via API 4) Updated FlowBuilder.jsx to save/load flow state from backend 5) Ready for backend testing of flow CRUD operations"

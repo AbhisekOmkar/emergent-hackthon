@@ -26,28 +26,28 @@ export default function Dashboard() {
       value: agents.length,
       icon: Bot,
       change: "+2 this week",
-      color: "text-amber-400",
+      color: "text-sky-500",
     },
     {
       title: "Total Calls",
       value: analytics?.total_calls || 0,
       icon: Phone,
       change: "This month",
-      color: "text-emerald-400",
+      color: "text-emerald-500",
     },
     {
       title: "Success Rate",
       value: `${(analytics?.success_rate || 0).toFixed(1)}%`,
       icon: CheckCircle,
       change: "+5.2% vs last week",
-      color: "text-blue-400",
+      color: "text-cyan-500",
     },
     {
       title: "Avg Duration",
       value: `${Math.round(analytics?.average_duration || 0)}s`,
       icon: Clock,
       change: "Per conversation",
-      color: "text-purple-400",
+      color: "text-indigo-500",
     },
   ];
 
@@ -58,12 +58,12 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-outfit font-bold text-3xl text-white">Dashboard</h1>
-          <p className="text-zinc-400 mt-1">Welcome back! Here's your agent overview.</p>
+          <h1 className="font-outfit font-bold text-3xl text-slate-800">Dashboard</h1>
+          <p className="text-slate-500 mt-1">Welcome back! Here's your agent overview.</p>
         </div>
         <Button 
           onClick={() => setShowCreateModal(true)}
-          className="bg-amber-500 hover:bg-amber-600 text-black font-semibold glow-amber-hover"
+          className="bg-sky-500 hover:bg-sky-600 text-white font-semibold glow-amber-hover"
           data-testid="create-agent-btn"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -84,13 +84,13 @@ export default function Dashboard() {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-zinc-400">{stat.title}</p>
-                    <p className="text-3xl font-outfit font-bold text-white mt-2">
+                    <p className="text-sm font-medium text-slate-500">{stat.title}</p>
+                    <p className="text-3xl font-outfit font-bold text-slate-800 mt-2">
                       {stat.value}
                     </p>
-                    <p className="text-xs text-zinc-500 mt-1">{stat.change}</p>
+                    <p className="text-xs text-slate-400 mt-1">{stat.change}</p>
                   </div>
-                  <div className={`p-3 rounded-lg bg-zinc-800/50 ${stat.color}`}>
+                  <div className={`p-3 rounded-lg bg-slate-100 ${stat.color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                 </div>
@@ -105,9 +105,9 @@ export default function Dashboard() {
         {/* Recent Agents */}
         <Card className="glass-card lg:col-span-8">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="font-outfit text-xl text-white">Your Agents</CardTitle>
+            <CardTitle className="font-outfit text-xl text-slate-800">Your Agents</CardTitle>
             <Link to="/agents">
-              <Button variant="ghost" className="text-amber-400 hover:text-amber-300">
+              <Button variant="ghost" className="text-sky-500 hover:text-sky-600">
                 View all <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
@@ -115,11 +115,11 @@ export default function Dashboard() {
           <CardContent>
             {recentAgents.length === 0 ? (
               <div className="text-center py-12">
-                <Bot className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                <p className="text-zinc-400 mb-4">No agents yet. Create your first agent!</p>
+                <Bot className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-500 mb-4">No agents yet. Create your first agent!</p>
                 <Button 
                   onClick={() => setShowCreateModal(true)}
-                  className="bg-amber-500 hover:bg-amber-600 text-black"
+                  className="bg-sky-500 hover:bg-sky-600 text-white"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Create Agent
@@ -134,19 +134,19 @@ export default function Dashboard() {
                     className="block"
                     data-testid={`agent-card-${agent.id}`}
                   >
-                    <div className="flex items-center gap-4 p-4 rounded-lg bg-zinc-800/30 hover:bg-zinc-800/50 transition-colors border border-transparent hover:border-amber-500/30">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+                    <div className="flex items-center gap-4 p-4 rounded-lg bg-slate-50 hover:bg-sky-50 transition-colors border border-transparent hover:border-sky-200">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-sky-100 to-cyan-100 flex items-center justify-center">
                         {agent.type === 'voice' ? (
-                          <Mic className="w-6 h-6 text-amber-400" />
+                          <Mic className="w-6 h-6 text-cyan-500" />
                         ) : agent.type === 'chat' ? (
-                          <MessageSquare className="w-6 h-6 text-blue-400" />
+                          <MessageSquare className="w-6 h-6 text-sky-500" />
                         ) : (
-                          <Bot className="w-6 h-6 text-purple-400" />
+                          <Bot className="w-6 h-6 text-indigo-500" />
                         )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-white">{agent.name}</h3>
+                          <h3 className="font-medium text-slate-800">{agent.name}</h3>
                           <Badge 
                             variant="outline" 
                             className={
@@ -157,7 +157,7 @@ export default function Dashboard() {
                             {agent.type}
                           </Badge>
                         </div>
-                        <p className="text-sm text-zinc-400 mt-0.5">{agent.description || 'No description'}</p>
+                        <p className="text-sm text-slate-500 mt-0.5">{agent.description || 'No description'}</p>
                       </div>
                       <div className="text-right">
                         <Badge 
@@ -169,7 +169,7 @@ export default function Dashboard() {
                         >
                           {agent.status}
                         </Badge>
-                        <p className="text-xs text-zinc-500 mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           {agent.calls_count || 0} calls
                         </p>
                       </div>
@@ -184,40 +184,40 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <Card className="glass-card lg:col-span-4">
           <CardHeader>
-            <CardTitle className="font-outfit text-xl text-white">Quick Actions</CardTitle>
+            <CardTitle className="font-outfit text-xl text-slate-800">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button 
               variant="outline" 
-              className="w-full justify-start bg-zinc-800/30 border-zinc-700 hover:border-amber-500/50 hover:bg-amber-500/10"
+              className="w-full justify-start bg-slate-50 border-slate-200 hover:border-sky-300 hover:bg-sky-50"
               onClick={() => setShowCreateModal(true)}
             >
-              <Bot className="w-4 h-4 mr-3 text-amber-400" />
+              <Bot className="w-4 h-4 mr-3 text-sky-500" />
               Create Voice Agent
             </Button>
             <Button 
               variant="outline" 
-              className="w-full justify-start bg-zinc-800/30 border-zinc-700 hover:border-blue-500/50 hover:bg-blue-500/10"
+              className="w-full justify-start bg-slate-50 border-slate-200 hover:border-cyan-300 hover:bg-cyan-50"
               onClick={() => setShowCreateModal(true)}
             >
-              <MessageSquare className="w-4 h-4 mr-3 text-blue-400" />
+              <MessageSquare className="w-4 h-4 mr-3 text-cyan-500" />
               Create Chat Agent
             </Button>
             <Link to="/tools" className="block">
               <Button 
                 variant="outline" 
-                className="w-full justify-start bg-zinc-800/30 border-zinc-700 hover:border-emerald-500/50 hover:bg-emerald-500/10"
+                className="w-full justify-start bg-slate-50 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
               >
-                <TrendingUp className="w-4 h-4 mr-3 text-emerald-400" />
+                <TrendingUp className="w-4 h-4 mr-3 text-emerald-500" />
                 Configure Integrations
               </Button>
             </Link>
             <Link to="/knowledge" className="block">
               <Button 
                 variant="outline" 
-                className="w-full justify-start bg-zinc-800/30 border-zinc-700 hover:border-purple-500/50 hover:bg-purple-500/10"
+                className="w-full justify-start bg-slate-50 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50"
               >
-                <AlertCircle className="w-4 h-4 mr-3 text-purple-400" />
+                <AlertCircle className="w-4 h-4 mr-3 text-indigo-500" />
                 Upload Knowledge Base
               </Button>
             </Link>

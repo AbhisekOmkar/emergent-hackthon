@@ -14,7 +14,7 @@ import "./App.css";
 
 function App() {
   return (
-    <div className="App min-h-screen bg-[#09090b]">
+    <div className="App min-h-screen bg-slate-50">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<DashboardLayout />}>

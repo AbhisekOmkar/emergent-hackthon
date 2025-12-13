@@ -429,7 +429,7 @@ class AgentBuilderAPITester:
         """Test flow API error handling"""
         # Test getting non-existent flow
         success, data = self.make_request('GET', '/flows/non-existent-id', expected_status=404)
-        error_test_1 = not success  # Should fail with 404
+        error_test_1 = success  # Should succeed with 404
         
         # Test creating flow with invalid agent_id
         invalid_flow_data = {
@@ -440,15 +440,15 @@ class AgentBuilderAPITester:
             "edges": []
         }
         success, data = self.make_request('POST', '/flows', invalid_flow_data, expected_status=404)
-        error_test_2 = not success  # Should fail with 404
+        error_test_2 = success  # Should succeed with 404
         
         # Test updating non-existent flow
         success, data = self.make_request('PUT', '/flows/non-existent-id', {"name": "Test"}, expected_status=404)
-        error_test_3 = not success  # Should fail with 404
+        error_test_3 = success  # Should succeed with 404
         
         # Test deleting non-existent flow
         success, data = self.make_request('DELETE', '/flows/non-existent-id', expected_status=404)
-        error_test_4 = not success  # Should fail with 404
+        error_test_4 = success  # Should succeed with 404
         
         all_errors_handled = error_test_1 and error_test_2 and error_test_3 and error_test_4
         

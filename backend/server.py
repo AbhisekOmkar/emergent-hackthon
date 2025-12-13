@@ -549,6 +549,32 @@ async def test_chat(message: str, provider: str = "openai", model: str = "gpt-4o
     user_message = UserMessage(text=message)
     response = await chat.send_message(user_message)
     
+# ========== LIVEKIT TOKEN ==========
+@api_router.post("/token")
+async def get_livekit_token(room: str, participant: str):
+    """Generate a LiveKit token for the frontend to connect"""
+    livekit_api_key = os.environ.get('LIVEKIT_API_KEY')
+    livekit_api_secret = os.environ.get('LIVEKIT_API_SECRET')
+    livekit_url = os.environ.get('LIVEKIT_URL')
+    
+    if not all([livekit_api_key, livekit_api_secret, livekit_url]):
+        raise HTTPException(status_code=500, detail="LiveKit credentials not configured")
+    
+    grant = api.VideoGrant(
+        room_join=True,
+        room=room,
+        can_publish=True,
+        can_subscribe=True,
+    )
+    
+    token = api.AccessToken(livekit_api_key, livekit_api_secret) \
+        .with_identity(participant) \
+        .with_name(participant) \
+        .with_grants(grant) \
+        .to_jwt()
+        
+    return {"token": token, "serverUrl": livekit_url}
+
     return {"response": response, "provider": provider, "model": model}
 
 # ========== INTEGRATIONS ==========

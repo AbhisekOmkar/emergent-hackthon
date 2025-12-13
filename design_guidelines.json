@@ -1,0 +1,142 @@
+{
+  "identity": {
+    "name": "E1_Agent_Builder_System",
+    "persona": "The Anti-AI Designer",
+    "core_principles": [
+      "Fusion over Imitation: Mix technical dashboard density with cinematic lighting.",
+      "Emotion First: The builder should feel like a 'Command Center' - powerful, precise, dangerous.",
+      "Content is King: Data and flows are the heroes. UI recedes.",
+      "Negative Space: Use generous padding inside containers to prevent 'data claustrophobia'.",
+      "Contrast: High contrast for active states, subtle low contrast for structure."
+    ],
+    "anti_patterns": [
+      "No default 'Vercel' look.",
+      "No purple/teal gradients (unless specifically for an 'AI' node type, but keep it rare).",
+      "No center-aligned text for heavy content.",
+      "No generic 'Inter' for headings."
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Outfit, sans-serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "installation": {
+      "google_fonts_import": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
+    },
+    "usage_rules": {
+      "h1": "font-outfit font-bold text-4xl md:text-5xl tracking-tight text-white",
+      "h2": "font-outfit font-semibold text-3xl tracking-tight text-white/90",
+      "h3": "font-outfit font-medium text-2xl text-white/90",
+      "body": "font-manrope text-base text-zinc-400 leading-relaxed",
+      "label": "font-manrope text-xs font-semibold uppercase tracking-wider text-zinc-500",
+      "code": "font-mono text-sm text-amber-400/90"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "default": "#09090b",
+        "paper": "#121215",
+        "subtle": "#18181b"
+      },
+      "primary": {
+        "default": "#f59e0b",
+        "hover": "#d97706",
+        "foreground": "#000000"
+      },
+      "accent": {
+        "orange": "#f97316",
+        "amber": "#fbbf24",
+        "glass": "rgba(245, 158, 11, 0.1)"
+      },
+      "border": {
+        "default": "#27272a",
+        "active": "#f59e0b"
+      },
+      "text": {
+        "primary": "#fafafa",
+        "secondary": "#a1a1aa",
+        "muted": "#52525b"
+      }
+    },
+    "semantic_tokens": {
+      "canvas_bg": "bg-[#0B0F14]",
+      "card_bg": "bg-zinc-900/50 backdrop-blur-md border-white/5",
+      "active_node": "border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]",
+      "success": "text-emerald-400",
+      "error": "text-rose-400"
+    }
+  },
+  "spacing": {
+    "scale": {
+      "container_padding": "p-6 md:p-8 lg:p-12",
+      "section_gap": "gap-8",
+      "item_gap": "gap-4"
+    },
+    "layout_rules": [
+      "Always use 'p-6' or 'p-8' for card internals.",
+      "Use 'gap-6' for grid layouts to allow breathing room.",
+      "Sidebar width: 'w-64' or 'w-72' (generous)."
+    ]
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-md px-6 py-2 transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]",
+      "secondary": "bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-md px-6 py-2",
+      "ghost": "text-zinc-400 hover:text-amber-400 hover:bg-amber-500/10"
+    },
+    "cards": {
+      "default": "bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl",
+      "interactive": "hover:border-amber-500/50 transition-colors cursor-pointer group"
+    },
+    "inputs": {
+      "default": "bg-zinc-950/50 border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-md h-10 text-sm"
+    },
+    "modals": {
+      "overlay": "bg-black/80 backdrop-blur-sm",
+      "content": "bg-[#0F0F12] border border-zinc-800 shadow-2xl sm:rounded-xl"
+    }
+  },
+  "layout_strategies": {
+    "dashboard_grid": "grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)]",
+    "bento_cells": {
+      "hero": "col-span-1 md:col-span-8 row-span-2",
+      "stat": "col-span-1 md:col-span-4 row-span-1",
+      "list": "col-span-1 md:col-span-4 row-span-2"
+    },
+    "agent_builder": {
+      "wrapper": "h-[calc(100vh-4rem)] w-full relative overflow-hidden bg-[#0B0F14]",
+      "sidebar": "absolute left-4 top-4 bottom-4 w-72 bg-zinc-900/90 backdrop-blur-md border border-white/10 rounded-xl z-10 p-4",
+      "canvas": "w-full h-full"
+    }
+  },
+  "assets": {
+    "images": {
+      "avatars": [
+        "https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0JTIwYnVzaW5lc3N8ZW58MHx8fHwxNzY1NjA3OTMxfDA&ixlib=rb-4.1.0&q=85",
+        "https://images.unsplash.com/photo-1689600944138-da3b150d9cb8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0JTIwYnVzaW5lc3N8ZW58MHx8fHwxNzY1NjA3OTMxfDA&ixlib=rb-4.1.0&q=85",
+        "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg"
+      ],
+      "backgrounds": [
+        "https://images.unsplash.com/photo-1764367256080-e25ebc65ea9c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMG9yYW5nZSUyMHNvdW5kJTIwd2F2ZSUyMHRlY2hub2xvZ3klMjBkYXJrJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NjU2MDc5MzJ8MA&ixlib=rb-4.1.0&q=85",
+        "https://images.unsplash.com/photo-1575782894261-ea261f24435c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMG9yYW5nZSUyMHNvdW5kJTIwd2F2ZSUyMHRlY2hub2xvZ3klMjBkYXJrJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NjU2MDc5MzJ8MA&ixlib=rb-4.1.0&q=85"
+      ]
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-width={1.5} className='text-zinc-400'"
+    }
+  },
+  "universal_guidelines": [
+    "Use 'backdrop-blur-md' or 'backdrop-blur-xl' for all floating panels.",
+    "Never use pure black (#000000) for backgrounds; use #09090b or #0B0F14.",
+    "Interactive elements must have a hover state that changes color or adds a glow.",
+    "Use 'data-testid' on all interactive elements.",
+    "Scrollbars should be thin and dark: 'scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent'.",
+    "For the Node Editor: Use a dot pattern background 'bg-dot-white/[0.1]'.",
+    "Voice Agent cards should visualize sound: use a small waveform graphic or icon."
+  ],
+  "instructions_to_main_agent": "You are building a high-end AI Agent Builder. Focus on the 'Builder' aspect - it should feel like a professional tool (VS Code, Figma, Unreal Engine). Use the provided colors and fonts strictly. Implement the 'Bento' grid for the dashboard. Use the 'Outfit' font for all headings to give it a distinct character. Ensure the 'Amber' accent is used for primary actions and active states to match the 'warm orange' requirement."
+}

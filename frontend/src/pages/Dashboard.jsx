@@ -246,50 +246,62 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <Card className="glass-card lg:col-span-4">
-            <CardHeader className="border-b border-gray-100 pb-4">
-              <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
+            <CardHeader className="border-b border-black/5 pb-4">
+              <CardTitle className="text-base font-semibold text-gray-900">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 space-y-3">
+            <CardContent className="pt-4 space-y-2">
               <Button 
                 variant="outline" 
-                className="w-full justify-start bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-200"
+                className="w-full justify-start h-auto p-3 bg-white border-gray-200 hover:bg-purple-50 hover:border-purple-200 transition-all group"
                 onClick={() => setShowCreateModal(true)}
               >
-                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
-                  <Mic className="w-4 h-4 text-purple-600" />
+                <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center mr-3 group-hover:bg-purple-100 transition-colors">
+                  <Mic className="w-5 h-5 text-purple-600" />
                 </div>
-                Create Voice Agent
+                <div className="flex-1 text-left">
+                  <p className="font-medium text-sm text-gray-900">Create Voice Agent</p>
+                  <p className="text-xs text-gray-500">Build phone AI assistant</p>
+                </div>
               </Button>
               <Button 
                 variant="outline" 
-                className="w-full justify-start bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-200"
+                className="w-full justify-start h-auto p-3 bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-200 transition-all group"
                 onClick={() => setShowCreateModal(true)}
               >
-                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
-                  <MessageSquare className="w-4 h-4 text-blue-600" />
+                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mr-3 group-hover:bg-blue-100 transition-colors">
+                  <MessageSquare className="w-5 h-5 text-blue-600" />
                 </div>
-                Create Chat Agent
+                <div className="flex-1 text-left">
+                  <p className="font-medium text-sm text-gray-900">Create Chat Agent</p>
+                  <p className="text-xs text-gray-500">Build messaging bot</p>
+                </div>
               </Button>
               <Link to="/tools" className="block">
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start bg-white border-gray-200 hover:bg-green-50 hover:border-green-200"
+                  className="w-full justify-start h-auto p-3 bg-white border-gray-200 hover:bg-emerald-50 hover:border-emerald-200 transition-all group"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mr-3">
-                    <Zap className="w-4 h-4 text-green-600" />
+                  <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mr-3 group-hover:bg-emerald-100 transition-colors">
+                    <Zap className="w-5 h-5 text-emerald-600" />
                   </div>
-                  Configure Integrations
+                  <div className="flex-1 text-left">
+                    <p className="font-medium text-sm text-gray-900">Configure Tools</p>
+                    <p className="text-xs text-gray-500">Add custom actions</p>
+                  </div>
                 </Button>
               </Link>
               <Link to="/knowledge" className="block">
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start bg-white border-gray-200 hover:bg-orange-50 hover:border-orange-200"
+                  className="w-full justify-start h-auto p-3 bg-white border-gray-200 hover:bg-amber-50 hover:border-amber-200 transition-all group"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center mr-3">
-                    <AlertCircle className="w-4 h-4 text-orange-600" />
+                  <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center mr-3 group-hover:bg-amber-100 transition-colors">
+                    <Activity className="w-5 h-5 text-amber-600" />
                   </div>
-                  Upload Knowledge Base
+                  <div className="flex-1 text-left">
+                    <p className="font-medium text-sm text-gray-900">Upload Knowledge</p>
+                    <p className="text-xs text-gray-500">Train your agents</p>
+                  </div>
                 </Button>
               </Link>
             </CardContent>

@@ -140,7 +140,7 @@ export default function Analytics() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-outfit font-bold text-3xl text-white">Analytics</h1>
+          <h1 className="font-outfit font-bold text-3xl text-zinc-900">Analytics</h1>
           <p className="text-zinc-400 mt-1">Monitor your agent performance</p>
         </div>
         <Button
@@ -162,7 +162,7 @@ export default function Analytics() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm font-medium text-zinc-400">{stat.title}</p>
-                    <p className="text-3xl font-outfit font-bold text-white mt-2">
+                    <p className="text-3xl font-outfit font-bold text-zinc-900 mt-2">
                       {stat.value}
                     </p>
                     <div className="flex items-center gap-1 mt-1">
@@ -196,7 +196,7 @@ export default function Analytics() {
         {/* Calls Chart */}
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="font-outfit text-lg text-white">Calls Overview</CardTitle>
+            <CardTitle className="font-outfit text-lg text-zinc-900">Calls Overview</CardTitle>
             <CardDescription>Total calls vs successful calls</CardDescription>
           </CardHeader>
           <CardContent>
@@ -246,7 +246,7 @@ export default function Analytics() {
         {/* Duration Chart */}
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="font-outfit text-lg text-white">Average Duration</CardTitle>
+            <CardTitle className="font-outfit text-lg text-zinc-900">Average Duration</CardTitle>
             <CardDescription>Call duration in seconds</CardDescription>
           </CardHeader>
           <CardContent>
@@ -282,7 +282,7 @@ export default function Analytics() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="font-outfit text-lg text-white">Insights</CardTitle>
+              <CardTitle className="font-outfit text-lg text-zinc-900">Insights</CardTitle>
               <CardDescription>AI-powered analysis of your agents</CardDescription>
             </div>
           </div>
@@ -308,7 +308,7 @@ export default function Analytics() {
                   className="p-4 rounded-lg bg-zinc-800/30 border border-zinc-800"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-white">{insight.name}</h4>
+                    <h4 className="font-medium text-zinc-900">{insight.name}</h4>
                     <Badge
                       variant="outline"
                       className={
@@ -322,7 +322,7 @@ export default function Analytics() {
                   </div>
                   <p className="text-sm text-zinc-400 mb-3">{insight.description}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-outfit font-bold text-white">
+                    <span className="text-2xl font-outfit font-bold text-zinc-900">
                       {insight.pass_rate}%
                     </span>
                     <span className="text-xs text-zinc-500">
@@ -340,7 +340,7 @@ export default function Analytics() {
       <Dialog open={showInsightModal} onOpenChange={setShowInsightModal}>
         <DialogContent className="bg-[#0F0F12] border-zinc-800">
           <DialogHeader>
-            <DialogTitle className="font-outfit text-xl text-white">Create Insight</DialogTitle>
+            <DialogTitle className="font-outfit text-xl text-zinc-900">Create Insight</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">

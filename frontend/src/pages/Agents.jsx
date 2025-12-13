@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { 
   Bot, Plus, Search, MoreVertical, 
-  Mic, MessageSquare, Play, Pause, Trash2, Settings, FlaskConical
+  Mic, MessageSquare, Play, Pause, Trash2, Settings, FlaskConical, Phone
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -15,8 +15,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { useAgentStore } from "../stores/agentStore";
 import CreateAgentModal from "../components/agents/CreateAgentModal";
+import { AgentVoiceChat } from "../components/voice/AgentVoiceChat";
 import { toast } from "sonner";
 
 export default function Agents() {

@@ -150,38 +150,34 @@ export default function Flows() {
   );
 
   return (
-    <div data-testid="flows-page">
+    <div data-testid="flows-page" className="min-h-screen">
       {/* Header */}
       <div className="content-header px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-              <Workflow className="w-6 h-6 text-indigo-600" />
-            </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Flows</h1>
-              <p className="text-gray-500 text-sm">Build and manage conversation flows with visual editor</p>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Flows</h1>
+              <p className="text-gray-600 text-sm">Build and manage visual agent workflows</p>
             </div>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm"
+              data-testid="create-flow-btn"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Flow
+            </Button>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
-            data-testid="create-flow-btn"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Flow
-          </Button>
-        </div>
 
-        {/* Search */}
-        <div className="flex items-center gap-4 mt-6">
-          <div className="relative flex-1 max-w-md">
+          {/* Search */}
+          <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               placeholder="Search flows..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white border-gray-200"
+              className="pl-10 bg-white border-gray-200 h-10 rounded-lg shadow-sm"
+              data-testid="search-flows"
             />
           </div>
         </div>

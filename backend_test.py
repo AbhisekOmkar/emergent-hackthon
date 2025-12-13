@@ -516,6 +516,16 @@ class AgentBuilderAPITester:
         # LLM integration test (most critical)
         self.test_chat_with_agent()
         
+        # Flow API tests (NEW)
+        print("\n🔄 Testing Flow API Endpoints...")
+        self.test_create_flow_without_agent()
+        self.test_create_flow_with_agent()
+        self.test_list_flows()
+        self.test_get_specific_flow()
+        self.test_update_flow()
+        self.test_delete_flow()
+        self.test_flow_error_handling()
+        
         # Cleanup
         self.cleanup_test_data()
         

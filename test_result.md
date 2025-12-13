@@ -323,3 +323,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Major UI overhaul completed: 1) Added Flows as separate sidebar item with new Flows page 2) Created React Flow visual builder 3) New Integrations page with connected integrations and categories 4) Updated Knowledge page with stats cards 5) Updated sidebar with better icons, descriptions, and Pro upgrade card. Please test navigation and new pages."
+  - agent: "main"
+    message: "Linear-inspired UI transformation completed with Intelliax branding: 1) Rebranded from AgentForge to Intelliax throughout 2) Enhanced CSS with Linear-style minimalism, refined shadows, typography 3) Updated Dashboard with hero section and AI illustrations 4) Improved stat cards with hover effects 5) Enhanced empty states with professional images 6) Updated all page headers (Agents, Flows, Knowledge, Integrations) with consistent styling 7) Added smooth animations and transitions 8) Refined sidebar with better gradients and active states. All images are integrated from Unsplash."

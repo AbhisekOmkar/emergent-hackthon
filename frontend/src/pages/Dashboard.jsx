@@ -117,27 +117,30 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="p-8 space-y-8 max-w-7xl mx-auto">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <Card 
                 key={index} 
-                className="glass-card"
+                className="stat-card group cursor-pointer"
                 data-testid={`stat-${stat.title.toLowerCase().replace(' ', '-')}`}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                      <p className="text-3xl font-semibold text-gray-900 mt-2">
-                        {stat.value}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">{stat.change}</p>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`w-11 h-11 rounded-xl ${stat.iconBg} flex items-center justify-center transition-transform group-hover:scale-110`}>
+                      <Icon className={`w-5 h-5 ${stat.iconColor}`} />
                     </div>
-                    <div className={`w-12 h-12 rounded-xl ${stat.iconBg} flex items-center justify-center`}>
-                      <Icon className={`w-6 h-6 ${stat.iconColor}`} />
-                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">{stat.title}</p>
+                    <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                      {stat.value}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3" />
+                      {stat.change}
+                    </p>
                   </div>
                 </CardContent>
               </Card>

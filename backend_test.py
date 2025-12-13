@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class AgentBuilderAPITester:
-    def __init__(self, base_url="https://dragondrop.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://agent-builder-56.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.session = requests.Session()
         self.session.headers.update({'Content-Type': 'application/json'})

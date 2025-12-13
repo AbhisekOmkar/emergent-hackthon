@@ -9,17 +9,26 @@ import {
   Settings,
   Menu,
   X,
-  Zap,
-  ChevronRight,
+  Phone,
+  MessageSquare,
+  Workflow,
+  Plug,
+  MonitorPlay,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
 
-const navItems = [
-  { path: "/", icon: LayoutDashboard, label: "Dashboard" },
+const buildItems = [
   { path: "/agents", icon: Bot, label: "Agents" },
   { path: "/tools", icon: Wrench, label: "Tools" },
+];
+
+const manageItems = [
   { path: "/knowledge", icon: Database, label: "Knowledge" },
+  { path: "/integrations", icon: Plug, label: "Integrations" },
+];
+
+const monitorItems = [
   { path: "/analytics", icon: BarChart3, label: "Analytics" },
   { path: "/settings", icon: Settings, label: "Settings" },
 ];
@@ -28,77 +37,97 @@ export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
 
-  return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
-      {/* Sidebar */}
-      <aside
+  const NavItem = ({ item }) => {
+    const Icon = item.icon;
+    const isActive = location.pathname === item.path || 
+      (item.path !== "/" && location.pathname.startsWith(item.path));
+    
+    return (
+      <NavLink
+        to={item.path}
+        data-testid={`nav-${item.label.toLowerCase()}`}
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen transition-all duration-300 ease-in-out",
-          sidebarOpen ? "w-64" : "w-20"
+          "sidebar-item",
+          isActive && "active"
         )}
       >
-        <div className="flex h-full flex-col glass-panel m-3 mr-0 rounded-xl">
+        <Icon className="w-5 h-5" />
+        {sidebarOpen && <span>{item.label}</span>}
+      </NavLink>
+    );
+  };
+
+  return (
+    <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
+      {/* Sidebar - Dark */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-40 h-screen sidebar transition-all duration-300",
+          sidebarOpen ? "w-56" : "w-16"
+        )}
+      >
+        <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center justify-between px-4 border-b border-slate-200">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+          <div className="flex h-14 items-center justify-between px-4 border-b border-gray-800">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-white" />
               </div>
               {sidebarOpen && (
-                <span className="font-outfit font-semibold text-lg text-slate-800">
-                  AgentForge
-                </span>
+                <span className="font-semibold text-white text-lg">AgentForge</span>
               )}
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="text-slate-500 hover:text-slate-800"
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               data-testid="sidebar-toggle"
             >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </Button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-3 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path || 
-                (item.path !== "/" && location.pathname.startsWith(item.path));
-              
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  data-testid={`nav-${item.label.toLowerCase()}`}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all",
-                    "text-slate-500 hover:text-slate-800 hover:bg-sky-50",
-                    isActive && "bg-sky-100 text-sky-600 border-l-2 border-sky-500"
-                  )}
-                >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  {sidebarOpen && (
-                    <>
-                      <span className="font-medium flex-1">{item.label}</span>
-                      {isActive && <ChevronRight className="w-4 h-4 text-sky-500" />}
-                    </>
-                  )}
-                </NavLink>
-              );
-            })}
+          <nav className="flex-1 p-2 overflow-y-auto scrollbar-thin">
+            {/* Dashboard */}
+            <NavLink
+              to="/"
+              data-testid="nav-dashboard"
+              className={cn(
+                "sidebar-item mb-2",
+                location.pathname === "/" && "active"
+              )}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              {sidebarOpen && <span>Dashboard</span>}
+            </NavLink>
+
+            {/* BUILD Section */}
+            {sidebarOpen && <div className="sidebar-section">Build</div>}
+            {buildItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+
+            {/* MANAGE Section */}
+            {sidebarOpen && <div className="sidebar-section">Manage</div>}
+            {manageItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+
+            {/* MONITOR Section */}
+            {sidebarOpen && <div className="sidebar-section">Monitor</div>}
+            {monitorItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
           </nav>
 
           {/* Footer */}
           {sidebarOpen && (
-            <div className="p-4 border-t border-slate-200">
-              <div className="bg-slate-100 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>All systems operational</span>
-                </div>
+            <div className="p-3 border-t border-gray-800">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span>All systems operational</span>
               </div>
             </div>
           )}
@@ -109,10 +138,10 @@ export default function DashboardLayout() {
       <main
         className={cn(
           "flex-1 overflow-auto transition-all duration-300",
-          sidebarOpen ? "ml-64" : "ml-20"
+          sidebarOpen ? "ml-56" : "ml-16"
         )}
       >
-        <div className="min-h-screen p-6">
+        <div className="min-h-screen">
           <Outlet />
         </div>
       </main>

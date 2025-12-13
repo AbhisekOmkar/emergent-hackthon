@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,31 +6,37 @@
 
 @layer base {
     :root {
-        --background: 210 40% 98%;
+        --background: 0 0% 100%;
         --foreground: 222 47% 11%;
         --card: 0 0% 100%;
         --card-foreground: 222 47% 11%;
         --popover: 0 0% 100%;
         --popover-foreground: 222 47% 11%;
-        --primary: 199 89% 48%;
+        --primary: 221 83% 53%;
         --primary-foreground: 0 0% 100%;
         --secondary: 210 40% 96%;
         --secondary-foreground: 222 47% 11%;
         --muted: 210 40% 96%;
         --muted-foreground: 215 16% 47%;
-        --accent: 199 89% 48%;
+        --accent: 221 83% 53%;
         --accent-foreground: 0 0% 100%;
         --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 100%;
         --border: 214 32% 91%;
         --input: 214 32% 91%;
-        --ring: 199 89% 48%;
-        --chart-1: 199 89% 48%;
+        --ring: 221 83% 53%;
+        --chart-1: 221 83% 53%;
         --chart-2: 160 60% 45%;
         --chart-3: 199 70% 55%;
         --chart-4: 280 65% 60%;
         --chart-5: 340 75% 55%;
-        --radius: 0.75rem;
+        --radius: 0.5rem;
+        
+        /* Sidebar colors */
+        --sidebar-bg: 220 13% 12%;
+        --sidebar-text: 215 20% 65%;
+        --sidebar-text-active: 0 0% 100%;
+        --sidebar-hover: 220 13% 18%;
     }
 }
 
@@ -39,49 +45,88 @@
         @apply border-border;
     }
     body {
-        @apply bg-background text-foreground font-manrope;
+        @apply bg-background text-foreground;
+        font-family: 'Inter', sans-serif;
         background-color: #f8fafc;
     }
-    h1, h2, h3, h4, h5, h6 {
-        @apply font-outfit;
-    }
 }
 
-/* Custom font classes */
-.font-outfit {
-    font-family: 'Outfit', sans-serif;
+/* Sidebar Styles - Dark */
+.sidebar {
+    background: linear-gradient(180deg, #1a1c20 0%, #16181c 100%);
+    color: #9ca3af;
 }
 
-.font-manrope {
-    font-family: 'Manrope', sans-serif;
+.sidebar-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-sm;
+    color: #9ca3af;
 }
 
-.font-mono {
-    font-family: 'JetBrains Mono', monospace;
+.sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
 }
 
-/* Glassmorphism effects */
+.sidebar-item.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: #fff;
+}
+
+.sidebar-section {
+    @apply text-xs font-semibold uppercase tracking-wider px-4 py-2 mt-4;
+    color: #6b7280;
+}
+
+/* Content Area Styles */
+.content-header {
+    background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%);
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Card Styles */
 .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-slate-200 rounded-xl shadow-lg;
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm;
 }
 
 .glass-panel {
-    @apply bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-sm;
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm;
 }
 
-/* Glow effects */
-.glow-amber {
-    box-shadow: 0 0 20px rgba(14, 165, 233, 0.25);
+/* Agent type badges */
+.badge-chat {
+    @apply bg-blue-100 text-blue-600 border-blue-200;
 }
 
-.glow-amber-hover:hover {
-    box-shadow: 0 0 25px rgba(14, 165, 233, 0.35);
+.badge-voice {
+    @apply bg-purple-100 text-purple-600 border-purple-200;
+}
+
+.badge-multimodal {
+    @apply bg-indigo-100 text-indigo-600 border-indigo-200;
+}
+
+/* Status indicators */
+.status-active {
+    @apply bg-green-100 text-green-600;
+}
+
+.status-draft {
+    @apply bg-gray-100 text-gray-500;
+}
+
+.status-paused {
+    @apply bg-yellow-100 text-yellow-600;
+}
+
+/* Button Styles */
+.btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors;
 }
 
 /* Custom scrollbar */
 .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-color: #374151 transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -94,68 +139,65 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
+    background-color: #374151;
     border-radius: 3px;
 }
 
-/* Dot pattern background for flow builder */
-.bg-dot-pattern {
-    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-/* Agent type badges */
-.badge-chat {
-    @apply bg-sky-100 text-sky-600 border-sky-200;
-}
-
-.badge-voice {
-    @apply bg-cyan-100 text-cyan-600 border-cyan-200;
-}
-
-.badge-multimodal {
-    @apply bg-indigo-100 text-indigo-600 border-indigo-200;
-}
-
-/* Status indicators */
-.status-active {
-    @apply bg-emerald-100 text-emerald-600;
-}
-
-.status-draft {
-    @apply bg-slate-100 text-slate-500;
-}
-
-.status-paused {
-    @apply bg-amber-100 text-amber-600;
-}
-
-/* Animation for waveform */
-@keyframes pulse-wave {
-    0%, 100% { transform: scaleY(1); }
-    50% { transform: scaleY(1.5); }
-}
-
-.animate-wave {
-    animation: pulse-wave 1s ease-in-out infinite;
-}
-
-/* React Flow customizations */
+/* Flow Builder */
 .react-flow__node {
     @apply rounded-lg shadow-lg;
 }
 
 .react-flow__edge-path {
-    stroke: #0ea5e9;
+    stroke: #3b82f6;
     stroke-width: 2;
 }
 
 .react-flow__handle {
-    @apply bg-sky-500 border-2 border-white;
+    @apply bg-blue-500 border-2 border-white;
 }
 
-@layer base {
-    [data-debug-wrapper="true"] {
-        display: contents !important;
+/* Loading animation */
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        opacity: 1;
     }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.loading-pulse::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.3);
+    animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Hover effects */
+.card-hover {
+    @apply transition-all duration-200;
+}
+
+.card-hover:hover {
+    @apply shadow-md border-blue-200;
+    transform: translateY(-2px);
+}
+
+/* Chat bubbles */
+.chat-bubble-user {
+    @apply bg-blue-600 text-white rounded-2xl rounded-br-sm;
+}
+
+.chat-bubble-agent {
+    @apply bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm;
+}
+
+/* Input focus styles */
+input:focus, textarea:focus, select:focus {
+    @apply outline-none ring-2 ring-blue-500 ring-opacity-50 border-blue-500;
 }

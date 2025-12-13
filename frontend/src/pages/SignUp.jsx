@@ -68,21 +68,19 @@ export default function SignUp() {
       </div>
 
       {/* Right Side - Sign Up Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900">Intelliax</h1>
-              <p className="text-sm text-gray-600">AI Agent Platform</p>
-            </div>
+          <div className="lg:hidden flex justify-center mb-8">
+            <img 
+              src="/intelliax-logo.png" 
+              alt="Intelliax" 
+              className="h-12 w-auto"
+            />
           </div>
 
           {/* Clerk Sign Up Component */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+          <div className="bg-white">
             <div className="mb-6 text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Create your account</h2>
               <p className="text-gray-600">Get started with Intelliax today</p>
@@ -92,17 +90,19 @@ export default function SignUp() {
               appearance={{
                 elements: {
                   rootBox: "w-full",
-                  card: "shadow-none border-0 p-0",
+                  card: "shadow-none border-0 p-0 bg-transparent",
                   headerTitle: "hidden",
                   headerSubtitle: "hidden",
-                  socialButtonsBlockButton: "border-gray-200 hover:bg-gray-50 text-gray-700 font-medium",
-                  formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg h-11",
-                  formFieldInput: "border-gray-200 rounded-lg h-11",
+                  socialButtonsBlockButton: "border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg h-11 shadow-sm",
+                  socialButtonsBlockButtonText: "font-medium text-sm",
+                  formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg h-11 shadow-sm",
+                  formFieldInput: "border-gray-300 rounded-lg h-11 focus:border-blue-500 focus:ring-blue-500",
                   footerActionLink: "text-blue-600 hover:text-blue-700 font-medium",
                   identityPreviewText: "text-gray-700",
-                  formFieldLabel: "text-gray-700 font-medium",
-                  dividerLine: "bg-gray-200",
-                  dividerText: "text-gray-500",
+                  formFieldLabel: "text-gray-700 font-medium text-sm",
+                  dividerLine: "bg-gray-300",
+                  dividerText: "text-gray-500 text-sm",
+                  footer: "hidden",
                 },
               }}
               routing="path"
@@ -111,10 +111,20 @@ export default function SignUp() {
               redirectUrl="/"
               afterSignUpUrl="/"
             />
+
+            {/* Custom Footer */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{" "}
+                <a href="/signin" className="text-blue-600 hover:text-blue-700 font-medium">
+                  Sign in
+                </a>
+              </p>
+            </div>
           </div>
 
-          {/* Footer */}
-          <p className="text-center text-sm text-gray-500 mt-6">
+          {/* Terms Footer */}
+          <p className="text-center text-xs text-gray-500 mt-8">
             By signing up, you agree to our{" "}
             <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
               Terms of Service

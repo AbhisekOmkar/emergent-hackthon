@@ -140,7 +140,7 @@
 }
 
 .status-paused {
-    @apply bg-amber-50 text-amber-700 border-amber-100 text-[11px] font-medium;
+    @apply bg-blue-50 text-blue-700 border-blue-200 text-[11px] font-medium;
 }
 
 /* Button Styles - Linear inspired */

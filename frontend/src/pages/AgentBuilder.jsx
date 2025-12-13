@@ -45,9 +45,9 @@ function StartNode({ data }) {
 
 function LLMNode({ data }) {
   return (
-    <div className="flow-node bg-amber-500/20 border-amber-500/50 min-w-[180px]">
+    <div className="flow-node bg-blue-600/20 border-blue-600/50 min-w-[180px]">
       <div className="flex items-center gap-2">
-        <Bot className="w-4 h-4 text-amber-400" />
+        <Bot className="w-4 h-4 text-blue-500" />
         <span className="text-sm font-medium text-white">LLM Response</span>
       </div>
       <p className="text-xs text-zinc-400 mt-1">{data.label || "Generate AI response"}</p>
@@ -141,7 +141,7 @@ const initialEdges = [
 
 const nodeCategories = [
   { type: "start", label: "Start", icon: Play, color: "text-emerald-400", bg: "bg-emerald-500/20" },
-  { type: "llm", label: "LLM Response", icon: Bot, color: "text-amber-400", bg: "bg-amber-500/20" },
+  { type: "llm", label: "LLM Response", icon: Bot, color: "text-blue-500", bg: "bg-blue-600/20" },
   { type: "condition", label: "Condition", icon: GitBranch, color: "text-blue-400", bg: "bg-blue-500/20" },
   { type: "action", label: "Action", icon: Zap, color: "text-purple-400", bg: "bg-purple-500/20" },
   { type: "end", label: "End Call", icon: Phone, color: "text-red-400", bg: "bg-red-500/20" },
@@ -246,7 +246,7 @@ function FlowCanvas() {
           </Link>
           <Button 
             onClick={handleSave}
-            className="bg-amber-500 hover:bg-amber-600 text-black"
+            className="bg-blue-600 hover:bg-blue-700 text-black"
           >
             <Save className="w-4 h-4 mr-2" />
             Save Flow

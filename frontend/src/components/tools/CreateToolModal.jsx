@@ -139,7 +139,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
                 placeholder="lookup_inventory"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
-                className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                className="bg-zinc-900/50 border-zinc-800 focus:border-blue-600"
               />
               <p className="text-xs text-zinc-500">Use snake_case</p>
             </div>
@@ -176,7 +176,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
               placeholder="Describe what this tool does. The AI will use this description to decide when to use the tool."
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
-              className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+              className="bg-zinc-900/50 border-zinc-800 focus:border-blue-600"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
                     placeholder="https://api.example.com/endpoint"
                     value={formData.http_url}
                     onChange={(e) => handleChange("http_url", e.target.value)}
-                    className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                    className="bg-zinc-900/50 border-zinc-800 focus:border-blue-600"
                   />
                 </div>
               </div>
@@ -218,7 +218,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
                   placeholder='{"Authorization": "Bearer {{API_KEY}}", "Content-Type": "application/json"}'
                   value={formData.http_headers}
                   onChange={(e) => handleChange("http_headers", e.target.value)}
-                  className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500 font-mono text-sm"
+                  className="bg-zinc-900/50 border-zinc-800 focus:border-blue-600 font-mono text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -227,7 +227,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
                   placeholder='{"query": "{{search_term}}", "limit": 10}'
                   value={formData.http_body_template}
                   onChange={(e) => handleChange("http_body_template", e.target.value)}
-                  className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500 font-mono text-sm"
+                  className="bg-zinc-900/50 border-zinc-800 focus:border-blue-600 font-mono text-sm"
                 />
                 <p className="text-xs text-zinc-500">
                   Use {"{{param_name}}"} for dynamic parameters
@@ -239,7 +239,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
                   placeholder="data.results"
                   value={formData.http_response_path}
                   onChange={(e) => handleChange("http_response_path", e.target.value)}
-                  className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                  className="bg-zinc-900/50 border-zinc-800 focus:border-blue-600"
                 />
                 <p className="text-xs text-zinc-500">JSON path to extract from response</p>
               </div>
@@ -321,7 +321,7 @@ export default function CreateToolModal({ isOpen, onClose }) {
           <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-amber-500 hover:bg-amber-600 text-black"
+            className="bg-blue-600 hover:bg-blue-700 text-black"
           >
             {loading ? "Creating..." : "Create Tool"}
           </Button>

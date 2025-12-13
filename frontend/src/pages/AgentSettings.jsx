@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Database, Check, X, RefreshCw, BookOpen } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
@@ -18,6 +18,9 @@ import {
 import { Slider } from "../components/ui/slider";
 import { useAgentStore } from "../stores/agentStore";
 import { toast } from "sonner";
+import axios from "axios";
+
+const API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
 export default function AgentSettings() {
   const { agentId } = useParams();
@@ -35,12 +38,112 @@ export default function AgentSettings() {
     stt_provider: "deepgram",
     tts_provider: "elevenlabs",
   });
+  
+  // Knowledge Base state
+  const [knowledgeBases, setKnowledgeBases] = useState([]);
+  const [selectedKBs, setSelectedKBs] = useState([]);
+  const [loadingKBs, setLoadingKBs] = useState(false);
+  const [attachingKBs, setAttachingKBs] = useState(false);
+  
+  // Voice platform linking state
+  const [cloudAgents, setCloudAgents] = useState([]);
+  const [selectedCloudAgent, setSelectedCloudAgent] = useState("");
+  const [linkingAgent, setLinkingAgent] = useState(false);
 
   useEffect(() => {
     if (agentId) {
       fetchAgent(agentId);
     }
   }, [agentId, fetchAgent]);
+
+  // Fetch knowledge bases
+  useEffect(() => {
+    fetchKnowledgeBases();
+  }, []);
+
+  // Update selected KBs when agent loads
+  useEffect(() => {
+    if (currentAgent?.knowledge_base_ids) {
+      setSelectedKBs(currentAgent.knowledge_base_ids);
+    }
+  }, [currentAgent]);
+
+  const fetchKnowledgeBases = async () => {
+    setLoadingKBs(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/retell/knowledge-bases`);
+      setKnowledgeBases(response.data || []);
+    } catch (error) {
+      console.error("Error fetching knowledge bases:", error);
+      toast.error("Failed to fetch knowledge bases");
+    }
+    setLoadingKBs(false);
+  };
+
+  const toggleKB = (kbId) => {
+    setSelectedKBs(prev => 
+      prev.includes(kbId) 
+        ? prev.filter(id => id !== kbId)
+        : [...prev, kbId]
+    );
+  };
+
+  const handleAttachKBs = async () => {
+    if (!currentAgent?.retell_agent_id) {
+      toast.error("Agent must be synced with voice platform first. Test the agent to create the connection.");
+      return;
+    }
+    
+    setAttachingKBs(true);
+    try {
+      await axios.post(
+        `${API_URL}/api/retell/agents/${currentAgent.retell_agent_id}/attach-knowledge-base`,
+        selectedKBs
+      );
+      
+      // Update local agent with selected KBs
+      await updateAgent(agentId, { knowledge_base_ids: selectedKBs });
+      
+      toast.success(`Successfully attached ${selectedKBs.length} knowledge base(s)`);
+    } catch (error) {
+      console.error("Error attaching knowledge bases:", error);
+      const errorDetail = error.response?.data?.detail;
+      const errorMsg = typeof errorDetail === 'string' ? errorDetail : 
+        (Array.isArray(errorDetail) ? errorDetail.map(e => e.msg).join(', ') : "Failed to attach knowledge bases");
+      toast.error(errorMsg);
+    }
+    setAttachingKBs(false);
+  };
+
+  // Fetch cloud agents for linking
+  const fetchCloudAgents = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/retell/agents`);
+      setCloudAgents(response.data || []);
+    } catch (error) {
+      console.error("Error fetching cloud agents:", error);
+    }
+  };
+
+  // Link platform agent to existing cloud agent
+  const handleLinkAgent = async () => {
+    if (!selectedCloudAgent) {
+      toast.error("Please select a cloud agent to link");
+      return;
+    }
+    
+    setLinkingAgent(true);
+    try {
+      await updateAgent(agentId, { retell_agent_id: selectedCloudAgent });
+      await fetchAgent(agentId); // Refresh agent data
+      toast.success("Successfully linked to cloud agent!");
+      setSelectedCloudAgent("");
+    } catch (error) {
+      console.error("Error linking agent:", error);
+      toast.error("Failed to link agent");
+    }
+    setLinkingAgent(false);
+  };
 
   useEffect(() => {
     if (currentAgent) {
@@ -97,280 +200,481 @@ export default function AgentSettings() {
   };
 
   return (
-    <div className="space-y-6" data-testid="agent-settings">
+    <div className="min-h-screen bg-gray-50" data-testid="agent-settings">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/agents">
-            <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="font-outfit font-semibold text-xl text-white">
-              Settings: {currentAgent?.name || "Agent"}
-            </h1>
-            <p className="text-sm text-zinc-400">Configure your agent settings</p>
+      <div className="bg-white border-b border-gray-200 px-8 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/agents">
+              <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="font-semibold text-xl text-gray-900">
+                Settings: {currentAgent?.name || "Agent"}
+              </h1>
+              <p className="text-sm text-gray-500">Configure your agent settings</p>
+            </div>
           </div>
+          <Button
+            onClick={handleSave}
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {loading ? "Saving..." : "Save Changes"}
+          </Button>
         </div>
-        <Button
-          onClick={handleSave}
-          disabled={loading}
-          className="bg-amber-500 hover:bg-amber-600 text-black"
-        >
-          <Save className="w-4 h-4 mr-2" />
-          {loading ? "Saving..." : "Save Changes"}
-        </Button>
       </div>
 
-      {/* Settings Tabs */}
-      <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="bg-zinc-900">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="persona">Persona</TabsTrigger>
-          <TabsTrigger value="llm">LLM Settings</TabsTrigger>
-          {(currentAgent?.type === "voice" || currentAgent?.type === "multi-modal") && (
-            <TabsTrigger value="voice">Voice</TabsTrigger>
-          )}
-          <TabsTrigger value="advanced">Advanced</TabsTrigger>
-        </TabsList>
+      {/* Settings Content */}
+      <div className="max-w-5xl mx-auto p-8">
+        <Tabs defaultValue="general" className="space-y-6">
+          <TabsList className="bg-white border border-gray-200 p-1 rounded-lg">
+            <TabsTrigger value="general" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 rounded-md px-4">General</TabsTrigger>
+            <TabsTrigger value="persona" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 rounded-md px-4">Persona</TabsTrigger>
+            <TabsTrigger value="llm" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 rounded-md px-4">LLM Settings</TabsTrigger>
+            <TabsTrigger value="knowledge" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 rounded-md px-4">
+              <Database className="w-4 h-4 mr-2" />
+              Knowledge
+            </TabsTrigger>
+            {(currentAgent?.type === "voice" || currentAgent?.type === "multi-modal") && (
+              <TabsTrigger value="voice" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 rounded-md px-4">Voice</TabsTrigger>
+            )}
+            <TabsTrigger value="advanced" className="data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 rounded-md px-4">Advanced</TabsTrigger>
+          </TabsList>
 
-        {/* General Tab */}
-        <TabsContent value="general">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-white">General Settings</CardTitle>
-              <CardDescription>Basic information about your agent</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-zinc-300">Agent Name</Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                    className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-zinc-300">Description</Label>
-                  <Input
-                    value={formData.description}
-                    onChange={(e) => handleChange("description", e.target.value)}
-                    className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-zinc-300">Greeting Message</Label>
-                <Input
-                  value={formData.greeting_message}
-                  onChange={(e) => handleChange("greeting_message", e.target.value)}
-                  className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Persona Tab */}
-        <TabsContent value="persona">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-white">Agent Persona</CardTitle>
-              <CardDescription>Define your agent's personality and behavior</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-zinc-300">System Prompt</Label>
-                <Textarea
-                  value={formData.system_prompt}
-                  onChange={(e) => handleChange("system_prompt", e.target.value)}
-                  className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500 min-h-[200px]"
-                  placeholder="Define your agent's personality, tone, and instructions..."
-                />
-                <p className="text-xs text-zinc-500">
-                  This prompt defines how your agent behaves and responds to users.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* LLM Tab */}
-        <TabsContent value="llm">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-white">LLM Configuration</CardTitle>
-              <CardDescription>Configure the language model powering your agent</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-zinc-300">Provider</Label>
-                  <Select
-                    value={formData.llm_provider}
-                    onValueChange={(value) => handleChange("llm_provider", value)}
-                  >
-                    <SelectTrigger className="bg-zinc-900/50 border-zinc-800">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800">
-                      <SelectItem value="openai">OpenAI</SelectItem>
-                      <SelectItem value="anthropic">Anthropic</SelectItem>
-                      <SelectItem value="gemini">Google Gemini</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-zinc-300">Model</Label>
-                  <Select
-                    value={formData.llm_model}
-                    onValueChange={(value) => handleChange("llm_model", value)}
-                  >
-                    <SelectTrigger className="bg-zinc-900/50 border-zinc-800">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800">
-                      {formData.llm_provider === "openai" && (
-                        <>
-                          <SelectItem value="gpt-4o">GPT-4o</SelectItem>
-                          <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
-                          <SelectItem value="gpt-4.1">GPT-4.1</SelectItem>
-                          <SelectItem value="gpt-5.1">GPT-5.1</SelectItem>
-                        </>
-                      )}
-                      {formData.llm_provider === "anthropic" && (
-                        <>
-                          <SelectItem value="claude-4-sonnet-20250514">Claude 4 Sonnet</SelectItem>
-                          <SelectItem value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</SelectItem>
-                        </>
-                      )}
-                      {formData.llm_provider === "gemini" && (
-                        <>
-                          <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
-                          <SelectItem value="gemini-2.0-flash">Gemini 2.0 Flash</SelectItem>
-                          <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
-                        </>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-zinc-300">Temperature</Label>
-                    <span className="text-sm text-zinc-400">{formData.temperature}</span>
+          {/* General Tab */}
+          <TabsContent value="general">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">General Settings</CardTitle>
+                <CardDescription className="text-gray-500">Basic information about your agent</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">Agent Name</Label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => handleChange("name", e.target.value)}
+                      className="bg-white border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+                    />
                   </div>
-                  <Slider
-                    value={[formData.temperature]}
-                    onValueChange={([value]) => handleChange("temperature", value)}
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    className="w-full"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-zinc-300">Max Tokens</Label>
-                    <span className="text-sm text-zinc-400">{formData.max_tokens}</span>
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">Description</Label>
+                    <Input
+                      value={formData.description}
+                      onChange={(e) => handleChange("description", e.target.value)}
+                      className="bg-white border-gray-200 focus:border-blue-300 focus:ring-blue-200"
+                    />
                   </div>
-                  <Slider
-                    value={[formData.max_tokens]}
-                    onValueChange={([value]) => handleChange("max_tokens", value)}
-                    min={256}
-                    max={4096}
-                    step={256}
-                    className="w-full"
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700">Greeting Message</Label>
+                  <Input
+                    value={formData.greeting_message}
+                    onChange={(e) => handleChange("greeting_message", e.target.value)}
+                    className="bg-white border-gray-200 focus:border-blue-300 focus:ring-blue-200"
                   />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        {/* Voice Tab */}
-        <TabsContent value="voice">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-white">Voice Configuration</CardTitle>
-              <CardDescription>Configure speech-to-text and text-to-speech settings</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+          {/* Persona Tab */}
+          <TabsContent value="persona">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">Agent Persona</CardTitle>
+                <CardDescription className="text-gray-500">Define your agent's personality and behavior</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-zinc-300">STT Provider</Label>
-                  <Select
-                    value={formData.stt_provider}
-                    onValueChange={(value) => handleChange("stt_provider", value)}
-                  >
-                    <SelectTrigger className="bg-zinc-900/50 border-zinc-800">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800">
-                      <SelectItem value="deepgram">Deepgram</SelectItem>
-                      <SelectItem value="assemblyai">AssemblyAI</SelectItem>
-                      <SelectItem value="whisper">OpenAI Whisper</SelectItem>
-                      <SelectItem value="google">Google Speech</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-zinc-300">TTS Provider</Label>
-                  <Select
-                    value={formData.tts_provider}
-                    onValueChange={(value) => handleChange("tts_provider", value)}
-                  >
-                    <SelectTrigger className="bg-zinc-900/50 border-zinc-800">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-800">
-                      <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
-                      <SelectItem value="cartesia">Cartesia</SelectItem>
-                      <SelectItem value="openai">OpenAI TTS</SelectItem>
-                      <SelectItem value="playht">PlayHT</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Advanced Tab */}
-        <TabsContent value="advanced">
-          <Card className="glass-card border-red-500/20">
-            <CardHeader>
-              <CardTitle className="text-white">Danger Zone</CardTitle>
-              <CardDescription>Irreversible actions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                <div>
-                  <p className="font-medium text-white">Delete Agent</p>
-                  <p className="text-sm text-zinc-400">
-                    Permanently delete this agent and all its data
+                  <Label className="text-gray-700">System Prompt</Label>
+                  <Textarea
+                    value={formData.system_prompt}
+                    onChange={(e) => handleChange("system_prompt", e.target.value)}
+                    className="bg-white border-gray-200 focus:border-blue-300 focus:ring-blue-200 min-h-[200px]"
+                    placeholder="Define your agent's personality, tone, and instructions..."
+                  />
+                  <p className="text-xs text-gray-500">
+                    This prompt defines how your agent behaves and responds to users.
                   </p>
                 </div>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    if (window.confirm("Are you sure you want to delete this agent?")) {
-                      deleteAgent(agentId);
-                      window.location.href = "/agents";
-                    }
-                  }}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* LLM Tab */}
+          <TabsContent value="llm">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">LLM Configuration</CardTitle>
+                <CardDescription className="text-gray-500">Configure the language model powering your agent</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">Provider</Label>
+                    <Select
+                      value={formData.llm_provider}
+                      onValueChange={(value) => handleChange("llm_provider", value)}
+                    >
+                      <SelectTrigger className="bg-white border-gray-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-gray-200">
+                        <SelectItem value="openai">OpenAI</SelectItem>
+                        <SelectItem value="anthropic">Anthropic</SelectItem>
+                        <SelectItem value="gemini">Google Gemini</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">Model</Label>
+                    <Select
+                      value={formData.llm_model}
+                      onValueChange={(value) => handleChange("llm_model", value)}
+                    >
+                      <SelectTrigger className="bg-white border-gray-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-gray-200">
+                        {formData.llm_provider === "openai" && (
+                          <>
+                            <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+                            <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
+                            <SelectItem value="gpt-4.1">GPT-4.1</SelectItem>
+                            <SelectItem value="gpt-5.1">GPT-5.1</SelectItem>
+                          </>
+                        )}
+                        {formData.llm_provider === "anthropic" && (
+                          <>
+                            <SelectItem value="claude-4-sonnet-20250514">Claude 4 Sonnet</SelectItem>
+                            <SelectItem value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</SelectItem>
+                          </>
+                        )}
+                        {formData.llm_provider === "gemini" && (
+                          <>
+                            <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
+                            <SelectItem value="gemini-2.0-flash">Gemini 2.0 Flash</SelectItem>
+                            <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-gray-700">Temperature</Label>
+                      <span className="text-sm text-gray-500">{formData.temperature}</span>
+                    </div>
+                    <Slider
+                      value={[formData.temperature]}
+                      onValueChange={([value]) => handleChange("temperature", value)}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-gray-700">Max Tokens</Label>
+                      <span className="text-sm text-gray-500">{formData.max_tokens}</span>
+                    </div>
+                    <Slider
+                      value={[formData.max_tokens]}
+                      onValueChange={([value]) => handleChange("max_tokens", value)}
+                      min={256}
+                      max={4096}
+                      step={256}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Knowledge Base Tab */}
+          <TabsContent value="knowledge">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-gray-900 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-blue-600" />
+                      Knowledge Base Integration
+                    </CardTitle>
+                    <CardDescription className="text-gray-500 mt-1">
+                      Attach knowledge bases to enable RAG (Retrieval-Augmented Generation) for your agent
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={fetchKnowledgeBases}
+                      disabled={loadingKBs}
+                      className="border-gray-200"
+                    >
+                      <RefreshCw className={`w-4 h-4 mr-2 ${loadingKBs ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                    <Link to="/knowledge">
+                      <Button variant="outline" size="sm" className="border-gray-200">
+                        Manage Knowledge Bases
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {!currentAgent?.retell_agent_id && (
+                  <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-4">
+                    <p className="text-amber-800 text-sm">
+                      <strong>Note:</strong> To attach knowledge bases, your agent must first be connected to the voice platform.
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      {/* Option 1: Test to create */}
+                      <Link to={`/agents/${agentId}/test`} className="flex-1">
+                        <Button variant="outline" className="w-full border-amber-300 text-amber-700 hover:bg-amber-100">
+                          Go to Test Page
+                        </Button>
+                      </Link>
+                      
+                      {/* Option 2: Link existing */}
+                      <div className="flex-1 flex gap-2">
+                        <Select
+                          value={selectedCloudAgent}
+                          onValueChange={setSelectedCloudAgent}
+                          onOpenChange={(open) => open && fetchCloudAgents()}
+                        >
+                          <SelectTrigger className="bg-white border-gray-200 flex-1">
+                            <SelectValue placeholder="Link existing agent..." />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-gray-200">
+                            {cloudAgents.length === 0 ? (
+                              <SelectItem value="_none" disabled>No agents found</SelectItem>
+                            ) : (
+                              cloudAgents.map((agent) => (
+                                <SelectItem key={agent.agent_id} value={agent.agent_id}>
+                                  {agent.agent_name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          onClick={handleLinkAgent}
+                          disabled={!selectedCloudAgent || linkingAgent}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          {linkingAgent ? "Linking..." : "Link"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {currentAgent?.retell_agent_id && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span className="text-green-700 text-sm">
+                      Connected to voice platform (ID: {currentAgent.retell_agent_id.slice(-8)})
+                    </span>
+                  </div>
+                )}
+                
+                {loadingKBs ? (
+                  <div className="flex items-center justify-center py-12">
+                    <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+                  </div>
+                ) : knowledgeBases.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Database className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                    <p className="text-gray-500 mb-4">No knowledge bases found</p>
+                    <Link to="/knowledge">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                        Create Knowledge Base
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                      {knowledgeBases.map((kb) => {
+                        const isSelected = selectedKBs.includes(kb.knowledge_base_id);
+                        const sourcesCount = kb.knowledge_base_sources?.length || 0;
+                        
+                        return (
+                          <div
+                            key={kb.knowledge_base_id}
+                            onClick={() => toggleKB(kb.knowledge_base_id)}
+                            className={`
+                              p-4 rounded-lg border-2 cursor-pointer transition-all
+                              ${isSelected 
+                                ? 'border-blue-500 bg-blue-50' 
+                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                              }
+                            `}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-medium text-gray-900">
+                                    {kb.knowledge_base_name}
+                                  </h4>
+                                  {kb.status === "in_progress" && (
+                                    <span className="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-700 rounded-full">
+                                      Processing
+                                    </span>
+                                  )}
+                                  {kb.status === "complete" && (
+                                    <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
+                                      Ready
+                                    </span>
+                                  )}
+                                  {kb.status === "error" && (
+                                    <span className="px-2 py-0.5 text-xs bg-red-100 text-red-700 rounded-full">
+                                      Error
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1">
+                                  {sourcesCount} source{sourcesCount !== 1 ? 's' : ''} • ID: {kb.knowledge_base_id.slice(-8)}
+                                </p>
+                              </div>
+                              <div className={`
+                                w-6 h-6 rounded-full border-2 flex items-center justify-center
+                                ${isSelected 
+                                  ? 'bg-blue-500 border-blue-500' 
+                                  : 'border-gray-300'
+                                }
+                              `}>
+                                {isSelected && <Check className="w-4 h-4 text-white" />}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                      <p className="text-sm text-gray-500">
+                        {selectedKBs.length} knowledge base{selectedKBs.length !== 1 ? 's' : ''} selected
+                      </p>
+                      <Button
+                        onClick={handleAttachKBs}
+                        disabled={attachingKBs || !currentAgent?.retell_agent_id}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        {attachingKBs ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                            Attaching...
+                          </>
+                        ) : (
+                          <>
+                            <Database className="w-4 h-4 mr-2" />
+                            Attach Selected
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Voice Tab */}
+          <TabsContent value="voice">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">Voice Configuration</CardTitle>
+                <CardDescription className="text-gray-500">Configure speech-to-text and text-to-speech settings</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">STT Provider</Label>
+                    <Select
+                      value={formData.stt_provider}
+                      onValueChange={(value) => handleChange("stt_provider", value)}
+                    >
+                      <SelectTrigger className="bg-white border-gray-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-gray-200">
+                        <SelectItem value="deepgram">Deepgram</SelectItem>
+                        <SelectItem value="assemblyai">AssemblyAI</SelectItem>
+                        <SelectItem value="whisper">OpenAI Whisper</SelectItem>
+                        <SelectItem value="google">Google Speech</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">TTS Provider</Label>
+                    <Select
+                      value={formData.tts_provider}
+                      onValueChange={(value) => handleChange("tts_provider", value)}
+                    >
+                      <SelectTrigger className="bg-white border-gray-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-gray-200">
+                        <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
+                        <SelectItem value="cartesia">Cartesia</SelectItem>
+                        <SelectItem value="openai">OpenAI TTS</SelectItem>
+                        <SelectItem value="playht">PlayHT</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Advanced Tab */}
+          <TabsContent value="advanced">
+            <Card className="bg-white border-red-100 shadow-sm">
+              <CardHeader className="border-b border-red-100">
+                <CardTitle className="text-gray-900">Danger Zone</CardTitle>
+                <CardDescription className="text-gray-500">Irreversible actions</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-red-50 border border-red-100">
+                  <div>
+                    <p className="font-medium text-gray-900">Delete Agent</p>
+                    <p className="text-sm text-gray-500">
+                      Permanently delete this agent and all its data
+                    </p>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to delete this agent?")) {
+                        deleteAgent(agentId);
+                        window.location.href = "/agents";
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

@@ -45,11 +45,11 @@ const categoryColors = {
   payment: { bg: "bg-emerald-50", icon: "text-emerald-600", border: "border-emerald-200" },
   storage: { bg: "bg-indigo-50", icon: "text-indigo-600", border: "border-indigo-200" },
   messaging: { bg: "bg-cyan-50", icon: "text-cyan-600", border: "border-cyan-200" },
-  call_center: { bg: "bg-orange-50", icon: "text-orange-600", border: "border-orange-200" },
+  call_center: { bg: "bg-blue-50", icon: "text-blue-700", border: "border-blue-300" },
   genai: { bg: "bg-violet-50", icon: "text-violet-600", border: "border-violet-200" },
   commerce: { bg: "bg-rose-50", icon: "text-rose-600", border: "border-rose-200" },
   ats: { bg: "bg-teal-50", icon: "text-teal-600", border: "border-teal-200" },
-  tasks: { bg: "bg-amber-50", icon: "text-amber-600", border: "border-amber-200" },
+  tasks: { bg: "bg-blue-50", icon: "text-blue-700", border: "border-blue-300" },
   enrichment: { bg: "bg-slate-50", icon: "text-slate-600", border: "border-slate-200" },
 };
 

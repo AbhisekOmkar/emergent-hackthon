@@ -114,7 +114,7 @@ export default function CreateAgentModal({ isOpen, onClose }) {
       if (result) {
         toast.success("Agent created successfully!");
         onClose();
-        navigate(`/agents/${result.id}/builder`);
+        navigate(`/agents/${result.id}/test`);
       } else {
         toast.error("Failed to create agent");
       }

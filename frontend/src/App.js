@@ -11,8 +11,9 @@ import Flows from "./pages/Flows";
 import FlowBuilder from "./pages/FlowBuilder";
 import Tools from "./pages/Tools";
 import Knowledge from "./pages/Knowledge";
-import Integrations from "./pages/Integrations";
 import Analytics from "./pages/Analytics";
+import History from "./pages/History";
+import AgentEval from "./pages/AgentEval";
 import Settings from "./pages/Settings";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -57,8 +58,9 @@ function App() {
               <Route path="flows" element={<Flows />} />
               <Route path="tools" element={<Tools />} />
               <Route path="knowledge" element={<Knowledge />} />
-              <Route path="integrations" element={<Integrations />} />
               <Route path="analytics" element={<Analytics />} />
+              <Route path="history" element={<History />} />
+              <Route path="eval" element={<AgentEval />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             {/* Flow Builder - Full screen without sidebar */}

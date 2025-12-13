@@ -19,6 +19,8 @@ import {
   User,
   ChevronDown,
   LogOut,
+  History,
+  FlaskConical,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
@@ -39,11 +41,12 @@ const buildItems = [
 
 const manageItems = [
   { path: "/knowledge", icon: BookOpen, label: "Knowledge", description: "Training data" },
-  { path: "/integrations", icon: Plug, label: "Integrations", description: "Connect apps" },
 ];
 
 const monitorItems = [
   { path: "/analytics", icon: BarChart3, label: "Analytics", description: "Performance" },
+  { path: "/history", icon: History, label: "Call History", description: "Call logs & recordings" },
+  { path: "/eval", icon: FlaskConical, label: "Agent Eval", description: "Test & evaluate" },
   { path: "/settings", icon: Settings, label: "Settings", description: "Configuration" },
 ];
 
@@ -92,19 +95,11 @@ export default function DashboardLayout() {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-4 border-b border-white/5">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {sidebarOpen ? (
-                <img 
-                  src="/intelliax-logo.png" 
-                  alt="Intelliax" 
-                  className="h-10 w-auto"
-                />
+                <span className="text-xl font-bold text-white tracking-tight">IntelliAX</span>
               ) : (
-                <img 
-                  src="/intelliax-logo.png" 
-                  alt="Intelliax" 
-                  className="h-8 w-auto"
-                />
+                <span className="text-lg font-bold text-white">I</span>
               )}
             </div>
             <Button

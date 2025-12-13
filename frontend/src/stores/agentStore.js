@@ -8,11 +8,36 @@ export const useAgentStore = create((set, get) => ({
   currentAgent: null,
   loading: false,
   error: null,
+  syncing: false,
 
-  // Fetch all agents
-  fetchAgents: async () => {
+  // Sync agents from cloud to local DB
+  syncCloudAgents: async () => {
+    set({ syncing: true });
+    try {
+      await axios.post(`${API}/retell/sync-agents`);
+      return true;
+    } catch (error) {
+      console.error('Failed to sync cloud agents:', error);
+      return false;
+    } finally {
+      set({ syncing: false });
+    }
+  },
+
+  // Fetch all agents (syncs with cloud first)
+  fetchAgents: async (syncFirst = true) => {
     set({ loading: true, error: null });
     try {
+      // Optionally sync from cloud first to get any new agents
+      if (syncFirst) {
+        try {
+          await axios.post(`${API}/retell/sync-agents`);
+        } catch (syncError) {
+          console.warn('Cloud sync skipped:', syncError.message);
+        }
+      }
+      
+      // Then fetch all agents from local DB
       const response = await axios.get(`${API}/agents`);
       set({ agents: response.data, loading: false });
     } catch (error) {
@@ -103,6 +128,20 @@ export const useAgentStore = create((set, get) => ({
 
   // Clear current agent
   clearCurrentAgent: () => set({ currentAgent: null }),
+
+  // Cleanup deleted agents (remove agents that no longer exist in cloud)
+  cleanupDeletedAgents: async () => {
+    set({ syncing: true });
+    try {
+      const response = await axios.post(`${API}/agents/cleanup`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to cleanup agents:', error);
+      return null;
+    } finally {
+      set({ syncing: false });
+    }
+  },
 }));
 
 export const useFlowStore = create((set, get) => ({
@@ -204,15 +243,27 @@ export const useToolStore = create((set) => ({
 
 export const useAnalyticsStore = create((set) => ({
   analytics: null,
+  chartData: null,
+  recentCalls: [],
   insights: [],
   loading: false,
 
-  fetchAnalytics: async () => {
+  fetchAnalytics: async (days = 7) => {
     set({ loading: true });
     try {
-      const response = await axios.get(`${API}/analytics/calls`);
-      set({ analytics: response.data, loading: false });
+      const [analyticsRes, chartRes, recentRes] = await Promise.all([
+        axios.get(`${API}/analytics/calls?days=${days}`),
+        axios.get(`${API}/analytics/chart-data?days=${days}`),
+        axios.get(`${API}/analytics/recent-calls?limit=10`)
+      ]);
+      set({ 
+        analytics: analyticsRes.data, 
+        chartData: chartRes.data,
+        recentCalls: recentRes.data,
+        loading: false 
+      });
     } catch (error) {
+      console.error('Failed to fetch analytics:', error);
       set({ loading: false });
     }
   },

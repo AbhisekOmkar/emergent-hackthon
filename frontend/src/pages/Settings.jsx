@@ -19,9 +19,7 @@ export default function Settings() {
     openai: "",
     anthropic: "",
     elevenlabs: "",
-    livekit_url: "",
-    livekit_api_key: "",
-    livekit_api_secret: "",
+    retell_api_key: "",
   });
 
   const [notifications, setNotifications] = useState({
@@ -39,261 +37,264 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6" data-testid="settings-page">
+    <div className="min-h-screen bg-gray-50" data-testid="settings-page">
       {/* Header */}
-      <div>
-        <h1 className="font-sans font-bold text-3xl text-zinc-900">Settings</h1>
-        <p className="text-zinc-400 mt-1">Manage your account and preferences</p>
+      <div className="bg-white border-b border-gray-200 px-8 py-6">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="font-bold text-3xl text-gray-900">Settings</h1>
+          <p className="text-gray-500 mt-1">Manage your account and preferences</p>
+        </div>
       </div>
 
-      {/* Settings Tabs */}
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-zinc-900">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="w-4 h-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="api-keys" className="flex items-center gap-2">
-            <Key className="w-4 h-4" />
-            API Keys
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
-            <Bell className="w-4 h-4" />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value="billing" className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4" />
-            Billing
-          </TabsTrigger>
-        </TabsList>
+      <div className="max-w-4xl mx-auto p-8">
+        {/* Settings Tabs */}
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList className="bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
+            <TabsTrigger 
+              value="profile" 
+              className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-md"
+            >
+              <User className="w-4 h-4" />
+              Profile
+            </TabsTrigger>
+            <TabsTrigger 
+              value="api-keys" 
+              className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-md"
+            >
+              <Key className="w-4 h-4" />
+              API Keys
+            </TabsTrigger>
+            <TabsTrigger 
+              value="notifications" 
+              className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-md"
+            >
+              <Bell className="w-4 h-4" />
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger 
+              value="billing" 
+              className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-md"
+            >
+              <CreditCard className="w-4 h-4" />
+              Billing
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Profile Tab */}
-        <TabsContent value="profile">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-zinc-900">Profile Information</CardTitle>
-              <CardDescription>Update your account details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-zinc-300">Name</Label>
-                  <Input
-                    value={profileData.name}
-                    onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
-                    className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-zinc-300">Email</Label>
-                  <Input
-                    type="email"
-                    value={profileData.email}
-                    onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))}
-                    className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-zinc-300">Company</Label>
-                <Input
-                  value={profileData.company}
-                  onChange={(e) => setProfileData((prev) => ({ ...prev, company: e.target.value }))}
-                  className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
-                />
-              </div>
-              <Button onClick={handleSaveProfile} className="bg-amber-500 hover:bg-amber-600 text-black">
-                <Save className="w-4 h-4 mr-2" />
-                Save Profile
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* API Keys Tab */}
-        <TabsContent value="api-keys">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-zinc-900">API Keys</CardTitle>
-              <CardDescription>Configure your service API keys</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* LLM Providers */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-zinc-300">LLM Providers</h3>
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">Profile Information</CardTitle>
+                <CardDescription className="text-gray-500">Update your account details</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-zinc-400">OpenAI API Key</Label>
+                    <Label className="text-gray-700">Name</Label>
                     <Input
-                      type="password"
-                      placeholder="sk-..."
-                      value={apiKeys.openai}
-                      onChange={(e) => setApiKeys((prev) => ({ ...prev, openai: e.target.value }))}
-                      className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                      value={profileData.name}
+                      onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
+                      className="bg-white border-gray-200 focus:border-blue-300"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-zinc-400">Anthropic API Key</Label>
+                    <Label className="text-gray-700">Email</Label>
                     <Input
-                      type="password"
-                      placeholder="sk-ant-..."
-                      value={apiKeys.anthropic}
-                      onChange={(e) => setApiKeys((prev) => ({ ...prev, anthropic: e.target.value }))}
-                      className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))}
+                      className="bg-white border-gray-200 focus:border-blue-300"
                     />
                   </div>
                 </div>
-              </div>
-
-              {/* Voice Providers */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-zinc-300">Voice Providers</h3>
                 <div className="space-y-2">
-                  <Label className="text-zinc-400">ElevenLabs API Key</Label>
+                  <Label className="text-gray-700">Company</Label>
                   <Input
-                    type="password"
-                    placeholder="xi-..."
-                    value={apiKeys.elevenlabs}
-                    onChange={(e) => setApiKeys((prev) => ({ ...prev, elevenlabs: e.target.value }))}
-                    className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                    value={profileData.company}
+                    onChange={(e) => setProfileData((prev) => ({ ...prev, company: e.target.value }))}
+                    className="bg-white border-gray-200 focus:border-blue-300"
                   />
                 </div>
-              </div>
+                <Button onClick={handleSaveProfile} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Profile
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              {/* LiveKit */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-zinc-300">LiveKit Configuration</h3>
+          {/* API Keys Tab */}
+          <TabsContent value="api-keys">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">API Keys</CardTitle>
+                <CardDescription className="text-gray-500">Configure your service API keys</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {/* LLM Providers */}
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-zinc-400">LiveKit URL</Label>
-                    <Input
-                      placeholder="wss://your-livekit-server.com"
-                      value={apiKeys.livekit_url}
-                      onChange={(e) => setApiKeys((prev) => ({ ...prev, livekit_url: e.target.value }))}
-                      className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
-                    />
-                  </div>
+                  <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">LLM Providers</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-zinc-400">API Key</Label>
+                      <Label className="text-gray-600">OpenAI API Key</Label>
                       <Input
                         type="password"
-                        placeholder="API Key"
-                        value={apiKeys.livekit_api_key}
-                        onChange={(e) => setApiKeys((prev) => ({ ...prev, livekit_api_key: e.target.value }))}
-                        className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                        placeholder="sk-..."
+                        value={apiKeys.openai}
+                        onChange={(e) => setApiKeys((prev) => ({ ...prev, openai: e.target.value }))}
+                        className="bg-white border-gray-200 focus:border-blue-300"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-zinc-400">API Secret</Label>
+                      <Label className="text-gray-600">Anthropic API Key</Label>
                       <Input
                         type="password"
-                        placeholder="API Secret"
-                        value={apiKeys.livekit_api_secret}
-                        onChange={(e) => setApiKeys((prev) => ({ ...prev, livekit_api_secret: e.target.value }))}
-                        className="bg-zinc-900/50 border-zinc-800 focus:border-amber-500"
+                        placeholder="sk-ant-..."
+                        value={apiKeys.anthropic}
+                        onChange={(e) => setApiKeys((prev) => ({ ...prev, anthropic: e.target.value }))}
+                        className="bg-white border-gray-200 focus:border-blue-300"
                       />
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <Button onClick={handleSaveApiKeys} className="bg-amber-500 hover:bg-amber-600 text-black">
-                <Save className="w-4 h-4 mr-2" />
-                Save API Keys
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Notifications Tab */}
-        <TabsContent value="notifications">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-zinc-900">Notification Preferences</CardTitle>
-              <CardDescription>Configure how you receive notifications</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-zinc-900">Email Alerts</p>
-                  <p className="text-sm text-zinc-400">Receive alerts via email</p>
-                </div>
-                <Switch
-                  checked={notifications.email_alerts}
-                  onCheckedChange={(checked) =>
-                    setNotifications((prev) => ({ ...prev, email_alerts: checked }))
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-zinc-900">Call Notifications</p>
-                  <p className="text-sm text-zinc-400">Get notified for each call</p>
-                </div>
-                <Switch
-                  checked={notifications.call_notifications}
-                  onCheckedChange={(checked) =>
-                    setNotifications((prev) => ({ ...prev, call_notifications: checked }))
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-zinc-900">Weekly Reports</p>
-                  <p className="text-sm text-zinc-400">Receive weekly analytics reports</p>
-                </div>
-                <Switch
-                  checked={notifications.weekly_reports}
-                  onCheckedChange={(checked) =>
-                    setNotifications((prev) => ({ ...prev, weekly_reports: checked }))
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Billing Tab */}
-        <TabsContent value="billing">
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-zinc-900">Billing & Usage</CardTitle>
-              <CardDescription>Manage your subscription and view usage</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-zinc-900">Current Plan</p>
-                    <p className="text-2xl font-sans font-bold text-amber-400">Pro Plan</p>
+                {/* Voice Providers */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">Voice Providers</h3>
+                  <div className="space-y-2">
+                    <Label className="text-gray-600">ElevenLabs API Key</Label>
+                    <Input
+                      type="password"
+                      placeholder="xi-..."
+                      value={apiKeys.elevenlabs}
+                      onChange={(e) => setApiKeys((prev) => ({ ...prev, elevenlabs: e.target.value }))}
+                      className="bg-white border-gray-200 focus:border-blue-300"
+                    />
                   </div>
-                  <Button variant="outline" className="border-amber-500 text-amber-400">
-                    Upgrade
-                  </Button>
                 </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 rounded-lg bg-zinc-800/30">
-                  <p className="text-sm text-zinc-400">Calls Used</p>
-                  <p className="text-2xl font-sans font-bold text-zinc-900">1,234</p>
-                  <p className="text-xs text-zinc-500">of 5,000 / month</p>
+
+                {/* Voice Platform */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">Voice Platform Configuration</h3>
+                  <div className="space-y-2">
+                    <Label className="text-gray-600">Voice Platform API Key</Label>
+                    <Input
+                      type="password"
+                      placeholder="key_..."
+                      value={apiKeys.retell_api_key}
+                      onChange={(e) => setApiKeys((prev) => ({ ...prev, retell_api_key: e.target.value }))}
+                      className="bg-white border-gray-200 focus:border-blue-300"
+                    />
+                    <p className="text-xs text-gray-400">Required for voice agent functionality</p>
+                  </div>
                 </div>
-                <div className="p-4 rounded-lg bg-zinc-800/30">
-                  <p className="text-sm text-zinc-400">Agents</p>
-                  <p className="text-2xl font-sans font-bold text-zinc-900">5</p>
-                  <p className="text-xs text-zinc-500">of 10 max</p>
+
+                <Button onClick={handleSaveApiKeys} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Save className="w-4 h-4 mr-2" />
+                  Save API Keys
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">Notification Preferences</CardTitle>
+                <CardDescription className="text-gray-500">Configure how you receive notifications</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-100">
+                  <div>
+                    <p className="font-medium text-gray-900">Email Alerts</p>
+                    <p className="text-sm text-gray-500">Receive alerts via email</p>
+                  </div>
+                  <Switch
+                    checked={notifications.email_alerts}
+                    onCheckedChange={(checked) =>
+                      setNotifications((prev) => ({ ...prev, email_alerts: checked }))
+                    }
+                  />
                 </div>
-                <div className="p-4 rounded-lg bg-zinc-800/30">
-                  <p className="text-sm text-zinc-400">Storage</p>
-                  <p className="text-2xl font-sans font-bold text-zinc-900">2.4 GB</p>
-                  <p className="text-xs text-zinc-500">of 10 GB</p>
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-100">
+                  <div>
+                    <p className="font-medium text-gray-900">Call Notifications</p>
+                    <p className="text-sm text-gray-500">Get notified for each call</p>
+                  </div>
+                  <Switch
+                    checked={notifications.call_notifications}
+                    onCheckedChange={(checked) =>
+                      setNotifications((prev) => ({ ...prev, call_notifications: checked }))
+                    }
+                  />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-100">
+                  <div>
+                    <p className="font-medium text-gray-900">Weekly Reports</p>
+                    <p className="text-sm text-gray-500">Receive weekly analytics reports</p>
+                  </div>
+                  <Switch
+                    checked={notifications.weekly_reports}
+                    onCheckedChange={(checked) =>
+                      setNotifications((prev) => ({ ...prev, weekly_reports: checked }))
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Billing Tab */}
+          <TabsContent value="billing">
+            <Card className="bg-white border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100">
+                <CardTitle className="text-gray-900">Billing & Usage</CardTitle>
+                <CardDescription className="text-gray-500">Manage your subscription and view usage</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                <div className="p-5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-600">Current Plan</p>
+                      <p className="text-2xl font-bold text-blue-600 mt-1">Pro Plan</p>
+                    </div>
+                    <Button variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+                      Upgrade
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-4 rounded-lg bg-gray-50 border border-gray-100">
+                    <p className="text-sm text-gray-500">Calls Used</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">1,234</p>
+                    <p className="text-xs text-gray-400 mt-1">of 5,000 / month</p>
+                    <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: '25%' }}></div>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-gray-50 border border-gray-100">
+                    <p className="text-sm text-gray-500">Agents</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">5</p>
+                    <p className="text-xs text-gray-400 mt-1">of 10 max</p>
+                    <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: '50%' }}></div>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-gray-50 border border-gray-100">
+                    <p className="text-sm text-gray-500">Storage</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">2.4 GB</p>
+                    <p className="text-xs text-gray-400 mt-1">of 10 GB</p>
+                    <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-purple-500 rounded-full" style={{ width: '24%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

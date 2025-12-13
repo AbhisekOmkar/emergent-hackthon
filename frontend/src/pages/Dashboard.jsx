@@ -51,8 +51,8 @@ export default function Dashboard() {
       value: `${Math.round(analytics?.average_duration || 0)}s`,
       icon: Clock,
       change: "Per conversation",
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-600",
+      iconBg: "bg-blue-200",
+      iconColor: "text-blue-700",
     },
   ];
 
@@ -100,13 +100,92 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="hidden lg:block">
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-black/10">
-                  <img 
-                    src="https://images.unsplash.com/photo-1655393001768-d946c97d6fd1?w=800&h=600&fit=crop" 
-                    alt="AI Dashboard" 
-                    className="w-full h-[400px] object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                <div className="relative">
+                  {/* AI Agent Interface Mockup */}
+                  <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 space-y-4">
+                    {/* Chat Header */}
+                    <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                        <Bot className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Support Agent</p>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                          <span className="text-xs text-green-600">Active</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Chat Messages */}
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Bot className="w-3.5 h-3.5 text-blue-600" />
+                        </div>
+                        <div className="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[80%]">
+                          <p className="text-sm text-gray-700">Hi! I'm your AI assistant. How can I help you today?</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <div className="bg-blue-600 rounded-2xl rounded-tr-md px-4 py-2.5 max-w-[80%]">
+                          <p className="text-sm text-white">I need help with my account settings</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Bot className="w-3.5 h-3.5 text-blue-600" />
+                        </div>
+                        <div className="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[80%]">
+                          <p className="text-sm text-gray-700">I'd be happy to help! Let me pull up your account details...</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Voice Indicator */}
+                    <div className="flex items-center justify-center gap-1 py-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <div 
+                            key={i} 
+                            className="w-1 bg-purple-500 rounded-full animate-pulse" 
+                            style={{ 
+                              height: `${12 + Math.random() * 16}px`,
+                              animationDelay: `${i * 0.1}s`
+                            }}
+                          ></div>
+                        ))}
+                      </div>
+                      <span className="text-xs text-purple-600 font-medium ml-2">Voice Active</span>
+                    </div>
+
+                    {/* Input */}
+                    <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl border border-gray-200">
+                      <input 
+                        type="text" 
+                        placeholder="Type a message..." 
+                        className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none px-2"
+                        readOnly
+                      />
+                      <button className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                        <Mic className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Floating Stats */}
+                  <div className="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-xs font-medium text-gray-700">98% Success Rate</span>
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-blue-500" />
+                      <span className="text-xs font-medium text-gray-700">1.2k Conversations</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,12 +242,19 @@ export default function Dashboard() {
             <CardContent className="pt-4">
               {recentAgents.length === 0 ? (
                 <div className="text-center py-16 fade-in">
-                  <div className="empty-state-image max-w-sm mx-auto mb-6">
-                    <img 
-                      src="https://images.unsplash.com/photo-1617791160536-598cf32026fb?w=600&h=400&fit=crop" 
-                      alt="AI Brain" 
-                      className="w-full h-64 object-cover rounded-xl opacity-70"
-                    />
+                  <div className="max-w-sm mx-auto mb-6">
+                    {/* Empty State Illustration */}
+                    <div className="relative mx-auto w-48 h-48">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full opacity-50"></div>
+                      <div className="absolute inset-4 bg-white rounded-full shadow-inner flex items-center justify-center">
+                        <div className="relative">
+                          <Bot className="w-16 h-16 text-blue-200" />
+                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                            <Plus className="w-4 h-4 text-white" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No agents yet</h3>
                   <p className="text-gray-500 mb-6 max-w-md mx-auto">Get started by creating your first AI agent. Build intelligent assistants for voice, chat, or multi-modal interactions.</p>
@@ -293,10 +379,10 @@ export default function Dashboard() {
               <Link to="/knowledge" className="block">
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start h-auto p-3 bg-white border-gray-200 hover:bg-amber-50 hover:border-amber-200 transition-all group"
+                  className="w-full justify-start h-auto p-3 bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center mr-3 group-hover:bg-amber-100 transition-colors">
-                    <Activity className="w-5 h-5 text-amber-600" />
+                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                    <Activity className="w-5 h-5 text-blue-700" />
                   </div>
                   <div className="flex-1 text-left">
                     <p className="font-medium text-sm text-gray-900">Upload Knowledge</p>

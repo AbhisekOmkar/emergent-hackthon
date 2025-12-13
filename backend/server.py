@@ -1,7 +1,12 @@
+"""
+AI Agent Builder API - Backend Server
+Using Retell AI for voice agents
+"""
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, BackgroundTasks
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from contextlib import asynccontextmanager
 import os
 import logging
 from pathlib import Path
@@ -19,11 +24,26 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-from livekit import api
-from livekit.protocol import models as lk_models
+# Lifespan context manager
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger = logging.getLogger(__name__)
+    logger.info("Starting AI Agent Builder API...")
+    
+    # Check Retell API key
+    retell_key = os.environ.get('RETELL_API_KEY')
+    if retell_key:
+        logger.info(f"Retell API key configured: {retell_key[:12]}...")
+    else:
+        logger.warning("RETELL_API_KEY not configured. Voice features will not work.")
+    
+    yield  # Server is running
+    
+    # Shutdown
+    client.close()
+    logger.info("MongoDB connection closed")
 
-app = FastAPI(title="AI Agent Builder API", version="1.0.0")
+app = FastAPI(title="AI Agent Builder API", version="1.0.0", lifespan=lifespan)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -47,11 +67,11 @@ class LLMProvider(str, Enum):
 # ========== MODELS ==========
 class VoiceConfig(BaseModel):
     direction: str = "inbound"
-    stt_provider: str = "deepgram"
-    tts_provider: str = "elevenlabs"
-    tts_voice: str = "default"
-    llm_provider: LLMProvider = LLMProvider.OPENAI
-    llm_model: str = "gpt-4o"
+    voice_id: str = "11labs-Adrian"
+    language: str = "en-US"
+    responsiveness: float = 1.0
+    interruption_sensitivity: float = 1.0
+    enable_backchannel: bool = True
 
 class ChatConfig(BaseModel):
     llm_provider: LLMProvider = LLMProvider.OPENAI
@@ -76,10 +96,14 @@ class AgentUpdate(BaseModel):
     system_prompt: Optional[str] = None
     greeting_message: Optional[str] = None
     status: Optional[AgentStatus] = None
+    knowledge_base_ids: Optional[List[str]] = None  # Knowledge bases attached to this agent
+    retell_agent_id: Optional[str] = None  # Link to voice platform agent
     voice_config: Optional[VoiceConfig] = None
     chat_config: Optional[ChatConfig] = None
     tools: Optional[List[str]] = None
     knowledge_bases: Optional[List[str]] = None
+    retell_agent_id: Optional[str] = None  # Link to Retell voice agent
+    retell_llm_id: Optional[str] = None  # Link to Retell LLM for chat
 
 class Agent(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -94,6 +118,9 @@ class Agent(BaseModel):
     chat_config: Optional[Dict] = None
     tools: List[str] = []
     knowledge_bases: List[str] = []
+    knowledge_base_ids: List[str] = []  # Knowledge bases attached via voice platform
+    retell_agent_id: Optional[str] = None  # Link to Retell voice agent
+    retell_llm_id: Optional[str] = None  # Link to Retell LLM for chat
     calls_count: int = 0
     success_rate: float = 0.0
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -235,7 +262,7 @@ async def health_check():
 
 # ========== AGENTS ==========
 @api_router.post("/agents", response_model=Agent)
-async def create_agent(agent_data: AgentCreate, background_tasks: BackgroundTasks):
+async def create_agent(agent_data: AgentCreate):
     agent = Agent(
         name=agent_data.name,
         description=agent_data.description or "",
@@ -252,20 +279,62 @@ async def create_agent(agent_data: AgentCreate, background_tasks: BackgroundTask
     doc['updated_at'] = doc['updated_at'].isoformat()
     await db.agents.insert_one(doc)
     
-    # Sync to Supabase
-    background_tasks.add_task(sync_agent_to_supabase, agent)
-    
     return agent
 
 @api_router.get("/agents", response_model=List[Agent])
 async def list_agents():
+    # Filter to only show agents created from Dec 13, 2025 onwards
+    cutoff_date = datetime(2025, 12, 13, 0, 0, 0, tzinfo=timezone.utc)
+    
+    # First, get list of valid agents from Retell to filter out deleted ones
+    import httpx
+    retell_api_key = os.environ.get('RETELL_API_KEY')
+    valid_retell_agent_ids = set()
+    
+    if retell_api_key:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    "https://api.retellai.com/list-agents",
+                    headers={"Authorization": f"Bearer {retell_api_key}"},
+                    timeout=10.0
+                )
+                if response.status_code == 200:
+                    retell_agents = response.json()
+                    valid_retell_agent_ids = {a.get("agent_id") for a in retell_agents if a.get("agent_id")}
+        except Exception as e:
+            logging.warning(f"Could not fetch Retell agents for validation: {e}")
+    
     agents = await db.agents.find({}, {"_id": 0}).to_list(1000)
+    filtered_agents = []
+    
     for a in agents:
-        if isinstance(a.get('created_at'), str):
-            a['created_at'] = datetime.fromisoformat(a['created_at'])
+        # Skip agents that have a retell_agent_id but it's no longer valid in Retell (deleted)
+        retell_id = a.get('retell_agent_id')
+        if retell_id and valid_retell_agent_ids and retell_id not in valid_retell_agent_ids:
+            # This agent was deleted from Retell, skip it
+            continue
+        
+        created_at = a.get('created_at')
+        if isinstance(created_at, str):
+            a['created_at'] = datetime.fromisoformat(created_at)
         if isinstance(a.get('updated_at'), str):
             a['updated_at'] = datetime.fromisoformat(a['updated_at'])
-    return agents
+        
+        # Check if agent was created on or after Dec 13, 2025
+        agent_created = a.get('created_at')
+        if agent_created:
+            if isinstance(agent_created, str):
+                agent_created = datetime.fromisoformat(agent_created)
+            if agent_created.tzinfo is None:
+                agent_created = agent_created.replace(tzinfo=timezone.utc)
+            if agent_created >= cutoff_date:
+                filtered_agents.append(a)
+        else:
+            # If no created_at, don't include (older agents)
+            pass
+    
+    return filtered_agents
 
 @api_router.get("/agents/{agent_id}", response_model=Agent)
 async def get_agent(agent_id: str):
@@ -279,7 +348,7 @@ async def get_agent(agent_id: str):
     return agent
 
 @api_router.put("/agents/{agent_id}", response_model=Agent)
-async def update_agent(agent_id: str, agent_data: AgentUpdate, background_tasks: BackgroundTasks):
+async def update_agent(agent_id: str, agent_data: AgentUpdate):
     update_dict = {k: v for k, v in agent_data.model_dump().items() if v is not None}
     if 'voice_config' in update_dict and update_dict['voice_config']:
         update_dict['voice_config'] = update_dict['voice_config']
@@ -291,9 +360,7 @@ async def update_agent(agent_id: str, agent_data: AgentUpdate, background_tasks:
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    agent = await get_agent(agent_id)
-    background_tasks.add_task(sync_agent_to_supabase, agent)
-    return agent
+    return await get_agent(agent_id)
 
 @api_router.delete("/agents/{agent_id}")
 async def delete_agent(agent_id: str):
@@ -457,34 +524,279 @@ async def delete_knowledge_base(kb_id: str):
     return {"message": "Knowledge base deleted successfully"}
 
 # ========== ANALYTICS ==========
+
+# Cutoff date: December 13, 2025 - only show data from this date onwards
+CUTOFF_DATE = datetime(2025, 12, 13, 0, 0, 0, tzinfo=timezone.utc)
+CUTOFF_TIMESTAMP_MS = int(CUTOFF_DATE.timestamp() * 1000)
+
+async def fetch_retell_calls(days: int = 7, agent_id: str = None) -> List[Dict]:
+    """Fetch calls from Retell API (only from Dec 13, 2025 onwards)"""
+    import httpx
+    from datetime import timedelta
+    
+    retell_api_key = os.environ.get('RETELL_API_KEY')
+    if not retell_api_key:
+        return []
+    
+    end_timestamp = int(datetime.now().timestamp() * 1000)
+    calculated_start = int((datetime.now() - timedelta(days=days)).timestamp() * 1000)
+    # Use the later of the two dates (cutoff or calculated start)
+    start_timestamp = max(calculated_start, CUTOFF_TIMESTAMP_MS)
+    
+    params = {
+        "limit": 1000,
+        "start_timestamp": start_timestamp,
+        "end_timestamp": end_timestamp
+    }
+    
+    if agent_id:
+        params["filter_criteria"] = [{"member": "agent_id", "operator": "eq", "value": agent_id}]
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.retellai.com/v2/list-calls",
+                headers={
+                    "Authorization": f"Bearer {retell_api_key}",
+                    "Content-Type": "application/json"
+                },
+                json=params,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                calls = data if isinstance(data, list) else data.get("calls", [])
+                # Double-check: filter out any calls before cutoff date
+                filtered_calls = [
+                    c for c in calls 
+                    if (c.get("start_timestamp", 0) or c.get("created_timestamp", 0)) >= CUTOFF_TIMESTAMP_MS
+                ]
+                return filtered_calls
+            else:
+                logger.warning(f"Failed to fetch Retell calls: {response.status_code}")
+                return []
+    except Exception as e:
+        logger.error(f"Error fetching Retell calls: {str(e)}")
+        return []
+
+
+@api_router.post("/agents/cleanup")
+async def cleanup_deleted_agents():
+    """Remove agents from local DB that have been deleted from Retell"""
+    import httpx
+    
+    retell_api_key = os.environ.get('RETELL_API_KEY')
+    if not retell_api_key:
+        raise HTTPException(status_code=500, detail="Voice Platform API key not configured")
+    
+    # Get all valid agents from Retell
+    valid_retell_agent_ids = set()
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://api.retellai.com/list-agents",
+                headers={"Authorization": f"Bearer {retell_api_key}"},
+                timeout=10.0
+            )
+            if response.status_code == 200:
+                retell_agents = response.json()
+                valid_retell_agent_ids = {a.get("agent_id") for a in retell_agents if a.get("agent_id")}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not fetch cloud agents: {e}")
+    
+    # Find and delete local agents that no longer exist in Retell
+    local_agents = await db.agents.find({"retell_agent_id": {"$ne": None}}, {"_id": 0, "id": 1, "name": 1, "retell_agent_id": 1}).to_list(1000)
+    
+    deleted_count = 0
+    deleted_agents = []
+    
+    for agent in local_agents:
+        retell_id = agent.get("retell_agent_id")
+        if retell_id and retell_id not in valid_retell_agent_ids:
+            # Delete this agent from local DB
+            await db.agents.delete_one({"id": agent.get("id")})
+            deleted_count += 1
+            deleted_agents.append({"id": agent.get("id"), "name": agent.get("name"), "retell_agent_id": retell_id})
+    
+    # Also delete agents created before Dec 13, 2025
+    cutoff_date = datetime(2025, 12, 13, 0, 0, 0, tzinfo=timezone.utc)
+    cutoff_date_str = cutoff_date.isoformat()
+    
+    old_agents = await db.agents.find({}, {"_id": 0, "id": 1, "name": 1, "created_at": 1}).to_list(1000)
+    for agent in old_agents:
+        created_at = agent.get("created_at")
+        if created_at:
+            if isinstance(created_at, str):
+                try:
+                    created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                except:
+                    continue
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            if created_at < cutoff_date:
+                await db.agents.delete_one({"id": agent.get("id")})
+                deleted_count += 1
+                deleted_agents.append({"id": agent.get("id"), "name": agent.get("name"), "reason": "created_before_cutoff"})
+    
+    return {
+        "success": True,
+        "deleted_count": deleted_count,
+        "deleted_agents": deleted_agents,
+        "valid_retell_agents": len(valid_retell_agent_ids)
+    }
+
+
 @api_router.get("/analytics/calls")
-async def get_call_analytics():
-    calls = await db.calls.find({}, {"_id": 0}).to_list(1000)
+async def get_call_analytics(days: int = 7):
+    """Get call analytics from Retell"""
+    from datetime import timedelta
+    
+    # Fetch real calls from Retell
+    calls = await fetch_retell_calls(days)
+    
     total_calls = len(calls)
-    successful_calls = sum(1 for c in calls if c.get('status') == 'completed')
-    total_duration = sum(c.get('duration', 0) for c in calls)
+    successful_calls = sum(1 for c in calls if c.get("call_status") == "ended")
+    failed_calls = sum(1 for c in calls if c.get("call_status") in ["error", "failed"])
+    total_duration_ms = sum(c.get("duration_ms", 0) or 0 for c in calls)
+    
+    # Calculate calls today
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_timestamp = int(today_start.timestamp() * 1000)
+    calls_today = sum(1 for c in calls if (c.get("start_timestamp", 0) or 0) >= today_timestamp)
+    
+    # Calculate total cost
+    total_cost = sum(
+        c.get("call_cost", {}).get("combined_cost", 0) or 0
+        for c in calls if c.get("call_cost")
+    )
+    
+    # Sentiment distribution
+    sentiments = {"positive": 0, "neutral": 0, "negative": 0}
+    for call in calls:
+        analysis = call.get("call_analysis", {}) or {}
+        sentiment = (analysis.get("user_sentiment") or "neutral").lower()
+        if sentiment in sentiments:
+            sentiments[sentiment] += 1
+        else:
+            sentiments["neutral"] += 1
     
     return {
         "total_calls": total_calls,
         "successful_calls": successful_calls,
+        "failed_calls": failed_calls,
         "success_rate": (successful_calls / total_calls * 100) if total_calls > 0 else 0,
-        "average_duration": (total_duration / total_calls) if total_calls > 0 else 0,
-        "calls_today": 0,
+        "average_duration": (total_duration_ms / total_calls / 1000) if total_calls > 0 else 0,
+        "total_duration_seconds": total_duration_ms / 1000,
+        "calls_today": calls_today,
         "calls_this_week": total_calls,
+        "total_cost": round(total_cost, 2),
+        "sentiment_distribution": sentiments,
+        "period_days": days
     }
 
+
+@api_router.get("/analytics/chart-data")
+async def get_analytics_chart_data(days: int = 7):
+    """Get daily breakdown of calls for charts"""
+    from datetime import timedelta
+    from collections import defaultdict
+    
+    calls = await fetch_retell_calls(days)
+    
+    # Group calls by day
+    daily_data = defaultdict(lambda: {"calls": 0, "success": 0, "duration": 0})
+    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    
+    for call in calls:
+        timestamp_ms = call.get("start_timestamp", 0) or call.get("created_timestamp", 0)
+        if timestamp_ms:
+            call_date = datetime.fromtimestamp(timestamp_ms / 1000)
+            day_key = call_date.strftime("%a")  # Mon, Tue, etc.
+            daily_data[day_key]["calls"] += 1
+            if call.get("call_status") == "ended":
+                daily_data[day_key]["success"] += 1
+            daily_data[day_key]["duration"] += (call.get("duration_ms", 0) or 0) / 1000
+    
+    # Build chart data for the last 7 days
+    calls_chart = []
+    duration_chart = []
+    
+    for i in range(6, -1, -1):
+        day = datetime.now() - timedelta(days=i)
+        day_name = day.strftime("%a")
+        data = daily_data.get(day_name, {"calls": 0, "success": 0, "duration": 0})
+        
+        calls_chart.append({
+            "name": day_name,
+            "calls": data["calls"],
+            "success": data["success"]
+        })
+        
+        avg_duration = data["duration"] / data["calls"] if data["calls"] > 0 else 0
+        duration_chart.append({
+            "name": day_name,
+            "duration": round(avg_duration, 1)
+        })
+    
+    return {
+        "calls_data": calls_chart,
+        "duration_data": duration_chart
+    }
+
+
 @api_router.get("/analytics/agents/{agent_id}")
-async def get_agent_analytics(agent_id: str):
-    calls = await db.calls.find({"agent_id": agent_id}, {"_id": 0}).to_list(1000)
+async def get_agent_analytics(agent_id: str, days: int = 7):
+    """Get analytics for a specific agent"""
+    # Get the platform agent to find its Retell agent ID
+    agent = await db.agents.find_one({"id": agent_id}, {"_id": 0})
+    retell_agent_id = agent.get("retell_agent_id") if agent else None
+    
+    # Fetch calls for this agent
+    calls = await fetch_retell_calls(days, retell_agent_id)
+    
     total_calls = len(calls)
-    successful_calls = sum(1 for c in calls if c.get('status') == 'completed')
+    successful_calls = sum(1 for c in calls if c.get("call_status") == "ended")
+    total_duration_ms = sum(c.get("duration_ms", 0) or 0 for c in calls)
     
     return {
         "agent_id": agent_id,
+        "retell_agent_id": retell_agent_id,
         "total_calls": total_calls,
+        "successful_calls": successful_calls,
         "success_rate": (successful_calls / total_calls * 100) if total_calls > 0 else 0,
-        "average_duration": sum(c.get('duration', 0) for c in calls) / total_calls if total_calls > 0 else 0,
+        "average_duration": (total_duration_ms / total_calls / 1000) if total_calls > 0 else 0,
+        "period_days": days
     }
+
+
+@api_router.get("/analytics/recent-calls")
+async def get_recent_calls(limit: int = 10):
+    """Get recent calls with details"""
+    calls = await fetch_retell_calls(days=30)
+    
+    # Sort by timestamp descending and limit
+    sorted_calls = sorted(
+        calls, 
+        key=lambda x: x.get("start_timestamp", 0) or 0, 
+        reverse=True
+    )[:limit]
+    
+    # Format for display
+    recent = []
+    for call in sorted_calls:
+        recent.append({
+            "call_id": call.get("call_id"),
+            "agent_id": call.get("agent_id"),
+            "status": call.get("call_status"),
+            "duration_seconds": round((call.get("duration_ms", 0) or 0) / 1000, 1),
+            "timestamp": call.get("start_timestamp"),
+            "end_reason": call.get("disconnection_reason"),
+            "sentiment": call.get("call_analysis", {}).get("user_sentiment") if call.get("call_analysis") else None,
+            "summary": call.get("call_analysis", {}).get("call_summary") if call.get("call_analysis") else None
+        })
+    
+    return recent
 
 # ========== INSIGHTS ==========
 @api_router.post("/insights", response_model=Insight)
@@ -510,119 +822,275 @@ async def list_insights():
     return insights
 
 # ========== CHAT / LLM ==========
+
+async def call_retell_llm(
+    llm_id: str,
+    messages: List[Dict],
+    system_prompt: str,
+    temperature: float = 0.7
+) -> str:
+    """Call Retell LLM for chat completion"""
+    import httpx
+    
+    retell_api_key = os.environ.get('RETELL_API_KEY')
+    if not retell_api_key:
+        raise HTTPException(status_code=500, detail="RETELL_API_KEY not configured")
+    
+    # Format messages for Retell LLM
+    # Retell uses a specific format for chat
+    formatted_messages = []
+    for msg in messages:
+        if msg["role"] == "user":
+            formatted_messages.append({"role": "user", "content": msg["content"]})
+        elif msg["role"] in ["assistant", "agent"]:
+            formatted_messages.append({"role": "assistant", "content": msg["content"]})
+    
+    async with httpx.AsyncClient() as client:
+        # Use Retell's chat completion endpoint
+        response = await client.post(
+            "https://api.retellai.com/v2/create-chat-completion",
+            headers={
+                "Authorization": f"Bearer {retell_api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "llm_id": llm_id,
+                "messages": formatted_messages,
+                "system_prompt": system_prompt,
+                "temperature": temperature
+            },
+            timeout=60.0
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("response", data.get("content", ""))
+        
+        # If Retell chat completion doesn't work, fall back to OpenAI via Retell
+        # Try the LLM websocket simulation approach
+        logger.warning(f"Retell chat completion returned {response.status_code}, trying fallback")
+    
+    # Fallback: Use OpenAI directly if Retell doesn't support chat completion
+    return await call_openai_fallback(messages, system_prompt, temperature)
+
+
+async def call_openai_fallback(
+    messages: List[Dict], 
+    system_prompt: str,
+    temperature: float = 0.7
+) -> str:
+    """Fallback to OpenAI API for chat"""
+    import httpx
+    
+    # Try Retell's OpenAI key first, then fall back to direct OpenAI key
+    api_key = os.environ.get('OPENAI_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured for chat fallback")
+    
+    # Build OpenAI messages
+    openai_messages = [{"role": "system", "content": system_prompt}]
+    for msg in messages:
+        if msg["role"] in ["user", "assistant"]:
+            openai_messages.append({"role": msg["role"], "content": msg["content"]})
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gpt-4o",
+                "messages": openai_messages,
+                "temperature": temperature
+            },
+            timeout=60.0
+        )
+        
+        if response.status_code != 200:
+            error_detail = response.text
+            try:
+                error_json = response.json()
+                error_detail = error_json.get("error", {}).get("message", error_detail)
+            except:
+                pass
+            raise HTTPException(status_code=response.status_code, detail=f"OpenAI API error: {error_detail}")
+        
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+
+
+async def get_or_create_retell_llm(agent: Dict) -> str:
+    """Get existing Retell LLM ID or create a new one for the agent"""
+    import httpx
+    
+    retell_api_key = os.environ.get('RETELL_API_KEY')
+    if not retell_api_key:
+        raise HTTPException(status_code=500, detail="RETELL_API_KEY not configured")
+    
+    # Check if agent already has a Retell LLM
+    if agent.get('retell_llm_id'):
+        return agent['retell_llm_id']
+    
+    # Create a new Retell LLM for this agent
+    system_prompt = agent.get('system_prompt', 'You are a helpful AI assistant.')
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://api.retellai.com/create-retell-llm",
+            headers={
+                "Authorization": f"Bearer {retell_api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gpt-4o",
+                "general_prompt": system_prompt,
+                "general_tools": [],
+                "states": []
+            },
+            timeout=30.0
+        )
+        
+        if response.status_code != 200 and response.status_code != 201:
+            logger.error(f"Failed to create Retell LLM: {response.text}")
+            raise HTTPException(status_code=500, detail="Failed to create Voice LLM")
+        
+        data = response.json()
+        llm_id = data.get("llm_id")
+        
+        if llm_id:
+            # Update agent with LLM ID
+            await db.agents.update_one(
+                {"id": agent["id"]},
+                {"$set": {"retell_llm_id": llm_id}}
+            )
+        
+        return llm_id
+
+
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat_with_agent(request: ChatRequest):
-    """Chat with an AI agent using LLM"""
-    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    """Chat with an AI agent"""
+    import httpx
     
     # Get agent configuration
     agent = await db.agents.find_one({"id": request.agent_id}, {"_id": 0})
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    # Get LLM configuration
+    system_prompt = agent.get('system_prompt', 'You are a helpful AI assistant.')
     chat_config = agent.get('chat_config') or {}
-    llm_provider = chat_config.get('llm_provider', 'openai')
-    llm_model = chat_config.get('llm_model', 'gpt-4o')
+    temperature = chat_config.get('temperature', 0.7)
     
-    # Initialize chat
-    api_key = os.environ.get('EMERGENT_LLM_KEY')
+    # Generate session ID
     session_id = request.session_id or str(uuid.uuid4())
     
-    chat = LlmChat(
-        api_key=api_key,
-        session_id=session_id,
-        system_message=agent.get('system_prompt', 'You are a helpful AI assistant.')
-    ).with_model(llm_provider, llm_model)
+    openai_api_key = os.environ.get('OPENAI_API_KEY')
+    retell_api_key = os.environ.get('RETELL_API_KEY')
     
-    # Send message and get response
-    user_message = UserMessage(text=request.message)
-    response = await chat.send_message(user_message)
+    if not openai_api_key and not retell_api_key:
+        raise HTTPException(status_code=500, detail="No API key configured")
     
-    return ChatResponse(response=response, session_id=session_id)
+    # Build conversation messages
+    messages = []
+    for msg in request.history:
+        role = "assistant" if msg.role == "assistant" else "user"
+        messages.append({"role": role, "content": msg.content})
+    messages.append({"role": "user", "content": request.message})
+    
+    # Use OpenAI for chat completion
+    api_key = openai_api_key or retell_api_key
+    
+    openai_messages = [{"role": "system", "content": system_prompt}]
+    openai_messages.extend(messages)
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": chat_config.get('llm_model', 'gpt-4o'),
+                    "messages": openai_messages,
+                    "temperature": temperature,
+                    "max_tokens": chat_config.get('max_tokens', 2048)
+                },
+                timeout=60.0
+            )
+            
+            if response.status_code != 200:
+                error_detail = response.text
+                try:
+                    error_json = response.json()
+                    error_detail = error_json.get("error", {}).get("message", error_detail)
+                except:
+                    pass
+                raise HTTPException(status_code=response.status_code, detail=f"Chat API error: {error_detail}")
+            
+            data = response.json()
+            response_text = data["choices"][0]["message"]["content"]
+        
+        return ChatResponse(response=response_text, session_id=session_id)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @api_router.post("/test/chat")
 async def test_chat(message: str, provider: str = "openai", model: str = "gpt-4o"):
     """Test LLM chat directly"""
-    from emergentintegrations.llm.chat import LlmChat, UserMessage
-    
-    api_key = os.environ.get('EMERGENT_LLM_KEY')
-    chat = LlmChat(
-        api_key=api_key,
-        session_id=str(uuid.uuid4()),
-        system_message="You are a helpful AI assistant."
-    ).with_model(provider, model)
-    
-    user_message = UserMessage(text=message)
-    response = await chat.send_message(user_message)
-    
-# ========== LIVEKIT TOKEN ==========
-@api_router.post("/token")
-async def get_livekit_token(room: str, participant: str):
-    """Generate a LiveKit token for the frontend to connect"""
-    livekit_api_key = os.environ.get('LIVEKIT_API_KEY')
-    livekit_api_secret = os.environ.get('LIVEKIT_API_SECRET')
-    livekit_url = os.environ.get('LIVEKIT_URL')
-    
-    if not all([livekit_api_key, livekit_api_secret, livekit_url]):
-        raise HTTPException(status_code=500, detail="LiveKit credentials not configured")
-    
-    grant = api.VideoGrants(
-        room_join=True,
-        room=room,
-        can_publish=True,
-        can_subscribe=True,
-    )
-    
-    token = api.AccessToken(livekit_api_key, livekit_api_secret) \
-        .with_identity(participant) \
-        .with_name(participant) \
-        .with_grants(grant) \
-        .to_jwt()
-        
-    return {"token": token, "serverUrl": livekit_url}
-
-# ========== SUPABASE SYNC ==========
-from supabase_client import get_supabase_client
-
-async def sync_agent_to_supabase(agent: Agent):
-    """Sync agent data to Supabase"""
-    supabase = get_supabase_client()
-    if not supabase:
-        return
+    import httpx
     
     try:
-        data = {
-            "id": agent.id,
-            "name": agent.name,
-            "description": agent.description,
-            "type": agent.type,
-            "status": agent.status,
-            "system_prompt": agent.system_prompt,
-            "config": {
-                "voice_config": agent.voice_config,
-                "chat_config": agent.chat_config,
-                "tools": agent.tools,
-                "knowledge_bases": agent.knowledge_bases
-            },
-            "created_at": agent.created_at.isoformat(),
-            "updated_at": agent.updated_at.isoformat()
-        }
+        api_key = os.environ.get('OPENAI_API_KEY') or os.environ.get('RETELL_API_KEY')
+        if not api_key:
+            raise HTTPException(status_code=500, detail="No API key configured")
         
-        # Upsert data
-        supabase.table("agents").upsert(data).execute()
-        logger.info(f"Synced agent {agent.id} to Supabase")
+        messages = [
+            {"role": "system", "content": "You are a helpful AI assistant."},
+            {"role": "user", "content": message}
+        ]
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "temperature": 0.7
+                },
+                timeout=60.0
+            )
+            
+            if response.status_code != 200:
+                error_detail = response.text
+                try:
+                    error_json = response.json()
+                    error_detail = error_json.get("error", {}).get("message", error_detail)
+                except:
+                    pass
+                raise HTTPException(status_code=response.status_code, detail=error_detail)
+            
+            data = response.json()
+            response_text = data["choices"][0]["message"]["content"]
+        
+        return {"response": response_text, "provider": provider, "model": model}
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Failed to sync agent to Supabase: {e}")
-
-@api_router.post("/agents/{agent_id}/sync")
-async def manual_sync_agent(agent_id: str, background_tasks: BackgroundTasks):
-    agent = await get_agent(agent_id)
-    background_tasks.add_task(sync_agent_to_supabase, agent)
-    return {"message": "Sync started"}
-
-
-    return {"response": response, "provider": provider, "model": model}
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ========== INTEGRATIONS ==========
 @api_router.get("/integrations/categories")
@@ -651,8 +1119,12 @@ async def list_connections():
     connections = await db.integrations.find({}, {"_id": 0}).to_list(100)
     return connections
 
-# Include the router in the main app
+# Include the main API router
 app.include_router(api_router)
+
+# Include Retell routes
+from routes.retell_routes import router as retell_router
+app.include_router(retell_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
@@ -668,7 +1140,3 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()

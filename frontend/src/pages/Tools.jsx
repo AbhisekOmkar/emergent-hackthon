@@ -128,7 +128,7 @@ export default function Tools() {
                   const iconColors = {
                     calendar: { bg: 'bg-blue-100', text: 'text-blue-600' },
                     crm: { bg: 'bg-purple-100', text: 'text-purple-600' },
-                    voice: { bg: 'bg-orange-100', text: 'text-orange-600' },
+                    voice: { bg: 'bg-blue-200', text: 'text-blue-700' },
                     messaging: { bg: 'bg-green-100', text: 'text-green-600' },
                     ticketing: { bg: 'bg-pink-100', text: 'text-pink-600' },
                   };

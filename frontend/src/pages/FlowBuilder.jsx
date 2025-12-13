@@ -29,13 +29,13 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 // Node types with icons
 const nodeTypes = [
-  { id: "trigger", name: "Trigger", icon: Zap, color: "bg-amber-500", category: "triggers" },
+  { id: "trigger", name: "Trigger", icon: Zap, color: "bg-blue-600", category: "triggers" },
   { id: "llm", name: "LLM Response", icon: Brain, color: "bg-purple-500", category: "ai" },
   { id: "condition", name: "Condition", icon: GitBranch, color: "bg-blue-500", category: "logic" },
   { id: "message", name: "Send Message", icon: MessageSquare, color: "bg-green-500", category: "actions" },
   { id: "voice", name: "Voice Response", icon: Volume2, color: "bg-pink-500", category: "voice" },
   { id: "listen", name: "Listen", icon: Mic, color: "bg-rose-500", category: "voice" },
-  { id: "wait", name: "Wait/Delay", icon: Clock, color: "bg-orange-500", category: "logic" },
+  { id: "wait", name: "Wait/Delay", icon: Clock, color: "bg-blue-600", category: "logic" },
   { id: "api", name: "API Call", icon: Globe, color: "bg-cyan-500", category: "integrations" },
   { id: "database", name: "Database", icon: Database, color: "bg-indigo-500", category: "integrations" },
   { id: "email", name: "Send Email", icon: Mail, color: "bg-teal-500", category: "actions" },
@@ -60,7 +60,7 @@ const initialNodes = [
     data: { 
       label: (
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div className="text-left">

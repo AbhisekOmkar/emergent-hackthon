@@ -146,39 +146,56 @@ export default function Agents() {
       </div>
 
       {/* Main Content */}
-      <div className="p-8">
+      <div className="p-8 max-w-7xl mx-auto">
         {/* Agents Grid */}
         {filteredAgents.length === 0 ? (
           <Card className="glass-card">
-            <CardContent className="py-16 text-center">
-              <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <Bot className="w-10 h-10 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchQuery || filterType !== "all" 
-                  ? "No agents found"
-                  : "Loading your agents..."}
-              </h3>
-              <p className="text-gray-500 mb-6">
-                {searchQuery || filterType !== "all" 
-                  ? "Try adjusting your search or filters"
-                  : "Preparing your workspace and finalizing setup"}
-              </p>
-              {!searchQuery && filterType === "all" && (
-                <div className="relative w-12 h-12 mx-auto">
-                  <div className="absolute inset-0 rounded-full border-4 border-blue-200 animate-pulse"></div>
-                  <div className="absolute inset-2 rounded-full border-4 border-blue-400 animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                  <div className="absolute inset-4 rounded-full bg-blue-500"></div>
+            <CardContent className="py-20 text-center">
+              {!searchQuery && filterType === "all" ? (
+                <div className="fade-in">
+                  <div className="empty-state-image max-w-lg mx-auto mb-8">
+                    <img 
+                      src="https://images.unsplash.com/photo-1660165458059-57cfb6cc87e5?w=800&h=500&fit=crop" 
+                      alt="AI Technology" 
+                      className="w-full h-80 object-cover rounded-2xl opacity-60"
+                    />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    No agents yet
+                  </h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                    Get started by creating your first AI agent. Build intelligent assistants for voice, chat, or multi-modal interactions.
+                  </p>
+                  <Button 
+                    onClick={() => setShowCreateModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First Agent
+                  </Button>
                 </div>
-              )}
-              {(searchQuery || filterType !== "all") && (
-                <Button 
-                  onClick={() => setShowCreateModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Agent
-                </Button>
+              ) : (
+                <div className="fade-in">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <Bot className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No agents found
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    Try adjusting your search or filters
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      setSearchQuery("");
+                      setFilterType("all");
+                    }}
+                    variant="outline"
+                    className="border-gray-200 hover:bg-gray-50 rounded-lg"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>

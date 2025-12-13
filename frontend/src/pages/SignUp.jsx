@@ -19,39 +19,14 @@ export default function SignUp() {
             />
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-4xl font-bold leading-tight">
-              Start Building Today
+          {/* Bottom Content */}
+          <div className="space-y-6">
+            <h2 className="text-5xl font-bold leading-tight">
+              Start Building<br />Today
             </h2>
-            <p className="text-lg text-white/90 max-w-md">
+            <p className="text-xl text-white/80 max-w-md leading-relaxed">
               Join thousands of teams using Intelliax to build and deploy AI agents at scale.
             </p>
-            <div className="space-y-3 pt-4">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-white/90">No credit card required</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-white/90">Free 14-day trial</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-white/90">Cancel anytime</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

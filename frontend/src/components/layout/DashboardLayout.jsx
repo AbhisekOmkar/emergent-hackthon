@@ -87,22 +87,22 @@ export default function DashboardLayout() {
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center justify-between px-4 border-b border-gray-800">
+          <div className="flex h-16 items-center justify-between px-4 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               {sidebarOpen && (
                 <div>
-                  <span className="font-bold text-white text-lg tracking-tight">AgentForge</span>
-                  <span className="text-[10px] text-gray-500 block -mt-1">AI Platform</span>
+                  <span className="font-bold text-white text-lg tracking-tight">Intelliax</span>
+                  <span className="text-[10px] text-gray-500 block -mt-0.5">AI Agent Platform</span>
                 </div>
               )}
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-gray-500 hover:text-white hover:bg-white/5 h-8 w-8 rounded-lg transition-colors"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               data-testid="sidebar-toggle"
             >

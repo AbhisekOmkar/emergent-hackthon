@@ -478,6 +478,11 @@ class AgentBuilderAPITester:
             success, data = self.make_request('DELETE', f'/knowledge/{self.created_kb_id}', expected_status=200)
             cleanup_results.append(f"KB cleanup: {'✅' if success else '❌'}")
         
+        # Delete created flows
+        for flow_id in self.created_flow_ids:
+            success, data = self.make_request('DELETE', f'/flows/{flow_id}', expected_status=200)
+            cleanup_results.append(f"Flow {flow_id[:8]} cleanup: {'✅' if success else '❌'}")
+        
         if cleanup_results:
             print(f"\n🧹 Cleanup: {', '.join(cleanup_results)}")
     

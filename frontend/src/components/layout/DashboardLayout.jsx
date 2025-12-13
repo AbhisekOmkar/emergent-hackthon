@@ -206,16 +206,28 @@ export default function DashboardLayout() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2 hover:bg-gray-100">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
+                  {user?.imageUrl ? (
+                    <img 
+                      src={user.imageUrl} 
+                      alt={user.fullName || user.username} 
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                  )}
                   <ChevronDown className="w-4 h-4 text-gray-400" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-white border-gray-200">
                 <div className="px-3 py-2">
-                  <p className="text-sm font-medium text-gray-900">John Doe</p>
-                  <p className="text-xs text-gray-500">john@example.com</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.fullName || user?.username || "User"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {user?.primaryEmailAddress?.emailAddress || ""}
+                  </p>
                 </div>
                 <DropdownMenuSeparator className="bg-gray-100" />
                 <DropdownMenuItem>
@@ -227,7 +239,11 @@ export default function DashboardLayout() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-gray-100" />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem 
+                  className="text-red-600"
+                  onClick={() => signOut()}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>

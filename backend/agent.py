@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
-from typing import Annotated
 
 from livekit import agents, rtc
 from livekit.agents import AgentServer, AgentSession, Agent, room_io, llm
@@ -24,14 +23,6 @@ class Assistant(Agent):
                 "You can help with scheduling, answering questions, and general assistance."
             ),
         )
-    
-    @llm.ai_callable(description="Get the current weather for a location")
-    def get_weather(
-        self, 
-        location: Annotated[str, llm.TypeInfo(description="The city and state, e.g. San Francisco, CA")]
-    ):
-        logger.info(f"getting weather for {location}")
-        return f"The weather in {location} is sunny and 72 degrees."
 
 server = AgentServer()
 

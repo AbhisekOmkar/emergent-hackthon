@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class AgentBuilderAPITester:
-    def __init__(self, base_url="https://intelliax-ui-boost.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://clean-repo-ui.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.session = requests.Session()
         self.session.headers.update({'Content-Type': 'application/json'})

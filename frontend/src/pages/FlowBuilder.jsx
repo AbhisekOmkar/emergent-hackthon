@@ -94,6 +94,66 @@ export default function FlowBuilder() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [flowName, setFlowName] = useState("New Flow");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load flow data on mount
+  useEffect(() => {
+    if (flowId) {
+      loadFlow();
+    } else {
+      setIsLoading(false);
+    }
+  }, [flowId]);
+
+  const loadFlow = async () => {
+    try {
+      const response = await axios.get(`${API}/flows/${flowId}`);
+      const flow = response.data;
+      
+      setFlowName(flow.name);
+      
+      // Load nodes if they exist
+      if (flow.nodes && flow.nodes.length > 0) {
+        // Reconstruct node labels with React components
+        const loadedNodes = flow.nodes.map(node => {
+          const nodeTypeInfo = nodeTypes.find(n => n.id === node.data?.nodeType);
+          if (!nodeTypeInfo) return node;
+          
+          const Icon = nodeTypeInfo.icon;
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              label: (
+                <div className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-lg ${nodeTypeInfo.color} flex items-center justify-center`}>
+                    <Icon className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900">{nodeTypeInfo.name}</div>
+                    <div className="text-xs text-gray-500">Configure</div>
+                  </div>
+                </div>
+              ),
+            },
+          };
+        });
+        setNodes(loadedNodes);
+      }
+      
+      // Load edges if they exist
+      if (flow.edges && flow.edges.length > 0) {
+        setEdges(flow.edges);
+      }
+      
+      toast.success("Flow loaded");
+    } catch (error) {
+      console.error("Failed to load flow:", error);
+      toast.error("Failed to load flow");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge({

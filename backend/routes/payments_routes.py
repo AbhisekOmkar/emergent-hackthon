@@ -146,6 +146,13 @@ async def create_checkout_session(request: CreateCheckoutRequest):
             "return_url": request.return_url,
             "metadata": {
                 "user_id": request.user_id
+            },
+            "billing": {
+                "country": "US",  # Default country, will be updated at checkout
+                "city": "N/A",
+                "state": "N/A",
+                "street": "N/A",
+                "zipcode": 10001
             }
         }
         
@@ -158,7 +165,7 @@ async def create_checkout_session(request: CreateCheckoutRequest):
             "id": str(uuid.uuid4()),
             "user_id": request.user_id,
             "user_email": request.user_email,
-            "payment_id": result.payment_id if hasattr(result, 'payment_id') else None,
+            "payment_id": result.payment_id if hasattr(result, 'payment_id') else result.id if hasattr(result, 'id') else None,
             "status": "pending",
             "product_id": DODO_PRODUCT_ID,
             "created_at": datetime.now(timezone.utc).isoformat()
@@ -166,16 +173,35 @@ async def create_checkout_session(request: CreateCheckoutRequest):
         await db.payments.insert_one(payment_record)
         client.close()
         
+        # Extract payment link - try different possible attribute names
+        payment_link = None
+        if hasattr(result, 'payment_link'):
+            payment_link = result.payment_link
+        elif hasattr(result, 'checkout_url'):
+            payment_link = result.checkout_url
+        elif hasattr(result, 'url'):
+            payment_link = result.url
+        
+        payment_id = None
+        if hasattr(result, 'payment_id'):
+            payment_id = result.payment_id
+        elif hasattr(result, 'id'):
+            payment_id = result.id
+        
+        if not payment_link:
+            logger.error(f"No payment link in result: {dir(result)}")
+            raise HTTPException(status_code=500, detail="Failed to get checkout URL from payment provider")
+        
         return {
             "success": True,
-            "checkout_url": result.payment_link if hasattr(result, 'payment_link') else None,
-            "payment_id": result.payment_id if hasattr(result, 'payment_id') else None
+            "checkout_url": payment_link,
+            "payment_id": payment_id
         }
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error creating checkout: {str(e)}")
+        logger.error(f"Error creating checkout: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

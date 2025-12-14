@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Save, Trash2, Database, Check, X, RefreshCw, BookOpen, Play, Pause, Volume2 } from "lucide-react";
+import { 
+  ArrowLeft, Save, Trash2, Database, Check, X, RefreshCw, 
+  BookOpen, Play, Pause, Volume2, Wand2 
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
@@ -48,6 +51,11 @@ export default function AgentSettings() {
   
   // Voice platform linking state
   const [cloudAgents, setCloudAgents] = useState([]);
+  
+  // Prompt Lab state
+  const [showPromptSelector, setShowPromptSelector] = useState(false);
+  const [savedPrompts, setSavedPrompts] = useState([]);
+  const [loadingPrompts, setLoadingPrompts] = useState(false);
   const [selectedCloudAgent, setSelectedCloudAgent] = useState("");
   const [linkingAgent, setLinkingAgent] = useState(false);
   

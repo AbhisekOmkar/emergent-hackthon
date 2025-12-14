@@ -582,3 +582,11 @@ function AnalyticsContent() {
     </div>
   );
 }
+
+export default function Analytics() {
+  return (
+    <FeatureGate feature="Analytics Dashboard">
+      <AnalyticsContent />
+    </FeatureGate>
+  );
+}

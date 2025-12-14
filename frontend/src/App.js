@@ -38,8 +38,8 @@ function App() {
       publishableKey={clerkPubKey}
       signInUrl="/signin"
       signUpUrl="/signup"
-      afterSignInUrl="/"
-      afterSignUpUrl="/"
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/"
     >
       <div className="App min-h-screen bg-slate-50">
         <BrowserRouter>

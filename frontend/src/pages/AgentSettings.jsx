@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Save, Trash2, Database, Check, X, RefreshCw, BookOpen } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Database, Check, X, RefreshCw, BookOpen, Play, Pause, Volume2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";

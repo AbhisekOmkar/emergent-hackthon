@@ -146,6 +146,48 @@ export default function AgentSettings() {
     );
   };
 
+  const [recreatingVoiceAgent, setRecreatingVoiceAgent] = useState(false);
+  
+  const handleRecreateVoiceAgent = async () => {
+    if (!window.confirm("This will delete the existing voice agent and create a new one with your current settings. Continue?")) {
+      return;
+    }
+    
+    setRecreatingVoiceAgent(true);
+    try {
+      // Delete existing Retell agent if exists
+      if (currentAgent?.retell_agent_id) {
+        try {
+          await axios.delete(`${API_URL}/api/retell/agents/${currentAgent.retell_agent_id}`);
+        } catch (err) {
+          console.log("Old agent may not exist, continuing...");
+        }
+      }
+      
+      // Create new Retell agent with current settings
+      const createResponse = await axios.post(`${API_URL}/api/retell/agents`, {
+        agent_name: currentAgent.name,
+        system_prompt: formData.system_prompt || currentAgent.system_prompt,
+        voice_id: selectedVoiceId || currentAgent.voice_config?.voice_id || "11labs-Adrian",
+        language: currentAgent.voice_config?.language || "en-US",
+      });
+      
+      const newAgentId = createResponse.data.agent_id;
+      
+      // Update platform agent with new Retell agent ID
+      await updateAgent(agentId, { retell_agent_id: newAgentId });
+      
+      // Refresh agent data
+      await fetchAgent(agentId);
+      
+      toast.success("Voice agent recreated successfully with new settings!");
+    } catch (error) {
+      console.error("Failed to recreate voice agent:", error);
+      toast.error("Failed to recreate voice agent");
+    }
+    setRecreatingVoiceAgent(false);
+  };
+
   const handleAttachKBs = async () => {
     if (!currentAgent?.retell_agent_id) {
       toast.error("Agent must be synced with voice platform first. Test the agent to create the connection.");

@@ -2389,3 +2389,60 @@ async def get_available_models():
         {"id": "gemini-2.5-flash-lite", "name": "Gemini 2.5 Flash Lite", "provider": "Google"},
     ]
 
+
+
+@router.post("/conversation-flows/{flow_id}/test", response_model=Dict[str, Any])
+async def test_conversation_flow(flow_id: str):
+    """
+    Test a conversation flow by creating a temporary agent and starting a web call.
+    """
+    try:
+        # Get local record
+        client, db = get_db()
+        local_flow = await db.conversation_flows.find_one({"id": flow_id})
+        
+        if not local_flow:
+            local_flow = await db.conversation_flows.find_one({"retell_flow_id": flow_id})
+        
+        retell_flow_id = local_flow.get("retell_flow_id") if local_flow else flow_id
+        client.close()
+        
+        # Create a temporary agent with this conversation flow
+        agent_data = {
+            "agent_name": f"Test Agent - {local_flow.get('name', 'Flow') if local_flow else 'Flow'}",
+            "response_engine": {
+                "type": "conversation_flow",
+                "conversation_flow_id": retell_flow_id
+            },
+            "voice_id": "11labs-Adrian",
+            "language": "en-US"
+        }
+        
+        agent_result = await make_retell_request("POST", "/create-agent", agent_data)
+        temp_agent_id = agent_result.get("agent_id")
+        
+        if not temp_agent_id:
+            raise HTTPException(status_code=500, detail="Failed to create test agent")
+        
+        # Create web call
+        call_data = {
+            "agent_id": temp_agent_id
+        }
+        
+        call_result = await make_retell_request("POST", "/v2/create-web-call", call_data)
+        
+        return {
+            "success": True,
+            "agent_id": temp_agent_id,
+            "call_id": call_result.get("call_id"),
+            "access_token": call_result.get("access_token"),
+            "flow_id": flow_id,
+            "retell_flow_id": retell_flow_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error testing conversation flow: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+

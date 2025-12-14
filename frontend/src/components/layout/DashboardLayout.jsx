@@ -64,6 +64,7 @@ export default function DashboardLayout() {
     const Icon = item.icon;
     const isActive = location.pathname === item.path || 
       (item.path !== "/" && location.pathname.startsWith(item.path));
+    const showPremiumBadge = item.premium && !isPremium && !isLoading;
     
     return (
       <NavLink
@@ -76,10 +77,15 @@ export default function DashboardLayout() {
       >
         <Icon className="w-5 h-5 flex-shrink-0" />
         {sidebarOpen && (
-          <div className="flex-1 min-w-0">
-            <span className="block truncate">{item.label}</span>
-            {item.description && (
-              <span className="text-xs opacity-60 block truncate">{item.description}</span>
+          <div className="flex-1 min-w-0 flex items-center justify-between">
+            <div>
+              <span className="block truncate">{item.label}</span>
+              {item.description && (
+                <span className="text-xs opacity-60 block truncate">{item.description}</span>
+              )}
+            </div>
+            {showPremiumBadge && (
+              <Crown className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
             )}
           </div>
         )}

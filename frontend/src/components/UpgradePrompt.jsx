@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { Crown, Lock, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { useSubscription } from '../context/SubscriptionContext';
+import { toast } from 'sonner';
 
 export function UpgradePrompt({ 
   feature = "this feature",
@@ -12,7 +15,46 @@ export function UpgradePrompt({
   className = ""
 }) {
   const navigate = useNavigate();
+  const { user } = useUser();
   const { isPremium, isLoading } = useSubscription();
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const handleUpgradeClick = async () => {
+    setIsUpgrading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/payments/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          user_email: user.primaryEmailAddress?.emailAddress || '',
+          user_name: user.fullName || user.username || '',
+          return_url: window.location.origin + '/',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      
+      if (data.checkout_url) {
+        // Redirect to Dodo Payments checkout page
+        window.location.href = data.checkout_url;
+      } else {
+        toast.error('Failed to get checkout URL');
+        setIsUpgrading(false);
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      toast.error('Failed to start checkout process');
+      setIsUpgrading(false);
+    }
+  };
 
   if (isLoading) {
     return null;
@@ -34,12 +76,13 @@ export function UpgradePrompt({
         {description || `${feature} is a premium feature. Upgrade to access this and many other powerful features.`}
       </p>
       <Button
-        onClick={() => navigate('/upgrade')}
-        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium"
+        onClick={handleUpgradeClick}
+        disabled={isUpgrading}
+        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Sparkles className="w-4 h-4 mr-2" />
-        Upgrade to Premium
-        <ArrowRight className="w-4 h-4 ml-2" />
+        {isUpgrading ? 'Processing...' : 'Upgrade to Premium'}
+        {!isUpgrading && <ArrowRight className="w-4 h-4 ml-2" />}
       </Button>
     </div>
   );
@@ -103,7 +146,45 @@ export function LockedFeatureOverlay({
   className = "" 
 }) {
   const navigate = useNavigate();
+  const { user } = useUser();
   const { isPremium, isLoading } = useSubscription();
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const handleUpgradeClick = async () => {
+    setIsUpgrading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/payments/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          user_email: user.primaryEmailAddress?.emailAddress || '',
+          user_name: user.fullName || user.username || '',
+          return_url: window.location.origin + '/',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        toast.error('Failed to get checkout URL');
+        setIsUpgrading(false);
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      toast.error('Failed to start checkout process');
+      setIsUpgrading(false);
+    }
+  };
 
   if (isLoading || isPremium) {
     return children;
@@ -125,11 +206,12 @@ export function LockedFeatureOverlay({
           </p>
           <Button
             size="sm"
-            onClick={() => navigate('/upgrade')}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            onClick={handleUpgradeClick}
+            disabled={isUpgrading}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Crown className="w-4 h-4 mr-1" />
-            Upgrade
+            {isUpgrading ? 'Processing...' : 'Upgrade'}
           </Button>
         </div>
       </div>

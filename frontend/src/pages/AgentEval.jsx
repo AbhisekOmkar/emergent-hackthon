@@ -571,7 +571,7 @@ export default function AgentEval() {
                 <>
                   <div className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50">Voice Agents</div>
                   {voiceAgents.map(agent => (
-                    <SelectItem key={agent.retell_agent_id} value={agent.retell_agent_id}>
+                    <SelectItem key={`voice-${agent.retell_agent_id}`} value={agent.retell_agent_id}>
                       <span className="flex items-center gap-2">
                         {agent.name}
                         <Badge className="text-[10px] bg-purple-100 text-purple-700">Voice</Badge>
@@ -584,7 +584,7 @@ export default function AgentEval() {
                 <>
                   <div className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 mt-1">Chat Agents</div>
                   {chatAgents.map(agent => (
-                    <SelectItem key={agent.id} value={agent.id}>
+                    <SelectItem key={`chat-${agent.id}`} value={agent.id}>
                       <span className="flex items-center gap-2">
                         {agent.name}
                         <Badge className="text-[10px] bg-blue-100 text-blue-700">Chat</Badge>

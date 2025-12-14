@@ -49,6 +49,13 @@ export default function AgentSettings() {
   const [cloudAgents, setCloudAgents] = useState([]);
   const [selectedCloudAgent, setSelectedCloudAgent] = useState("");
   const [linkingAgent, setLinkingAgent] = useState(false);
+  
+  // Voice selection state
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [loadingVoices, setLoadingVoices] = useState(false);
+  const [selectedVoiceId, setSelectedVoiceId] = useState("");
+  const [playingVoiceId, setPlayingVoiceId] = useState(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     if (agentId) {

@@ -11,7 +11,7 @@ import { Badge } from "../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useToolStore } from "../stores/agentStore";
 import CreateToolModal from "../components/tools/CreateToolModal";
-import { FeatureGate } from "../components/UpgradePrompt";
+// import { FeatureGate } from "../components/UpgradePrompt";
 
 const categoryIcons = {
   crm: Users,
@@ -329,8 +329,9 @@ function ToolsContent() {
 
 export default function Tools() {
   return (
-    <FeatureGate feature="Tools & Integrations">
+    // PREMIUM FEATURE GATE TEMPORARILY DISABLED
+    // <FeatureGate feature="Tools & Integrations">
       <ToolsContent />
-    </FeatureGate>
+    // </FeatureGate>
   );
 }

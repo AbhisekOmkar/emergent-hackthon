@@ -465,6 +465,62 @@ export default function FlowBuilder() {
     toast.success("Node deleted");
   };
 
+  const handleTestFlow = async () => {
+    if (!flowId || !flowData?.retell_flow_id) {
+      toast.error("Please save the flow first before testing");
+      return;
+    }
+    
+    setIsTesting(true);
+    try {
+      const response = await axios.post(`${API}/retell/conversation-flows/${flowId}/test`);
+      
+      if (response.data.access_token) {
+        setTestCallData(response.data);
+        
+        // Initialize Retell Web Client
+        const { RetellWebClient } = await import("retell-client-js-sdk");
+        const client = new RetellWebClient();
+        
+        client.on("call_started", () => {
+          toast.success("Test call started!");
+        });
+        
+        client.on("call_ended", () => {
+          toast.info("Test call ended");
+          setTestCallData(null);
+          setRetellClient(null);
+        });
+        
+        client.on("error", (error) => {
+          console.error("Call error:", error);
+          toast.error("Call error occurred");
+          setTestCallData(null);
+          setRetellClient(null);
+        });
+        
+        await client.startCall({
+          accessToken: response.data.access_token,
+        });
+        
+        setRetellClient(client);
+      }
+    } catch (error) {
+      console.error("Failed to test flow:", error);
+      toast.error(error.response?.data?.detail || "Failed to start test call");
+    }
+    setIsTesting(false);
+  };
+
+  const handleEndTestCall = () => {
+    if (retellClient) {
+      retellClient.stopCall();
+      setRetellClient(null);
+      setTestCallData(null);
+      toast.info("Test call ended");
+    }
+  };
+
   const filteredNodeTypes = retellNodeTypes.filter(node =>
     node.name.toLowerCase().includes(searchQuery.toLowerCase())
   );

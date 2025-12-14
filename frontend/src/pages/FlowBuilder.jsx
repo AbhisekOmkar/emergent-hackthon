@@ -631,6 +631,35 @@ export default function FlowBuilder() {
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Reload
             </Button>
+            {testCallData ? (
+              <Button
+                onClick={handleEndTestCall}
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <PhoneOff className="w-4 h-4 mr-2" />
+                End Test Call
+              </Button>
+            ) : (
+              <Button
+                onClick={handleTestFlow}
+                disabled={isTesting || !flowId}
+                variant="outline"
+                className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+              >
+                {isTesting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Starting...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 mr-2" />
+                    Test Flow
+                  </>
+                )}
+              </Button>
+            )}
             <Button
               onClick={handleSave}
               disabled={isSaving}

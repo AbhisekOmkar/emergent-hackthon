@@ -11,6 +11,7 @@ import { Badge } from "../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useToolStore } from "../stores/agentStore";
 import CreateToolModal from "../components/tools/CreateToolModal";
+import { FeatureGate } from "../components/UpgradePrompt";
 
 const categoryIcons = {
   crm: Users,
@@ -56,7 +57,7 @@ const popularIntegrations = {
   ],
 };
 
-export default function Tools() {
+function ToolsContent() {
   const { tools, builtinTools, fetchTools } = useToolStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);

@@ -2060,3 +2060,332 @@ Generate varied scenarios including:
         logger.error(f"Error generating test scenarios: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+
+# ========== CONVERSATION FLOW MODELS ==========
+
+class ConversationFlowNode(BaseModel):
+    """Model for a conversation flow node"""
+    id: str = Field(..., description="Unique node ID")
+    type: str = Field(..., description="Node type: conversation, function, logic, end, transfer_call, component")
+    name: Optional[str] = Field(None, description="Display name for the node")
+    instruction: Optional[Dict[str, Any]] = Field(None, description="Instruction for conversation nodes")
+    edges: Optional[List[Dict[str, Any]]] = Field(default=[], description="Outgoing edges with transition conditions")
+    display_position: Optional[Dict[str, float]] = Field(None, description="X,Y position for UI display")
+    tool_id: Optional[str] = Field(None, description="Tool ID for function nodes")
+    knowledge_base_ids: Optional[List[str]] = Field(None, description="Knowledge base IDs for RAG")
+
+class ConversationFlowTool(BaseModel):
+    """Model for a custom tool in conversation flow"""
+    type: str = Field(default="custom", description="Tool type")
+    name: str = Field(..., description="Tool name")
+    tool_id: str = Field(..., description="Unique tool ID")
+    description: Optional[str] = Field(None, description="Tool description for LLM")
+    url: str = Field(..., description="Server URL to call")
+    method: str = Field(default="POST", description="HTTP method")
+    headers: Optional[Dict[str, str]] = Field(None, description="Request headers")
+    parameters: Optional[Dict[str, Any]] = Field(None, description="Parameter schema")
+    timeout_ms: Optional[int] = Field(default=120000, description="Timeout in milliseconds")
+
+class CreateConversationFlowRequest(BaseModel):
+    """Request model for creating a conversation flow"""
+    name: str = Field(..., description="Flow name for display")
+    description: Optional[str] = Field(None, description="Flow description")
+    model_choice: Dict[str, Any] = Field(
+        default={"type": "cascading", "model": "gpt-4.1"},
+        description="LLM model configuration"
+    )
+    start_speaker: str = Field(default="agent", description="Who starts: user or agent")
+    nodes: List[Dict[str, Any]] = Field(..., description="Array of flow nodes")
+    global_prompt: Optional[str] = Field(None, description="Global prompt for all nodes")
+    tools: Optional[List[Dict[str, Any]]] = Field(None, description="Custom tools/functions")
+    start_node_id: Optional[str] = Field(None, description="Starting node ID")
+    knowledge_base_ids: Optional[List[str]] = Field(None, description="Knowledge base IDs")
+    default_dynamic_variables: Optional[Dict[str, str]] = Field(None, description="Dynamic variables")
+    begin_tag_display_position: Optional[Dict[str, float]] = Field(None, description="Begin tag position")
+
+class UpdateConversationFlowRequest(BaseModel):
+    """Request model for updating a conversation flow"""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    model_choice: Optional[Dict[str, Any]] = None
+    start_speaker: Optional[str] = None
+    nodes: Optional[List[Dict[str, Any]]] = None
+    global_prompt: Optional[str] = None
+    tools: Optional[List[Dict[str, Any]]] = None
+    start_node_id: Optional[str] = None
+    knowledge_base_ids: Optional[List[str]] = None
+    default_dynamic_variables: Optional[Dict[str, str]] = None
+
+
+# ========== CONVERSATION FLOW ENDPOINTS ==========
+
+@router.post("/conversation-flows", response_model=Dict[str, Any])
+async def create_conversation_flow(request: CreateConversationFlowRequest):
+    """
+    Create a new Retell Conversation Flow.
+    This creates the flow in Retell and stores metadata locally.
+    """
+    try:
+        # Prepare the request body for Retell API
+        flow_data = {
+            "model_choice": request.model_choice,
+            "start_speaker": request.start_speaker,
+            "nodes": request.nodes,
+        }
+        
+        # Add optional fields if provided
+        if request.global_prompt:
+            flow_data["global_prompt"] = request.global_prompt
+        if request.tools:
+            flow_data["tools"] = request.tools
+        if request.start_node_id:
+            flow_data["start_node_id"] = request.start_node_id
+        if request.knowledge_base_ids:
+            flow_data["knowledge_base_ids"] = request.knowledge_base_ids
+        if request.default_dynamic_variables:
+            flow_data["default_dynamic_variables"] = request.default_dynamic_variables
+        if request.begin_tag_display_position:
+            flow_data["begin_tag_display_position"] = request.begin_tag_display_position
+        
+        # Create in Retell
+        result = await make_retell_request("POST", "/create-conversation-flow", flow_data)
+        
+        # Store metadata in our database
+        client, db = get_db()
+        flow_record = {
+            "id": str(uuid.uuid4()),
+            "retell_flow_id": result.get("conversation_flow_id"),
+            "name": request.name,
+            "description": request.description,
+            "model_choice": request.model_choice,
+            "nodes_count": len(request.nodes),
+            "status": "active",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        
+        await db.conversation_flows.insert_one(flow_record)
+        client.close()
+        
+        return {
+            "success": True,
+            "flow_id": flow_record["id"],
+            "retell_flow_id": result.get("conversation_flow_id"),
+            "version": result.get("version"),
+            **result
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating conversation flow: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/conversation-flows", response_model=List[Dict[str, Any]])
+async def list_conversation_flows():
+    """
+    List all conversation flows from Retell and local metadata.
+    """
+    try:
+        # Get from Retell
+        result = await make_retell_request("GET", "/list-conversation-flows")
+        
+        # Get local metadata
+        client, db = get_db()
+        local_flows = await db.conversation_flows.find().to_list(100)
+        client.close()
+        
+        # Create lookup for local metadata
+        local_lookup = {f.get("retell_flow_id"): f for f in local_flows}
+        
+        # Merge Retell data with local metadata
+        flows = []
+        for flow in result:
+            flow_id = flow.get("conversation_flow_id")
+            local_data = local_lookup.get(flow_id, {})
+            
+            flows.append({
+                "id": local_data.get("id", flow_id),
+                "retell_flow_id": flow_id,
+                "name": local_data.get("name", f"Flow {flow_id[:8]}"),
+                "description": local_data.get("description", ""),
+                "status": local_data.get("status", "active"),
+                "nodes_count": len(flow.get("nodes", [])),
+                "version": flow.get("version"),
+                "model": flow.get("model_choice", {}).get("model", "gpt-4.1"),
+                "start_speaker": flow.get("start_speaker", "agent"),
+                "created_at": local_data.get("created_at"),
+                "updated_at": local_data.get("updated_at"),
+            })
+        
+        return flows
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error listing conversation flows: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/conversation-flows/{flow_id}", response_model=Dict[str, Any])
+async def get_conversation_flow(flow_id: str):
+    """
+    Get a specific conversation flow by ID.
+    Supports both local ID and Retell flow ID.
+    """
+    try:
+        # First try to find local metadata
+        client, db = get_db()
+        local_flow = await db.conversation_flows.find_one({"id": flow_id})
+        
+        if not local_flow:
+            # Try by retell_flow_id
+            local_flow = await db.conversation_flows.find_one({"retell_flow_id": flow_id})
+        
+        client.close()
+        
+        retell_flow_id = local_flow.get("retell_flow_id") if local_flow else flow_id
+        
+        # Get full data from Retell
+        result = await make_retell_request("GET", f"/get-conversation-flow/{retell_flow_id}")
+        
+        return {
+            "id": local_flow.get("id") if local_flow else flow_id,
+            "retell_flow_id": retell_flow_id,
+            "name": local_flow.get("name") if local_flow else f"Flow {retell_flow_id[:8]}",
+            "description": local_flow.get("description") if local_flow else "",
+            "status": local_flow.get("status", "active") if local_flow else "active",
+            **result
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting conversation flow: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/conversation-flows/{flow_id}", response_model=Dict[str, Any])
+async def update_conversation_flow(flow_id: str, request: UpdateConversationFlowRequest):
+    """
+    Update a conversation flow.
+    """
+    try:
+        # Get local record to find retell_flow_id
+        client, db = get_db()
+        local_flow = await db.conversation_flows.find_one({"id": flow_id})
+        
+        if not local_flow:
+            local_flow = await db.conversation_flows.find_one({"retell_flow_id": flow_id})
+        
+        retell_flow_id = local_flow.get("retell_flow_id") if local_flow else flow_id
+        
+        # Prepare update data for Retell
+        update_data = {}
+        if request.model_choice:
+            update_data["model_choice"] = request.model_choice
+        if request.start_speaker:
+            update_data["start_speaker"] = request.start_speaker
+        if request.nodes is not None:
+            update_data["nodes"] = request.nodes
+        if request.global_prompt is not None:
+            update_data["global_prompt"] = request.global_prompt
+        if request.tools is not None:
+            update_data["tools"] = request.tools
+        if request.start_node_id:
+            update_data["start_node_id"] = request.start_node_id
+        if request.knowledge_base_ids is not None:
+            update_data["knowledge_base_ids"] = request.knowledge_base_ids
+        if request.default_dynamic_variables is not None:
+            update_data["default_dynamic_variables"] = request.default_dynamic_variables
+        
+        # Update in Retell
+        result = await make_retell_request("PATCH", f"/update-conversation-flow/{retell_flow_id}", update_data)
+        
+        # Update local metadata
+        local_update = {"updated_at": datetime.now(timezone.utc).isoformat()}
+        if request.name:
+            local_update["name"] = request.name
+        if request.description is not None:
+            local_update["description"] = request.description
+        if request.nodes:
+            local_update["nodes_count"] = len(request.nodes)
+        
+        if local_flow:
+            await db.conversation_flows.update_one(
+                {"_id": local_flow["_id"]},
+                {"$set": local_update}
+            )
+        
+        client.close()
+        
+        return {
+            "success": True,
+            "flow_id": local_flow.get("id") if local_flow else flow_id,
+            "retell_flow_id": retell_flow_id,
+            **result
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating conversation flow: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/conversation-flows/{flow_id}", response_model=Dict[str, Any])
+async def delete_conversation_flow(flow_id: str):
+    """
+    Delete a conversation flow.
+    """
+    try:
+        # Get local record
+        client, db = get_db()
+        local_flow = await db.conversation_flows.find_one({"id": flow_id})
+        
+        if not local_flow:
+            local_flow = await db.conversation_flows.find_one({"retell_flow_id": flow_id})
+        
+        retell_flow_id = local_flow.get("retell_flow_id") if local_flow else flow_id
+        
+        # Delete from Retell
+        await make_retell_request("DELETE", f"/delete-conversation-flow/{retell_flow_id}")
+        
+        # Delete local record
+        if local_flow:
+            await db.conversation_flows.delete_one({"_id": local_flow["_id"]})
+        
+        client.close()
+        
+        return {
+            "success": True,
+            "message": f"Conversation flow {flow_id} deleted successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting conversation flow: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/conversation-flow-models", response_model=List[Dict[str, str]])
+async def get_available_models():
+    """
+    Get list of available LLM models for conversation flows.
+    """
+    return [
+        {"id": "gpt-4.1", "name": "GPT-4.1", "provider": "OpenAI"},
+        {"id": "gpt-4.1-mini", "name": "GPT-4.1 Mini", "provider": "OpenAI"},
+        {"id": "gpt-4.1-nano", "name": "GPT-4.1 Nano", "provider": "OpenAI"},
+        {"id": "gpt-5", "name": "GPT-5", "provider": "OpenAI"},
+        {"id": "gpt-5-mini", "name": "GPT-5 Mini", "provider": "OpenAI"},
+        {"id": "gpt-5-nano", "name": "GPT-5 Nano", "provider": "OpenAI"},
+        {"id": "claude-4.5-sonnet", "name": "Claude 4.5 Sonnet", "provider": "Anthropic"},
+        {"id": "claude-4.5-haiku", "name": "Claude 4.5 Haiku", "provider": "Anthropic"},
+        {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "provider": "Google"},
+        {"id": "gemini-2.5-flash-lite", "name": "Gemini 2.5 Flash Lite", "provider": "Google"},
+    ]
+

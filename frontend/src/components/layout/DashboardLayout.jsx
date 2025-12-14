@@ -165,21 +165,41 @@ export default function DashboardLayout() {
           {/* Footer */}
           {sidebarOpen && (
             <div className="p-3 border-t border-white/5">
-              {/* Upgrade Card */}
-              <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 mb-3 transition-all hover:border-blue-500/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-blue-400" />
+              {/* Upgrade Banner */}
+              {!isPremium && !isLoading && (
+                <div className="p-3 mx-2 mb-3 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm font-semibold text-white block">Upgrade to Premium</span>
+                      <span className="text-[10px] text-gray-400">Unlock all features</span>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <span className="text-sm font-semibold text-white block">Upgrade to Pro</span>
-                    <span className="text-[10px] text-gray-500">Unlimited everything</span>
+                  <Button 
+                    size="sm" 
+                    onClick={() => navigate('/upgrade')}
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs h-8 rounded-md font-medium shadow-sm"
+                  >
+                    Upgrade Now
+                  </Button>
+                </div>
+              )}
+              
+              {isPremium && (
+                <div className="p-3 mx-2 mb-3 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                      <Crown className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm font-semibold text-white block">Premium Active</span>
+                      <span className="text-[10px] text-gray-400">All features unlocked</span>
+                    </div>
                   </div>
                 </div>
-                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 rounded-md font-medium shadow-sm">
-                  Upgrade Now
-                </Button>
-              </div>
+              )}
               
               {/* Status */}
               <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1">

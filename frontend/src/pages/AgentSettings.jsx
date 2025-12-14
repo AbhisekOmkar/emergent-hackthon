@@ -154,6 +154,27 @@ export default function AgentSettings() {
     );
   };
 
+  const fetchSavedPrompts = async () => {
+    setLoadingPrompts(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/prompt-lab/saved-prompts`);
+      setSavedPrompts(response.data.prompts || []);
+    } catch (error) {
+      console.error('Error fetching saved prompts:', error);
+      toast.error("Failed to load saved prompts");
+    }
+    setLoadingPrompts(false);
+  };
+  
+  const handleLoadPromptFromLab = (promptText) => {
+    setFormData(prev => ({
+      ...prev,
+      system_prompt: promptText
+    }));
+    setShowPromptSelector(false);
+    toast.success("Prompt loaded from Prompt Lab!");
+  };
+
   const [recreatingVoiceAgent, setRecreatingVoiceAgent] = useState(false);
   
   const handleRecreateVoiceAgent = async () => {

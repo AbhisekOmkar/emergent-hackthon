@@ -349,7 +349,7 @@ export default function AgentSettings() {
             <Card className="bg-white border-gray-200 shadow-sm">
               <CardHeader className="border-b border-gray-100">
                 <CardTitle className="text-gray-900">Agent Persona</CardTitle>
-                <CardDescription className="text-gray-500">Define your agent's personality and behavior</CardDescription>
+                <CardDescription className="text-gray-500">Define your agent personality and behavior</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">

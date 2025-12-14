@@ -443,7 +443,9 @@ export default function AgentEval() {
 
     setGeneratingScenarios(true);
     try {
+      console.log('Generating scenarios for agent:', selectedAgent);
       const response = await axios.post(`${API}/retell/generate-test-scenarios?agent_id=${selectedAgent}&num_scenarios=5`);
+      console.log('Generated scenarios response:', response.data);
       
       if (forVoiceTest) {
         // For voice tests, populate the textarea with user messages
@@ -453,22 +455,25 @@ export default function AgentEval() {
       } else {
         // For test case creation form
         const scenarios = response.data.scenarios.map(s => ({
-          name: s.name,
-          user_message: s.user_message,
+          name: s.name || "",
+          user_message: s.user_message || "",
           expected_topics: s.expected_topics?.join(", ") || "",
           success_criteria: s.success_criteria || ""
         }));
         
+        console.log('Mapped scenarios:', scenarios);
+        
         setNewTestCase(prev => ({
           ...prev,
-          name: `Auto-generated tests for ${response.data.agent_name}`,
+          name: `Auto-generated tests for ${response.data.agent_name || 'Agent'}`,
           scenarios
         }));
         
         toast.success(`Generated ${scenarios.length} test scenarios!`);
       }
     } catch (error) {
-      toast.error("Failed to generate scenarios");
+      console.error('Generate scenarios error:', error);
+      toast.error(error.response?.data?.detail || "Failed to generate scenarios");
     }
     setGeneratingScenarios(false);
   };

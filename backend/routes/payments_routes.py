@@ -11,9 +11,9 @@ import base64
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 import uuid
-import httpx
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
+from dodopayments import DodoPayments
 
 # Database connection
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -25,11 +25,12 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 DODO_API_KEY = os.environ.get("DODO_PAYMENTS_API_KEY")
 DODO_WEBHOOK_SECRET = os.environ.get("DODO_WEBHOOK_SECRET")
 DODO_PRODUCT_ID = os.environ.get("DODO_PRODUCT_ID")
-DODO_API_BASE = "https://api.dodopayments.com"  # Production API
 
-# Log configuration status
+# Initialize Dodo Payments client
+dodo_client = None
 if DODO_API_KEY:
-    logger.info(f"Dodo Payments API key configured: {DODO_API_KEY[:20]}...")
+    dodo_client = DodoPayments(bearer_token=DODO_API_KEY)
+    logger.info(f"Dodo Payments client initialized: {DODO_API_KEY[:20]}...")
 else:
     logger.warning("DODO_PAYMENTS_API_KEY not configured")
 
@@ -69,43 +70,6 @@ class SubscriptionStatus(BaseModel):
 
 
 # ========== HELPER FUNCTIONS ==========
-
-async def make_dodo_request(
-    method: str,
-    endpoint: str,
-    data: dict = None,
-    timeout: float = 30.0
-) -> dict:
-    """Make authenticated request to Dodo Payments API"""
-    if not DODO_API_KEY:
-        raise HTTPException(
-            status_code=500,
-            detail="DODO_PAYMENTS_API_KEY not configured"
-        )
-    
-    headers = {
-        "Authorization": f"Bearer {DODO_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    url = f"{DODO_API_BASE}{endpoint}"
-    
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        if method.upper() == "GET":
-            response = await client.get(url, headers=headers)
-        elif method.upper() == "POST":
-            response = await client.post(url, headers=headers, json=data)
-        else:
-            raise ValueError(f"Unsupported method: {method}")
-        
-        if response.status_code >= 400:
-            logger.error(f"Dodo API error: {response.status_code} - {response.text}")
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=response.text
-            )
-        
-        return response.json()
 
 
 def verify_webhook_signature(payload: bytes, headers: dict) -> bool:
@@ -160,11 +124,14 @@ async def create_checkout_session(request: CreateCheckoutRequest):
     Create a Dodo Payments checkout session for premium upgrade.
     """
     try:
+        if not dodo_client:
+            raise HTTPException(status_code=500, detail="Dodo Payments not configured")
+            
         if not DODO_PRODUCT_ID:
             raise HTTPException(status_code=500, detail="Product ID not configured")
         
-        # Create checkout session with Dodo Payments
-        checkout_data = {
+        # Create checkout session with Dodo Payments using SDK
+        payment_create_request = {
             "product_cart": [
                 {
                     "product_id": DODO_PRODUCT_ID,
@@ -182,7 +149,8 @@ async def create_checkout_session(request: CreateCheckoutRequest):
             }
         }
         
-        result = await make_dodo_request("POST", "/payments", checkout_data)
+        # Use the SDK to create payment
+        result = dodo_client.payments.create(**payment_create_request)
         
         # Store pending payment record
         client, db = get_db()
@@ -190,7 +158,7 @@ async def create_checkout_session(request: CreateCheckoutRequest):
             "id": str(uuid.uuid4()),
             "user_id": request.user_id,
             "user_email": request.user_email,
-            "payment_id": result.get("payment_id"),
+            "payment_id": result.payment_id if hasattr(result, 'payment_id') else None,
             "status": "pending",
             "product_id": DODO_PRODUCT_ID,
             "created_at": datetime.now(timezone.utc).isoformat()
@@ -200,8 +168,8 @@ async def create_checkout_session(request: CreateCheckoutRequest):
         
         return {
             "success": True,
-            "checkout_url": result.get("payment_link"),
-            "payment_id": result.get("payment_id")
+            "checkout_url": result.payment_link if hasattr(result, 'payment_link') else None,
+            "payment_id": result.payment_id if hasattr(result, 'payment_id') else None
         }
         
     except HTTPException:
@@ -326,10 +294,13 @@ async def verify_payment(payment_id: str, user_id: str):
     Used as fallback when webhook doesn't fire.
     """
     try:
-        # Check payment status with Dodo
-        result = await make_dodo_request("GET", f"/payments/{payment_id}")
+        if not dodo_client:
+            raise HTTPException(status_code=500, detail="Dodo Payments not configured")
+            
+        # Check payment status with Dodo using SDK
+        result = dodo_client.payments.get(payment_id=payment_id)
         
-        status = result.get("status", "").lower()
+        status = result.status.lower() if hasattr(result, 'status') else ""
         
         if status in ["succeeded", "completed", "paid"]:
             client, db = get_db()

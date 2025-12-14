@@ -66,6 +66,7 @@ export default function AgentSettings() {
   // Fetch knowledge bases
   useEffect(() => {
     fetchKnowledgeBases();
+    fetchAvailableVoices();
   }, []);
 
   // Update selected KBs when agent loads

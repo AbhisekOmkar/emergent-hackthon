@@ -47,49 +47,31 @@ import axios from "axios";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-// Retell Conversation Flow Node Types
+// Retell Conversation Flow Node Types - Only valid Retell types
 const retellNodeTypes = [
   { 
     id: "conversation", 
     name: "Conversation", 
     icon: MessageSquare, 
     color: "bg-indigo-500",
-    description: "Agent speaks and listens to user"
+    description: "Agent speaks and listens to user",
+    requiresInstruction: true
   },
   { 
-    id: "function", 
-    name: "Function Call", 
-    icon: Globe, 
-    color: "bg-cyan-500",
-    description: "Call external API or tool"
-  },
-  { 
-    id: "logic", 
-    name: "Logic Branch", 
-    icon: GitBranch, 
-    color: "bg-amber-500",
-    description: "Branch based on conditions"
-  },
-  { 
-    id: "transfer_call", 
-    name: "Transfer Call", 
-    icon: Phone, 
-    color: "bg-blue-500",
-    description: "Transfer to another number"
-  },
-  { 
-    id: "end_call", 
+    id: "end", 
     name: "End Call", 
     icon: PhoneOff, 
     color: "bg-red-500",
-    description: "End the conversation"
+    description: "End the conversation",
+    requiresInstruction: false
   },
   { 
     id: "press_digit", 
     name: "Press Digit", 
     icon: Phone, 
     color: "bg-purple-500",
-    description: "Press DTMF digit"
+    description: "Press DTMF digit",
+    requiresInstruction: false
   },
 ];
 

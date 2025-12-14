@@ -90,14 +90,15 @@ async def make_retell_request(
     timeout: float = 30.0
 ) -> dict:
     """Make authenticated request to Retell API"""
-    if not RETELL_API_KEY:
+    api_key = get_retell_api_key()
+    if not api_key:
         raise HTTPException(
             status_code=500, 
             detail="RETELL_API_KEY not configured. Add it to your .env file."
         )
     
     headers = {
-        "Authorization": f"Bearer {RETELL_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     

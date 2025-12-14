@@ -146,3 +146,4 @@ zipp>=3.20.0
 
 # Note: LiveKit removed - now using Retell AI for voice agents
 # Note: emergentintegrations - install separately from internal source if needed
+httpx

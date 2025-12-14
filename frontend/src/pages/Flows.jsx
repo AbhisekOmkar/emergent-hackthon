@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   GitBranch, Plus, Search, MoreVertical, Play, Copy,
   Trash2, Edit3, Clock, CheckCircle, AlertCircle, Zap,
-  Bot, ArrowRight, Workflow, RefreshCw, Brain, Sparkles
+  Bot, ArrowRight, Workflow, RefreshCw, Brain, Sparkles, Crown
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -35,10 +35,12 @@ import {
 } from "../components/ui/select";
 import { toast } from "sonner";
 import axios from "axios";
+import { useSubscription } from "../context/SubscriptionContext";
+import { FeatureGate, PremiumBadge } from "../components/UpgradePrompt";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-export default function Flows() {
+function FlowsContent() {
   const navigate = useNavigate();
   const [flows, setFlows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");

@@ -356,23 +356,59 @@ export default function FlowBuilder() {
     setIsSaving(true);
     try {
       // Convert React Flow nodes back to Retell format
-      const retellNodes = nodes.map(node => ({
-        id: node.id,
-        type: node.data.retellType || "conversation",
-        name: node.data.name,
-        instruction: node.data.instruction,
-        edges: node.data.edges || [],
-        display_position: { x: node.position.x, y: node.position.y },
-      }));
+      const retellNodes = nodes.map(node => {
+        const nodeType = node.data.retellType || "conversation";
+        const baseNode = {
+          id: node.id,
+          type: nodeType,
+          display_position: { x: node.position.x, y: node.position.y },
+        };
+        
+        // Add name if provided
+        if (node.data.name) {
+          baseNode.name = node.data.name;
+        }
+        
+        // Conversation nodes require instruction
+        if (nodeType === "conversation") {
+          baseNode.instruction = node.data.instruction || {
+            type: "prompt",
+            text: "Continue the conversation."
+          };
+        }
+        
+        // Add edges if present (only for conversation nodes)
+        if (nodeType === "conversation" && node.data.edges && node.data.edges.length > 0) {
+          baseNode.edges = node.data.edges.map(edge => ({
+            id: edge.id || `edge_${Date.now()}`,
+            transition_condition: {
+              type: "prompt",
+              prompt: edge.transition_condition?.prompt || "Continue"
+            },
+            destination_node_id: edge.destination_node_id
+          })).filter(edge => edge.destination_node_id);
+        }
+        
+        return baseNode;
+      });
 
-      const startNodeId = nodes[0]?.id || "start";
+      // Filter out any invalid nodes
+      const validNodes = retellNodes.filter(node => node.id && node.type);
+      
+      if (validNodes.length === 0) {
+        toast.error("Please add at least one conversation node");
+        setIsSaving(false);
+        return;
+      }
+
+      const startNodeId = validNodes[0]?.id || "start";
 
       if (flowId && flowData?.retell_flow_id) {
         // Update existing flow
         await axios.put(`${API}/retell/conversation-flows/${flowId}`, {
           name: flowName,
-          nodes: retellNodes,
-          global_prompt: globalPrompt,
+          nodes: validNodes,
+          global_prompt: globalPrompt || undefined,
           start_node_id: startNodeId,
         });
         toast.success("Flow saved successfully!");
@@ -382,8 +418,8 @@ export default function FlowBuilder() {
           name: flowName,
           model_choice: { type: "cascading", model: "gpt-4.1" },
           start_speaker: "agent",
-          nodes: retellNodes,
-          global_prompt: globalPrompt,
+          nodes: validNodes,
+          global_prompt: globalPrompt || undefined,
           start_node_id: startNodeId,
         });
         toast.success("Flow created successfully!");
@@ -391,7 +427,8 @@ export default function FlowBuilder() {
       }
     } catch (error) {
       console.error("Failed to save flow:", error);
-      toast.error(error.response?.data?.detail || "Failed to save flow");
+      const errorDetail = error.response?.data?.detail || error.response?.data?.error_message || "Failed to save flow";
+      toast.error(errorDetail);
     }
     setIsSaving(false);
   };

@@ -23,6 +23,7 @@ import {
   History,
   FlaskConical,
   Crown,
+  Wand2,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
@@ -38,6 +39,7 @@ import { useSubscription } from "../../context/SubscriptionContext";
 
 const buildItems = [
   { path: "/agents", icon: Bot, label: "Agents", description: "AI assistants" },
+  { path: "/prompt-lab", icon: Wand2, label: "Prompt Lab", description: "AI prompt generator" },
   { path: "/flows", icon: Workflow, label: "Flows", description: "Visual builder", premium: true },
   { path: "/tools", icon: Wrench, label: "Tools", description: "Custom actions", premium: true },
 ];

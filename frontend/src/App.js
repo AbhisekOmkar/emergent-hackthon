@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import UpgradeSuccess from "./pages/UpgradeSuccess";
+import PromptLab from "./pages/PromptLab";
 import "./App.css";
 
 const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
@@ -61,6 +62,7 @@ function App() {
                 <Route path="agents/:agentId/builder" element={<AgentBuilder />} />
                 <Route path="agents/:agentId/settings" element={<AgentSettings />} />
                 <Route path="agents/:agentId/test" element={<AgentTest />} />
+                <Route path="prompt-lab" element={<PromptLab />} />
                 <Route path="flows" element={<Flows />} />
                 <Route path="tools" element={<Tools />} />
                 <Route path="knowledge" element={<Knowledge />} />

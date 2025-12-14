@@ -55,16 +55,27 @@ export default function SignIn() {
             </div>
           </div>
 
-          {/* Testimonial or Footer */}
+          {/* Powered By Footer */}
           <div className="pt-8 border-t border-white/10">
-            <p className="text-sm text-zinc-500">
-              Trusted by forward-thinking companies worldwide
+            <p className="text-sm text-zinc-500 mb-4">
+              Powered by
             </p>
-            <div className="flex gap-6 mt-4 opacity-50 grayscale mix-blend-screen">
-              <div className="h-6 w-20 bg-white/20 rounded"></div>
-              <div className="h-6 w-20 bg-white/20 rounded"></div>
-              <div className="h-6 w-20 bg-white/20 rounded"></div>
-              <div className="h-6 w-20 bg-white/20 rounded"></div>
+            <div className="flex items-center gap-8">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/qkd1o3ey_21f24c4d-1107-4dcf-97f2-9c2cc39feec3_1081x214.png" 
+                alt="Entrepreneurs First" 
+                className="h-8 object-contain brightness-0 invert opacity-80 hover:opacity-100 transition-opacity"
+              />
+              <img 
+                src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/r0wdcuyi_d9f9328957cc866bf56a8f5279cb4d176711a1fb.png" 
+                alt="Emergent" 
+                className="h-8 object-contain opacity-80 hover:opacity-100 transition-opacity"
+              />
+              <img 
+                src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/zmr2g7rw_OpenAI_Logo.svg.png" 
+                alt="OpenAI" 
+                className="h-6 object-contain brightness-0 invert opacity-80 hover:opacity-100 transition-opacity"
+              />
             </div>
           </div>
         </div>

@@ -424,7 +424,56 @@ export default function AgentSettings() {
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-700">System Prompt</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-gray-700">System Prompt</Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowPromptSelector(!showPromptSelector);
+                        if (!showPromptSelector) fetchSavedPrompts();
+                      }}
+                    >
+                      <Wand2 className="w-4 h-4 mr-1" />
+                      Load from Prompt Lab
+                    </Button>
+                  </div>
+                  
+                  {showPromptSelector && (
+                    <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg space-y-2">
+                      {loadingPrompts ? (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Loading saved prompts...
+                        </div>
+                      ) : savedPrompts.length === 0 ? (
+                        <div className="text-sm text-gray-600">
+                          No saved prompts yet. Visit <Link to="/prompt-lab" className="text-indigo-600 hover:underline">Prompt Lab</Link> to generate one.
+                        </div>
+                      ) : (
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {savedPrompts.map((prompt) => (
+                            <button
+                              key={prompt.id}
+                              onClick={() => handleLoadPromptFromLab(prompt.generated_prompt)}
+                              className="w-full text-left p-2 bg-white hover:bg-indigo-50 border border-gray-200 hover:border-indigo-300 rounded transition-colors"
+                            >
+                              <p className="text-sm font-medium text-gray-900">
+                                {prompt.company_name || 'Untitled Prompt'}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {prompt.agent_purpose?.substring(0, 60)}...
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {new Date(prompt.created_at).toLocaleDateString()}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   <Textarea
                     value={formData.system_prompt}
                     onChange={(e) => handleChange("system_prompt", e.target.value)}

@@ -217,9 +217,9 @@ export default function PromptLab() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Panel - Input & Configuration */}
-        <div className="space-y-6">
+        <div className="xl:col-span-1 space-y-6">
           {/* Step 1: Extract Content */}
           <Card className="bg-white border-gray-200">
             <CardHeader>
@@ -406,7 +406,7 @@ export default function PromptLab() {
               <Button
                 onClick={handleGeneratePrompt}
                 disabled={generating || !agentPurpose}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
                 size="lg"
               >
                 {generating ? (
@@ -419,170 +419,69 @@ export default function PromptLab() {
           </Card>
         </div>
 
-        {/* Right Panel - Generated Prompt & Testing */}
-        <div className="space-y-6">
-          {/* Generated Prompt */}
+        {/* Middle Panel - Generated Prompt */}
+        <div className="xl:col-span-1 space-y-6">
           {generatedPrompt ? (
-            <>
-              <Card className="bg-white border-gray-200">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Brain className="w-5 h-5 text-indigo-600" />
-                      <CardTitle className="text-lg">Generated Prompt</CardTitle>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopyPrompt}
-                      >
-                        {copied ? (
-                          <><Check className="w-4 h-4 mr-1" /> Copied</>
-                        ) : (
-                          <><Copy className="w-4 h-4 mr-1" /> Copy</>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleDownloadPrompt}
-                      >
-                        <Download className="w-4 h-4 mr-1" /> Download
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
-                    <pre className="text-xs font-mono whitespace-pre-wrap">{generatedPrompt}</pre>
-                  </div>
-
-                  {/* Prompt Sections Preview */}
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    <Badge variant="outline" className="justify-center">
-                      <Target className="w-3 h-3 mr-1" /> Persona
-                    </Badge>
-                    <Badge variant="outline" className="justify-center">
-                      <Shield className="w-3 h-3 mr-1" /> Guardrails
-                    </Badge>
-                    <Badge variant="outline" className="justify-center">
-                      <BookOpen className="w-3 h-3 mr-1" /> Context
-                    </Badge>
-                    <Badge variant="outline" className="justify-center">
-                      <Zap className="w-3 h-3 mr-1" /> Instructions
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Test Section */}
-              <Card className="bg-white border-gray-200">
-                <CardHeader>
+            <Card className="bg-white border-gray-200">
+              <CardHeader>
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-purple-600" />
-                    <CardTitle className="text-lg">Test Prompt</CardTitle>
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span className="text-sm font-bold text-indigo-600">3</span>
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Generated Prompt</CardTitle>
+                      <CardDescription>XML-structured system prompt</CardDescription>
+                    </div>
                   </div>
-                  <CardDescription>
-                    Generate test questions and evaluate agent responses
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto max-h-[500px] overflow-y-auto">
+                  <pre className="text-xs font-mono whitespace-pre-wrap">{generatedPrompt}</pre>
+                </div>
+
+                {/* Prompt Sections Preview */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Badge variant="outline" className="justify-center">
+                    <Target className="w-3 h-3 mr-1" /> Persona
+                  </Badge>
+                  <Badge variant="outline" className="justify-center">
+                    <Shield className="w-3 h-3 mr-1" /> Guardrails
+                  </Badge>
+                  <Badge variant="outline" className="justify-center">
+                    <BookOpen className="w-3 h-3 mr-1" /> Context
+                  </Badge>
+                  <Badge variant="outline" className="justify-center">
+                    <Zap className="w-3 h-3 mr-1" /> Instructions
+                  </Badge>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
                   <Button
-                    onClick={handleGenerateTestQuestions}
-                    disabled={generatingQuestions}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyPrompt}
+                    className="flex-1"
                   >
-                    {generatingQuestions ? (
-                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+                    {copied ? (
+                      <><Check className="w-4 h-4 mr-1" /> Copied</>
                     ) : (
-                      <><Brain className="w-4 h-4 mr-2" /> Generate Test Questions</>
+                      <><Copy className="w-4 h-4 mr-1" /> Copy</>
                     )}
                   </Button>
-
-                  {testQuestions.length > 0 && (
-                    <>
-                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-sm font-medium text-blue-900">
-                          {testQuestions.length} test questions ready
-                        </p>
-                        <div className="mt-2 space-y-1">
-                          {testQuestions.slice(0, 3).map((q, i) => (
-                            <p key={i} className="text-xs text-blue-700">
-                              • {q.question}
-                            </p>
-                          ))}
-                          {testQuestions.length > 3 && (
-                            <p className="text-xs text-blue-600">
-                              +{testQuestions.length - 3} more questions...
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={handleTestPrompt}
-                        disabled={testing}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        {testing ? (
-                          <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Testing...</>
-                        ) : (
-                          <><Play className="w-4 h-4 mr-2" /> Run Tests</>
-                        )}
-                      </Button>
-                    </>
-                  )}
-
-                  {/* Test Results */}
-                  {testResults.length > 0 && (
-                    <div className="mt-4 space-y-2">
-                      <h4 className="font-medium text-gray-900 text-sm">Test Results</h4>
-                      <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                        {testResults.map((result, index) => (
-                          <Card key={index} className="border-gray-200">
-                            <CardContent className="p-3">
-                              <div
-                                className="cursor-pointer"
-                                onClick={() => setExpandedResults(prev => ({
-                                  ...prev,
-                                  [index]: !prev[index]
-                                }))}
-                              >
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-900">
-                                      Q: {result.question}
-                                    </p>
-                                    {result.status === "success" && (
-                                      <Badge className="mt-1 bg-green-100 text-green-700 text-xs">
-                                        <Check className="w-3 h-3 mr-1" /> Answered
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  {expandedResults[index] ? (
-                                    <ChevronUp className="w-4 h-4 text-gray-400" />
-                                  ) : (
-                                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                                  )}
-                                </div>
-
-                                {expandedResults[index] && result.answer && (
-                                  <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-700">
-                                    <p className="font-medium text-gray-500 mb-1">Answer:</p>
-                                    {result.answer}
-                                  </div>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadPrompt}
+                    className="flex-1"
+                  >
+                    <Download className="w-4 h-4 mr-1" /> Download
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ) : (
             <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
               <CardContent className="py-16 text-center">
@@ -593,6 +492,143 @@ export default function PromptLab() {
                 <p className="text-gray-600 text-sm">
                   Configure your agent and click "Generate XML Prompt" to create
                   a structured system prompt
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Right Panel - Test Prompt */}
+        <div className="xl:col-span-1 space-y-6">
+          {generatedPrompt ? (
+            <Card className="bg-white border-gray-200">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <span className="text-sm font-bold text-emerald-600">4</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Test Prompt</CardTitle>
+                    <CardDescription>Evaluate agent responses</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button
+                  onClick={handleGenerateTestQuestions}
+                  disabled={generatingQuestions}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  {generatingQuestions ? (
+                    <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+                  ) : (
+                    <><Brain className="w-4 h-4 mr-2" /> Generate Test Questions</>
+                  )}
+                </Button>
+
+                {testQuestions.length > 0 && (
+                  <>
+                    <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                      <p className="text-sm font-medium text-indigo-900">
+                        {testQuestions.length} test questions ready
+                      </p>
+                      <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+                        {testQuestions.slice(0, 3).map((q, i) => (
+                          <p key={i} className="text-xs text-indigo-700">
+                            • {q.question}
+                          </p>
+                        ))}
+                        {testQuestions.length > 3 && (
+                          <p className="text-xs text-indigo-600 font-medium">
+                            +{testQuestions.length - 3} more questions...
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={handleTestPrompt}
+                      disabled={testing}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      {testing ? (
+                        <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Testing...</>
+                      ) : (
+                        <><Play className="w-4 h-4 mr-2" /> Run Tests</>
+                      )}
+                    </Button>
+                  </>
+                )}
+
+                {/* Test Results */}
+                {testResults.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-gray-900 text-sm">Test Results</h4>
+                      <Badge className="bg-green-100 text-green-700">
+                        {testResults.filter(r => r.status === "success").length}/{testResults.length} Passed
+                      </Badge>
+                    </div>
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                      {testResults.map((result, index) => (
+                        <Card key={index} className="border-gray-200 hover:border-indigo-300 transition-colors">
+                          <CardContent className="p-3">
+                            <div
+                              className="cursor-pointer"
+                              onClick={() => setExpandedResults(prev => ({
+                                ...prev,
+                                [index]: !prev[index]
+                              }))}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                                    {result.question}
+                                  </p>
+                                  {result.status === "success" && (
+                                    <Badge className="mt-1 bg-green-100 text-green-700 text-xs">
+                                      <Check className="w-3 h-3 mr-1" /> Answered
+                                    </Badge>
+                                  )}
+                                </div>
+                                {expandedResults[index] ? (
+                                  <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                ) : (
+                                  <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                )}
+                              </div>
+
+                              {expandedResults[index] && result.answer && (
+                                <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                  <p className="text-xs font-medium text-gray-500 mb-2">Answer:</p>
+                                  <p className="text-xs text-gray-700 leading-relaxed">{result.answer}</p>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!testQuestions.length && !testResults.length && (
+                  <div className="text-center py-8 text-gray-400">
+                    <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Generate test questions to begin testing</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-gray-50 border-gray-200">
+              <CardContent className="py-16 text-center">
+                <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-lg font-medium text-gray-600 mb-2">
+                  Testing Available After Generation
+                </h3>
+                <p className="text-gray-500 text-sm">
+                  Generate a prompt first to unlock testing features
                 </p>
               </CardContent>
             </Card>

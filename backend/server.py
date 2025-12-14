@@ -1130,6 +1130,10 @@ app.include_router(retell_router, prefix="/api")
 from routes.payments_routes import router as payments_router
 app.include_router(payments_router, prefix="/api")
 
+# Include Prompt Lab routes
+from routes.prompt_lab_routes import router as prompt_lab_router
+app.include_router(prompt_lab_router, prefix="/api")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

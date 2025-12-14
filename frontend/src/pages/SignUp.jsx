@@ -69,25 +69,25 @@ export default function SignUp() {
           </div>
 
           {/* Powered By Footer */}
-          <div className="pt-6 border-t border-white/10">
-            <p className="text-sm text-zinc-500 mb-4">
+          <div className="pt-8 border-t border-white/10">
+            <p className="text-base text-zinc-400 mb-5 font-medium">
               Powered by
             </p>
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-10">
               <img 
-                src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/qkd1o3ey_21f24c4d-1107-4dcf-97f2-9c2cc39feec3_1081x214.png" 
+                src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/3r30lby4_21f24c4d-1107-4dcf-97f2-9c2cc39feec3_1081x214-removebg-preview.png" 
                 alt="Entrepreneurs First" 
-                className="h-7 object-contain opacity-90 hover:opacity-100 transition-opacity"
+                className="h-10 object-contain opacity-90 hover:opacity-100 transition-opacity"
               />
               <img 
-                src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/r0wdcuyi_d9f9328957cc866bf56a8f5279cb4d176711a1fb.png" 
+                src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/50lbzk7p_Emergent-removebg-preview.png" 
                 alt="Emergent" 
-                className="h-7 object-contain opacity-90 hover:opacity-100 transition-opacity"
+                className="h-10 object-contain opacity-90 hover:opacity-100 transition-opacity"
               />
               <img 
                 src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/zmr2g7rw_OpenAI_Logo.svg.png" 
                 alt="OpenAI" 
-                className="h-5 object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity"
+                className="h-7 object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity"
               />
             </div>
           </div>

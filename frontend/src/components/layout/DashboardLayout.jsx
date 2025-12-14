@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation } from "react-router-dom";
+import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import {
@@ -21,6 +21,7 @@ import {
   LogOut,
   History,
   FlaskConical,
+  Crown,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
@@ -32,11 +33,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
+import { useSubscription } from "../../context/SubscriptionContext";
 
 const buildItems = [
   { path: "/agents", icon: Bot, label: "Agents", description: "AI assistants" },
-  { path: "/flows", icon: Workflow, label: "Flows", description: "Visual builder" },
-  { path: "/tools", icon: Wrench, label: "Tools", description: "Custom actions" },
+  { path: "/flows", icon: Workflow, label: "Flows", description: "Visual builder", premium: true },
+  { path: "/tools", icon: Wrench, label: "Tools", description: "Custom actions", premium: true },
 ];
 
 const manageItems = [
@@ -44,17 +46,19 @@ const manageItems = [
 ];
 
 const monitorItems = [
-  { path: "/analytics", icon: BarChart3, label: "Analytics", description: "Performance" },
+  { path: "/analytics", icon: BarChart3, label: "Analytics", description: "Performance", premium: true },
   { path: "/history", icon: History, label: "Call History", description: "Call logs & recordings" },
-  { path: "/eval", icon: FlaskConical, label: "Agent Eval", description: "Test & evaluate" },
+  { path: "/eval", icon: FlaskConical, label: "Agent Eval", description: "Test & evaluate", premium: true },
   { path: "/settings", icon: Settings, label: "Settings", description: "Configuration" },
 ];
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { isPremium, isLoading } = useSubscription();
 
   const NavItem = ({ item }) => {
     const Icon = item.icon;

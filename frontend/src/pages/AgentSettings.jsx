@@ -250,17 +250,23 @@ export default function AgentSettings() {
 
       const result = await updateAgent(agentId, updateData);
       
-      // If agent has a linked Retell agent, update its voice_id too
-      if (currentAgent?.retell_agent_id && selectedVoiceId) {
+      // If agent has a linked Retell agent, update its voice_id and system_prompt
+      if (currentAgent?.retell_agent_id) {
         try {
-          await axios.put(`${API_URL}/api/retell/agents/${currentAgent.retell_agent_id}`, {
-            voice_id: selectedVoiceId,
+          const retellUpdate = {
             system_prompt: formData.system_prompt,
-          });
-          console.log("Retell agent voice updated successfully");
+          };
+          
+          // Only include voice_id if one is selected
+          if (selectedVoiceId) {
+            retellUpdate.voice_id = selectedVoiceId;
+          }
+          
+          await axios.put(`${API_URL}/api/retell/agents/${currentAgent.retell_agent_id}`, retellUpdate);
+          console.log("Retell agent updated successfully");
         } catch (retellError) {
-          console.error("Failed to update Retell agent voice:", retellError);
-          toast.error("Voice saved locally but failed to sync with voice platform");
+          console.error("Failed to update Retell agent:", retellError);
+          toast.error("Settings saved locally but failed to sync with voice platform");
         }
       }
       

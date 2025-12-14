@@ -82,7 +82,7 @@ export default function SignUp() {
               <img 
                 src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/50lbzk7p_Emergent-removebg-preview.png" 
                 alt="Emergent" 
-                className="h-10 object-contain opacity-90 hover:opacity-100 transition-opacity"
+                className="h-10 object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity"
               />
               <img 
                 src="https://customer-assets.emergentagent.com/job_71444cca-a516-4d2f-9222-616056355b0f/artifacts/zmr2g7rw_OpenAI_Logo.svg.png" 

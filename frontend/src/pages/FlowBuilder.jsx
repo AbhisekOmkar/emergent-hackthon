@@ -159,6 +159,9 @@ export default function FlowBuilder() {
   const [isLoading, setIsLoading] = useState(true);
   const [showNodeEditor, setShowNodeEditor] = useState(false);
   const [editingNode, setEditingNode] = useState(null);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testCallData, setTestCallData] = useState(null);
+  const [retellClient, setRetellClient] = useState(null);
 
   // Load flow data
   useEffect(() => {

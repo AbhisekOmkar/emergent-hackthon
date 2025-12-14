@@ -35,8 +35,8 @@ import {
 import { useAgentStore } from "../stores/agentStore";
 import { toast } from "sonner";
 import axios from "axios";
-// import { UpgradePrompt } from "../components/UpgradePrompt";
-// import { useSubscription } from "../context/SubscriptionContext";
+import { UpgradePrompt } from "../components/UpgradePrompt";
+import { useSubscription } from "../context/SubscriptionContext";
 // Voice SDK is loaded dynamically when needed
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -57,7 +57,7 @@ const getErrorMessage = (error, defaultMsg = "An error occurred") => {
 };
 
 export default function AgentEval() {
-  // const { isPremium, isLoading: subscriptionLoading } = useSubscription();
+  const { isPremium, isLoading: subscriptionLoading } = useSubscription();
   const { agents, fetchAgents } = useAgentStore();
   const [testCases, setTestCases] = useState([]);
   const [batchTests, setBatchTests] = useState([]);
@@ -533,17 +533,17 @@ export default function AgentEval() {
     ? (batchTests.reduce((sum, t) => sum + (t.pass_rate || 0), 0) / batchTests.length).toFixed(1)
     : 0;
 
-  // PREMIUM FEATURE GATE TEMPORARILY DISABLED
-  // if (!subscriptionLoading && !isPremium) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
-  //       <UpgradePrompt 
-  //         title="Upgrade to Unlock Agent Evaluation"
-  //         description="Agent Evaluation is a premium feature. Test and evaluate your agents with automated test cases, batch runs, and voice call testing."
-  //       />
-  //     </div>
-  //   );
-  // }
+  // Show upgrade prompt for non-premium users
+  if (!subscriptionLoading && !isPremium) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
+        <UpgradePrompt 
+          title="Upgrade to Unlock Agent Evaluation"
+          description="Agent Evaluation is a premium feature. Test and evaluate your agents with automated test cases, batch runs, and voice call testing."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">

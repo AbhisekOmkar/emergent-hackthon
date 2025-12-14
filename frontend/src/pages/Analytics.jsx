@@ -40,7 +40,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-// import { FeatureGate } from "../components/UpgradePrompt";
+import { FeatureGate } from "../components/UpgradePrompt";
 
 function AnalyticsContent() {
   const { analytics, chartData, recentCalls, insights, fetchAnalytics, fetchInsights, createInsight, loading } = useAnalyticsStore();
@@ -585,9 +585,8 @@ function AnalyticsContent() {
 
 export default function Analytics() {
   return (
-    // PREMIUM FEATURE GATE TEMPORARILY DISABLED
-    // <FeatureGate feature="Analytics Dashboard">
+    <FeatureGate feature="Analytics Dashboard">
       <AnalyticsContent />
-    // </FeatureGate>
+    </FeatureGate>
   );
 }

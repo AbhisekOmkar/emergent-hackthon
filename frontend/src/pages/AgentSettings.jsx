@@ -870,6 +870,41 @@ export default function AgentSettings() {
                     </p>
                   )}
                 </div>
+
+                {/* Recreate Voice Agent Section */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-amber-50 border border-amber-200">
+                    <div>
+                      <p className="font-medium text-gray-900">Sync Voice Agent</p>
+                      <p className="text-sm text-gray-500">
+                        Recreate the voice agent with your current system prompt and voice settings
+                      </p>
+                      {currentAgent?.retell_agent_id && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          Current voice agent ID: {currentAgent.retell_agent_id}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={handleRecreateVoiceAgent}
+                      disabled={recreatingVoiceAgent}
+                      className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                    >
+                      {recreatingVoiceAgent ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Recreating...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Recreate Voice Agent
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

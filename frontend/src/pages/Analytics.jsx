@@ -40,8 +40,9 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { FeatureGate } from "../components/UpgradePrompt";
 
-export default function Analytics() {
+function AnalyticsContent() {
   const { analytics, chartData, recentCalls, insights, fetchAnalytics, fetchInsights, createInsight, loading } = useAnalyticsStore();
   const { agents, fetchAgents } = useAgentStore();
   const [showInsightModal, setShowInsightModal] = useState(false);

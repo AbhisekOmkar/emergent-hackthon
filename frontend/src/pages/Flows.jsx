@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   GitBranch, Plus, Search, MoreVertical, Play, Copy,
   Trash2, Edit3, Clock, CheckCircle, AlertCircle, Zap,
-  Bot, ArrowRight, Workflow
+  Bot, ArrowRight, Workflow, RefreshCw, Brain, Sparkles
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -21,6 +21,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "../components/ui/dialog";
 import { Label } from "../components/ui/label";
@@ -37,62 +38,52 @@ import axios from "axios";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const mockFlows = [
-  {
-    id: "1",
-    name: "Customer Support Flow",
-    description: "Handle incoming customer inquiries with AI",
-    status: "active",
-    nodes_count: 8,
-    agent: "Support Bot",
-    last_run: "2 hours ago",
-    runs: 156,
-  },
-  {
-    id: "2",
-    name: "Lead Qualification",
-    description: "Qualify and route incoming leads",
-    status: "active",
-    nodes_count: 12,
-    agent: "Sales Agent",
-    last_run: "30 min ago",
-    runs: 89,
-  },
-  {
-    id: "3",
-    name: "Appointment Booking",
-    description: "Schedule appointments with calendar integration",
-    status: "draft",
-    nodes_count: 6,
-    agent: null,
-    last_run: null,
-    runs: 0,
-  },
-];
-
 export default function Flows() {
   const navigate = useNavigate();
-  const [flows, setFlows] = useState(mockFlows);
+  const [flows, setFlows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [availableModels, setAvailableModels] = useState([]);
   const [newFlow, setNewFlow] = useState({
     name: "",
     description: "",
-    agent_id: "",
+    model: "gpt-4.1",
+    start_speaker: "agent",
+    global_prompt: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [agents, setAgents] = useState([]);
 
   useEffect(() => {
-    fetchAgents();
+    fetchFlows();
+    fetchModels();
   }, []);
 
-  const fetchAgents = async () => {
+  const fetchFlows = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API}/agents`);
-      setAgents(response.data);
+      const response = await axios.get(`${API}/retell/conversation-flows`);
+      setFlows(response.data || []);
     } catch (error) {
-      console.error("Failed to fetch agents:", error);
+      console.error("Failed to fetch flows:", error);
+      // Show empty state instead of error for new users
+      setFlows([]);
+    }
+    setLoading(false);
+  };
+
+  const fetchModels = async () => {
+    try {
+      const response = await axios.get(`${API}/retell/conversation-flow-models`);
+      setAvailableModels(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch models:", error);
+      // Default models if API fails
+      setAvailableModels([
+        { id: "gpt-4.1", name: "GPT-4.1", provider: "OpenAI" },
+        { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", provider: "OpenAI" },
+        { id: "claude-4.5-sonnet", name: "Claude 4.5 Sonnet", provider: "Anthropic" },
+      ]);
     }
   };
 
@@ -101,72 +92,154 @@ export default function Flows() {
       toast.error("Please enter a flow name");
       return;
     }
-    setLoading(true);
     
-    const flow = {
-      id: Date.now().toString(),
-      ...newFlow,
-      status: "draft",
-      nodes_count: 0,
-      runs: 0,
-      last_run: null,
-    };
-    
-    setFlows(prev => [...prev, flow]);
-    toast.success("Flow created!");
-    setShowCreateModal(false);
-    setNewFlow({ name: "", description: "", agent_id: "" });
-    setLoading(false);
-    
-    // Navigate after a short delay to ensure state updates complete
-    setTimeout(() => {
-      navigate(`/flows/${flow.id}/builder`);
-    }, 100);
+    setCreating(true);
+    try {
+      // Create initial flow with a start node
+      const initialNodes = [
+        {
+          id: "start",
+          type: "conversation",
+          name: "Start",
+          instruction: {
+            type: "prompt",
+            text: newFlow.global_prompt || "Greet the customer and ask how you can help them today."
+          },
+          display_position: { x: 250, y: 100 },
+          edges: []
+        }
+      ];
+
+      const response = await axios.post(`${API}/retell/conversation-flows`, {
+        name: newFlow.name,
+        description: newFlow.description,
+        model_choice: {
+          type: "cascading",
+          model: newFlow.model
+        },
+        start_speaker: newFlow.start_speaker,
+        nodes: initialNodes,
+        global_prompt: newFlow.global_prompt,
+        start_node_id: "start",
+        begin_tag_display_position: { x: 100, y: 100 }
+      });
+
+      toast.success("Conversation flow created!");
+      setShowCreateModal(false);
+      setNewFlow({ name: "", description: "", model: "gpt-4.1", start_speaker: "agent", global_prompt: "" });
+      
+      // Navigate to builder with the new flow
+      const flowId = response.data.flow_id || response.data.retell_flow_id;
+      navigate(`/flows/${flowId}/builder`);
+      
+    } catch (error) {
+      console.error("Failed to create flow:", error);
+      toast.error(error.response?.data?.detail || "Failed to create conversation flow");
+    }
+    setCreating(false);
   };
 
-  const handleDelete = (flowId) => {
-    if (window.confirm("Are you sure you want to delete this flow?")) {
-      setFlows(prev => prev.filter(f => f.id !== flowId));
-      toast.success("Flow deleted");
+  const handleDelete = async (flowId, retellFlowId) => {
+    if (!window.confirm("Are you sure you want to delete this conversation flow? This cannot be undone.")) {
+      return;
+    }
+    
+    try {
+      await axios.delete(`${API}/retell/conversation-flows/${flowId}`);
+      toast.success("Flow deleted successfully");
+      fetchFlows();
+    } catch (error) {
+      console.error("Failed to delete flow:", error);
+      toast.error("Failed to delete flow");
     }
   };
 
-  const handleDuplicate = (flow) => {
-    const newFlowCopy = {
-      ...flow,
-      id: Date.now().toString(),
-      name: `${flow.name} (Copy)`,
-      status: "draft",
-      runs: 0,
-      last_run: null,
-    };
-    setFlows(prev => [...prev, newFlowCopy]);
-    toast.success("Flow duplicated");
+  const handleDuplicate = async (flow) => {
+    try {
+      // Get full flow data
+      const response = await axios.get(`${API}/retell/conversation-flows/${flow.id}`);
+      const fullFlow = response.data;
+      
+      // Create new flow with copied data
+      await axios.post(`${API}/retell/conversation-flows`, {
+        name: `${flow.name} (Copy)`,
+        description: flow.description,
+        model_choice: fullFlow.model_choice || { type: "cascading", model: "gpt-4.1" },
+        start_speaker: fullFlow.start_speaker || "agent",
+        nodes: fullFlow.nodes || [],
+        global_prompt: fullFlow.global_prompt,
+        start_node_id: fullFlow.start_node_id,
+        tools: fullFlow.tools,
+        knowledge_base_ids: fullFlow.knowledge_base_ids,
+      });
+      
+      toast.success("Flow duplicated!");
+      fetchFlows();
+    } catch (error) {
+      console.error("Failed to duplicate flow:", error);
+      toast.error("Failed to duplicate flow");
+    }
   };
 
   const filteredFlows = flows.filter(flow =>
-    flow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    flow.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (flow.description || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "active":
+        return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Active</Badge>;
+      case "draft":
+        return <Badge className="bg-amber-100 text-amber-700 border-amber-200">Draft</Badge>;
+      default:
+        return <Badge className="bg-gray-100 text-gray-700 border-gray-200">{status}</Badge>;
+    }
+  };
+
+  const getModelBadge = (model) => {
+    const modelInfo = availableModels.find(m => m.id === model);
+    const colors = {
+      "OpenAI": "bg-emerald-100 text-emerald-700",
+      "Anthropic": "bg-orange-100 text-orange-700",
+      "Google": "bg-blue-100 text-blue-700"
+    };
+    return (
+      <Badge className={`${colors[modelInfo?.provider] || "bg-gray-100 text-gray-700"} text-xs`}>
+        {modelInfo?.name || model}
+      </Badge>
+    );
+  };
+
   return (
-    <div data-testid="flows-page" className="min-h-screen">
+    <div data-testid="flows-page" className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="content-header px-8 py-6">
+      <div className="bg-white border-b border-gray-200 px-8 py-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Flows</h1>
-              <p className="text-gray-600 text-sm">Build and manage visual agent workflows</p>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Conversation Flows</h1>
+              <p className="text-gray-600 text-sm">Build visual conversation flows for your voice agents</p>
             </div>
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm"
-              data-testid="create-flow-btn"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Flow
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={fetchFlows}
+                disabled={loading}
+                className="border-gray-200"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 h-11 rounded-lg shadow-sm"
+                data-testid="create-flow-btn"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Flow
+              </Button>
+            </div>
           </div>
 
           {/* Search */}
@@ -184,28 +257,33 @@ export default function Flows() {
       </div>
 
       {/* Main Content */}
-      <div className="p-8">
-        {filteredFlows.length === 0 ? (
-          <Card className="glass-card">
+      <div className="p-8 max-w-7xl mx-auto">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <RefreshCw className="w-8 h-8 animate-spin text-indigo-500" />
+            <span className="ml-3 text-gray-500">Loading conversation flows...</span>
+          </div>
+        ) : filteredFlows.length === 0 ? (
+          <Card className="bg-white border-gray-200 shadow-sm">
             <CardContent className="py-16 text-center">
               <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-4">
-                <Workflow className="w-10 h-10 text-indigo-400" />
+                <Workflow className="w-10 h-10 text-indigo-500" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchQuery ? "No flows found" : "Create your first flow"}
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {searchQuery ? "No flows found" : "Create your first conversation flow"}
               </h3>
-              <p className="text-gray-500 mb-6">
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
                 {searchQuery
                   ? "Try adjusting your search"
-                  : "Design conversation flows with our visual drag-and-drop builder"}
+                  : "Design intelligent conversation flows with nodes, conditions, and transitions. Connect them to your voice agents for powerful automated interactions."}
               </p>
               {!searchQuery && (
                 <Button
                   onClick={() => setShowCreateModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Flow
+                  Create Your First Flow
                 </Button>
               )}
             </CardContent>
@@ -213,41 +291,45 @@ export default function Flows() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFlows.map((flow) => (
-              <Card
-                key={flow.id}
-                className="glass-card card-hover group"
-                data-testid={`flow-card-${flow.id}`}
+              <Card 
+                key={flow.id} 
+                className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                onClick={() => navigate(`/flows/${flow.id}/builder`)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-                      <GitBranch className="w-6 h-6 text-indigo-600" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <GitBranch className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                          {flow.name}
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          {flow.nodes_count || 0} nodes
+                        </p>
+                      </div>
                     </div>
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-white border-gray-200">
-                        <DropdownMenuItem asChild>
-                          <Link to={`/flows/${flow.id}/builder`} className="flex items-center">
-                            <Edit3 className="w-4 h-4 mr-2" />
-                            Edit Flow
-                          </Link>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/flows/${flow.id}/builder`); }}>
+                          <Edit3 className="w-4 h-4 mr-2" />
+                          Edit Flow
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicate(flow)}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicate(flow); }}>
                           <Copy className="w-4 h-4 mr-2" />
                           Duplicate
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-gray-100" />
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(flow.id)}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
                           className="text-red-600"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(flow.id, flow.retell_flow_id); }}
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
                           Delete
@@ -256,64 +338,25 @@ export default function Flows() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900">{flow.name}</h3>
-                    </div>
-                    <p className="text-sm text-gray-500 line-clamp-2">
-                      {flow.description || "No description"}
-                    </p>
-                  </div>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2 min-h-[40px]">
+                    {flow.description || "No description"}
+                  </p>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                    <div className="flex items-center gap-1">
-                      <GitBranch className="w-4 h-4" />
-                      <span>{flow.nodes_count} nodes</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Play className="w-4 h-4" />
-                      <span>{flow.runs} runs</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <Badge
-                      variant="outline"
-                      className={
-                        flow.status === "active"
-                          ? "bg-green-50 text-green-700 border-green-200"
-                          : "bg-gray-50 text-gray-600 border-gray-200"
-                      }
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                          flow.status === "active" ? "bg-green-500" : "bg-gray-400"
-                        }`}
-                      />
-                      {flow.status}
-                    </Badge>
-                    {flow.last_run && (
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {flow.last_run}
-                      </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {getStatusBadge(flow.status)}
+                    {flow.model && getModelBadge(flow.model)}
+                    {flow.start_speaker && (
+                      <Badge className="bg-gray-100 text-gray-600 text-xs">
+                        {flow.start_speaker === "agent" ? "Agent starts" : "User starts"}
+                      </Badge>
                     )}
                   </div>
 
-                  <div className="mt-4 flex gap-2">
-                    <Link to={`/flows/${flow.id}/builder`} className="flex-1">
-                      <Button
-                        variant="outline"
-                        className="w-full border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-                      >
-                        <Edit3 className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
-                    </Link>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Play className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  {flow.version && (
+                    <p className="text-xs text-gray-400 mt-3">
+                      Version {flow.version}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -321,52 +364,92 @@ export default function Flows() {
         )}
       </div>
 
-      {/* Create Modal */}
+      {/* Create Flow Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="bg-white border-gray-200">
+        <DialogContent className="bg-white border-gray-200 max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-xl text-gray-900">Create New Flow</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-gray-900">Create Conversation Flow</DialogTitle>
+            <DialogDescription className="text-gray-500">
+              Create a new conversation flow to define how your voice agent interacts with callers.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          
+          <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <Label className="text-gray-700">Flow Name</Label>
+              <Label className="text-gray-700 font-medium">Flow Name *</Label>
               <Input
-                placeholder="Customer Support Flow"
+                placeholder="e.g., Customer Support Flow"
                 value={newFlow.name}
-                onChange={(e) => setNewFlow((prev) => ({ ...prev, name: e.target.value }))}
-                className="bg-gray-50 border-gray-200 focus:border-blue-500"
+                onChange={(e) => setNewFlow({ ...newFlow, name: e.target.value })}
+                className="bg-white border-gray-200"
               />
             </div>
+
             <div className="space-y-2">
-              <Label className="text-gray-700">Description</Label>
+              <Label className="text-gray-700 font-medium">Description</Label>
               <Textarea
                 placeholder="Describe what this flow does..."
                 value={newFlow.description}
-                onChange={(e) => setNewFlow((prev) => ({ ...prev, description: e.target.value }))}
-                className="bg-gray-50 border-gray-200 focus:border-blue-500 min-h-[80px]"
+                onChange={(e) => setNewFlow({ ...newFlow, description: e.target.value })}
+                className="bg-white border-gray-200 min-h-[80px]"
               />
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-medium">LLM Model</Label>
+                <Select
+                  value={newFlow.model}
+                  onValueChange={(value) => setNewFlow({ ...newFlow, model: value })}
+                >
+                  <SelectTrigger className="bg-white border-gray-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-gray-200">
+                    {availableModels.map(model => (
+                      <SelectItem key={model.id} value={model.id}>
+                        <div className="flex items-center gap-2">
+                          <Brain className="w-4 h-4 text-gray-400" />
+                          {model.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-medium">Who Starts</Label>
+                <Select
+                  value={newFlow.start_speaker}
+                  onValueChange={(value) => setNewFlow({ ...newFlow, start_speaker: value })}
+                >
+                  <SelectTrigger className="bg-white border-gray-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-gray-200">
+                    <SelectItem value="agent">Agent speaks first</SelectItem>
+                    <SelectItem value="user">Wait for user</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label className="text-gray-700">Assign to Agent (Optional)</Label>
-              <Select
-                value={newFlow.agent_id}
-                onValueChange={(value) => setNewFlow((prev) => ({ ...prev, agent_id: value }))}
-              >
-                <SelectTrigger className="bg-gray-50 border-gray-200">
-                  <SelectValue placeholder="Select an agent" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-200">
-                  <SelectItem value="none">No agent</SelectItem>
-                  {agents.map((agent) => (
-                    <SelectItem key={agent.id} value={agent.id}>
-                      {agent.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label className="text-gray-700 font-medium">Global Prompt (Optional)</Label>
+              <Textarea
+                placeholder="Instructions that apply to all conversation nodes..."
+                value={newFlow.global_prompt}
+                onChange={(e) => setNewFlow({ ...newFlow, global_prompt: e.target.value })}
+                className="bg-white border-gray-200 min-h-[100px]"
+              />
+              <p className="text-xs text-gray-500">
+                This prompt will be applied to every conversation node in the flow.
+              </p>
             </div>
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => setShowCreateModal(false)}
@@ -376,10 +459,20 @@ export default function Flows() {
             </Button>
             <Button
               onClick={handleCreate}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={creating || !newFlow.name.trim()}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
-              {loading ? "Creating..." : "Create & Open Editor"}
+              {creating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Create Flow
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -74,6 +74,9 @@ export default function AgentSettings() {
     if (currentAgent?.knowledge_base_ids) {
       setSelectedKBs(currentAgent.knowledge_base_ids);
     }
+    if (currentAgent?.voice_config?.voice_id) {
+      setSelectedVoiceId(currentAgent.voice_config.voice_id);
+    }
   }, [currentAgent]);
 
   const fetchKnowledgeBases = async () => {
@@ -86,6 +89,52 @@ export default function AgentSettings() {
       toast.error("Failed to fetch knowledge bases");
     }
     setLoadingKBs(false);
+  };
+
+  const fetchAvailableVoices = async () => {
+    setLoadingVoices(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/retell/voices`);
+      setAvailableVoices(response.data || []);
+    } catch (error) {
+      console.error("Error fetching voices:", error);
+      // Don't show error toast for voices - they might not have API key configured
+    }
+    setLoadingVoices(false);
+  };
+
+  const playVoicePreview = (voice) => {
+    if (playingVoiceId === voice.voice_id) {
+      // Stop playing
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      setPlayingVoiceId(null);
+    } else {
+      // Start playing new voice
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (voice.preview_audio_url) {
+        const audio = new Audio(voice.preview_audio_url);
+        audioRef.current = audio;
+        audio.play();
+        setPlayingVoiceId(voice.voice_id);
+        audio.onended = () => setPlayingVoiceId(null);
+        audio.onerror = () => {
+          setPlayingVoiceId(null);
+          toast.error("Failed to play voice preview");
+        };
+      } else {
+        toast.error("No preview available for this voice");
+      }
+    }
+  };
+
+  const selectVoice = (voiceId) => {
+    setSelectedVoiceId(voiceId);
+    handleChange("voice_id", voiceId);
   };
 
   const toggleKB = (kbId) => {

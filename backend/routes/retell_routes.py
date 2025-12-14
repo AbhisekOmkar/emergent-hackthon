@@ -1958,14 +1958,21 @@ async def generate_test_scenarios(
         # Get agent configuration
         client, db = get_db()
         
-        agent = await db.agents.find_one({"retell_agent_id": agent_id}, {"_id": 0})
+        # Try to find agent by retell_agent_id (voice agent) or by id (chat agent)
+        agent = await db.agents.find_one(
+            {"$or": [{"retell_agent_id": agent_id}, {"id": agent_id}]}, 
+            {"_id": 0}
+        )
+        
         if not agent:
+            # Try fetching from Retell API if it's a voice agent
             try:
                 retell_agent = await make_retell_request("GET", f"/get-agent/{agent_id}")
-                system_prompt = retell_agent.get("llm_websocket_url", "You are a helpful assistant.")
+                system_prompt = retell_agent.get("general_prompt", "You are a helpful assistant.")
                 agent_name = retell_agent.get("agent_name", "Agent")
             except:
-                raise HTTPException(status_code=404, detail="Agent not found")
+                client.close()
+                raise HTTPException(status_code=404, detail=f"Agent not found: {agent_id}")
         else:
             system_prompt = agent.get("system_prompt", "You are a helpful assistant.")
             agent_name = agent.get("name", "Agent")

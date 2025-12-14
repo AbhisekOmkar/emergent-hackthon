@@ -326,3 +326,11 @@ function ToolsContent() {
     </div>
   );
 }
+
+export default function Tools() {
+  return (
+    <FeatureGate feature="Tools & Integrations">
+      <ToolsContent />
+    </FeatureGate>
+  );
+}

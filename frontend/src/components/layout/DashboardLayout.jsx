@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Bot,
@@ -54,11 +55,49 @@ const monitorItems = [
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isUpgrading, setIsUpgrading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useUser();
   const { signOut } = useClerk();
   const { isPremium, isLoading } = useSubscription();
+
+  const handleUpgradeClick = async () => {
+    setIsUpgrading(true);
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/api/payments/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          user_email: user.primaryEmailAddress?.emailAddress || '',
+          user_name: user.fullName || user.username || '',
+          return_url: window.location.origin + '/',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      
+      if (data.checkout_url) {
+        // Redirect to Dodo Payments checkout page
+        window.location.href = data.checkout_url;
+      } else {
+        toast.error('Failed to get checkout URL');
+        setIsUpgrading(false);
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      toast.error('Failed to start checkout process');
+      setIsUpgrading(false);
+    }
+  };
 
   const NavItem = ({ item }) => {
     const Icon = item.icon;
@@ -179,10 +218,11 @@ export default function DashboardLayout() {
                   </div>
                   <Button 
                     size="sm" 
-                    onClick={() => navigate('/upgrade')}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs h-8 rounded-md font-medium shadow-sm"
+                    onClick={handleUpgradeClick}
+                    disabled={isUpgrading}
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs h-8 rounded-md font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Upgrade Now
+                    {isUpgrading ? 'Processing...' : 'Upgrade Now'}
                   </Button>
                 </div>
               )}

@@ -219,8 +219,11 @@ async def handle_webhook(request: Request):
             "webhook-signature": request.headers.get("webhook-signature", "")
         }
         
-        # Verify signature
-        if not verify_webhook_signature(body, headers):
+        # Log webhook receipt
+        logger.info(f"Webhook received - Headers: {headers}")
+        
+        # Verify signature (skip if no secret configured for testing)
+        if DODO_WEBHOOK_SECRET and not verify_webhook_signature(body, headers):
             logger.error("Invalid webhook signature")
             raise HTTPException(status_code=401, detail="Invalid signature")
         
@@ -230,19 +233,21 @@ async def handle_webhook(request: Request):
         event_type = payload.get("type", "")
         data = payload.get("data", {})
         
-        logger.info(f"Received webhook event: {event_type}")
+        logger.info(f"Processing webhook event: {event_type} - Data: {data}")
         
         client, db = get_db()
         
         # Handle different event types
         if event_type in ["payment.succeeded", "payment_succeeded", "payment.completed"]:
-            payment_id = data.get("payment_id")
+            payment_id = data.get("payment_id") or data.get("id")
             metadata = data.get("metadata", {})
             user_id = metadata.get("user_id")
             
+            logger.info(f"Payment succeeded - Payment ID: {payment_id}, User ID: {user_id}")
+            
             if user_id:
                 # Update user to premium
-                await db.user_subscriptions.update_one(
+                result = await db.user_subscriptions.update_one(
                     {"user_id": user_id},
                     {
                         "$set": {
@@ -256,31 +261,38 @@ async def handle_webhook(request: Request):
                     },
                     upsert=True
                 )
-                logger.info(f"User {user_id} upgraded to premium")
+                logger.info(f"User {user_id} upgraded to premium - Result: {result.modified_count} modified, {result.upserted_id} upserted")
+            else:
+                logger.warning(f"No user_id in metadata for payment {payment_id}")
             
             # Update payment record
             if payment_id:
                 await db.payments.update_one(
                     {"payment_id": payment_id},
-                    {"$set": {"status": "completed", "completed_at": datetime.now(timezone.utc).isoformat()}}
+                    {"$set": {"status": "completed", "completed_at": datetime.now(timezone.utc).isoformat()}},
+                    upsert=True
                 )
         
         elif event_type in ["payment.failed", "payment_failed"]:
-            payment_id = data.get("payment_id")
+            payment_id = data.get("payment_id") or data.get("id")
+            logger.info(f"Payment failed - Payment ID: {payment_id}")
             if payment_id:
                 await db.payments.update_one(
                     {"payment_id": payment_id},
-                    {"$set": {"status": "failed", "failed_at": datetime.now(timezone.utc).isoformat()}}
+                    {"$set": {"status": "failed", "failed_at": datetime.now(timezone.utc).isoformat()}},
+                    upsert=True
                 )
+        else:
+            logger.info(f"Unhandled event type: {event_type}")
         
         client.close()
         
-        return {"success": True, "event": event_type}
+        return {"success": True, "event": event_type, "processed": True}
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Webhook error: {str(e)}")
+        logger.error(f"Webhook error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

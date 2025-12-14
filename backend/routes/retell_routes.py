@@ -2411,7 +2411,7 @@ async def test_conversation_flow(flow_id: str):
         agent_data = {
             "agent_name": f"Test Agent - {local_flow.get('name', 'Flow') if local_flow else 'Flow'}",
             "response_engine": {
-                "type": "conversation_flow",
+                "type": "conversation-flow",
                 "conversation_flow_id": retell_flow_id
             },
             "voice_id": "11labs-Adrian",

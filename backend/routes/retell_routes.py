@@ -24,8 +24,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/retell", tags=["Voice Agents"])
 
 # Retell API Configuration
-RETELL_API_KEY = os.environ.get("RETELL_API_KEY")
 RETELL_API_BASE = "https://api.retellai.com"
+
+def get_retell_api_key():
+    """Get Retell API key from environment (dynamic lookup)"""
+    return os.environ.get("RETELL_API_KEY")
 
 
 # ========== PYDANTIC MODELS ==========

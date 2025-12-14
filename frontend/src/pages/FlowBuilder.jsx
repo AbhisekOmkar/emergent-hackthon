@@ -358,6 +358,28 @@ export default function FlowBuilder() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Get all node IDs for validation
+      const nodeIds = new Set(nodes.map(n => n.id));
+      
+      // Build edges map from React Flow edges
+      const edgesBySource = {};
+      edges.forEach(edge => {
+        if (!edgesBySource[edge.source]) {
+          edgesBySource[edge.source] = [];
+        }
+        // Only add edge if target exists
+        if (nodeIds.has(edge.target)) {
+          edgesBySource[edge.source].push({
+            id: edge.id || `edge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            destination_node_id: edge.target,
+            transition_condition: {
+              type: "prompt",
+              prompt: edge.label || "Continue to next step"
+            }
+          });
+        }
+      });
+      
       // Convert React Flow nodes back to Retell format
       const retellNodes = nodes.map(node => {
         const nodeType = node.data.retellType || "conversation";
@@ -378,18 +400,11 @@ export default function FlowBuilder() {
             type: "prompt",
             text: "Continue the conversation."
           };
-        }
-        
-        // Add edges if present (only for conversation nodes)
-        if (nodeType === "conversation" && node.data.edges && node.data.edges.length > 0) {
-          baseNode.edges = node.data.edges.map(edge => ({
-            id: edge.id || `edge_${Date.now()}`,
-            transition_condition: {
-              type: "prompt",
-              prompt: edge.transition_condition?.prompt || "Continue"
-            },
-            destination_node_id: edge.destination_node_id
-          })).filter(edge => edge.destination_node_id);
+          
+          // Add edges from React Flow edges (only for conversation nodes)
+          if (edgesBySource[node.id] && edgesBySource[node.id].length > 0) {
+            baseNode.edges = edgesBySource[node.id];
+          }
         }
         
         return baseNode;

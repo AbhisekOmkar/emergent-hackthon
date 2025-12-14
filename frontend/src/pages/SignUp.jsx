@@ -1,5 +1,5 @@
 import { SignUp as ClerkSignUp } from "@clerk/clerk-react";
-import { CheckCircle2, Zap, Shield, Users } from "lucide-react";
+import { Zap, Shield, Users } from "lucide-react";
 
 export default function SignUp() {
   return (
@@ -91,82 +91,85 @@ export default function SignUp() {
 
       {/* Right Side - Sign Up Form */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white lg:bg-zinc-50/30">
-        <div className="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.05)]">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex justify-center mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Create Account</h2>
-            <p className="text-sm text-slate-500 mt-2">Start your 14-day free trial</p>
-          </div>
-
-          {/* Clerk Component */}
-          <ClerkSignUp 
-            appearance={{
-              layout: {
-                socialButtonsPlacement: "top",
-                socialButtonsVariant: "blockButton",
-              },
-              variables: {
-                colorPrimary: '#4f46e5',
-                fontFamily: 'inherit',
-                borderRadius: '0.5rem',
-              },
-              elements: {
-                // Main containers
-                rootBox: "w-full",
-                card: "w-full shadow-none border-0 p-0 bg-transparent gap-6",
-                headerTitle: "hidden",
-                headerSubtitle: "hidden",
-                
-                // Social Buttons
-                socialButtonsBlockButton: "w-full min-h-[44px] bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg text-sm font-medium transition-all shadow-sm flex items-center justify-center gap-2",
-                socialButtonsBlockButtonText: "font-medium text-sm text-zinc-700",
-                socialButtonsBlockButtonArrow: "hidden",
-                
-                // Divider
-                dividerRow: "my-6",
-                dividerLine: "bg-zinc-100 h-[1px]",
-                dividerText: "text-zinc-400 text-xs font-medium uppercase tracking-wider bg-white px-2",
-                
-                // Form Fields
-                formFieldRow: "mb-4 block",
-                formFieldLabel: "block text-zinc-700 text-sm font-medium mb-1.5",
-                formFieldInput: "w-full h-11 px-3 bg-white border border-zinc-200 text-zinc-900 rounded-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:text-zinc-400 outline-none block box-border",
-                
-                // Submit Button
-                formButtonPrimary: "w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow-indigo-500/25 mt-2",
-                
-                // Footer
-                footer: "hidden",
-                
-                // Alerts/Errors
-                alert: "bg-red-50 border border-red-100 text-red-600 rounded-lg p-3 text-sm mb-4",
-                alertText: "text-red-600",
-              }
-            }}
-            routing="path"
-            path="/signup"
-            signInUrl="/signin"
-            redirectUrl="/"
-            afterSignUpUrl="/"
-          />
-          
-          {/* Custom Footer Links */}
-          <div className="mt-6 text-center text-sm text-zinc-500">
-            Already have an account?{" "}
-            <a href="/signin" className="font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
-              Sign in
-            </a>
-          </div>
+        {/* Mobile Logo */}
+        <div className="lg:hidden flex justify-center mb-6">
+          <span className="text-2xl font-bold text-slate-900">IntelliAX</span>
         </div>
+
+        {/* Clerk Component Only */}
+        <ClerkSignUp 
+          appearance={{
+            layout: {
+              socialButtonsPlacement: "top",
+              socialButtonsVariant: "blockButton",
+              showOptionalFields: false,
+            },
+            variables: {
+              colorPrimary: '#4f46e5',
+              colorText: '#18181b',
+              colorTextSecondary: '#71717a',
+              colorBackground: '#ffffff',
+              colorInputBackground: '#ffffff',
+              colorInputText: '#18181b',
+              fontFamily: 'Inter, system-ui, sans-serif',
+              borderRadius: '0.75rem',
+              spacingUnit: '1rem',
+            },
+            elements: {
+              // Root & Card
+              rootBox: "w-full max-w-[420px]",
+              card: "w-full bg-white p-8 sm:p-10 rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_4px_16px_rgba(0,0,0,0.08)]",
+              
+              // Header
+              headerTitle: "text-2xl font-bold text-zinc-900 text-center",
+              headerSubtitle: "text-sm text-zinc-500 text-center mt-2",
+              
+              // Social Buttons
+              socialButtons: "w-full grid grid-cols-2 gap-3 p-4 bg-zinc-50 rounded-xl border border-zinc-100",
+              socialButtonsBlockButton: "w-full h-12 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 rounded-lg text-sm font-medium transition-all shadow-sm flex items-center justify-center gap-2",
+              socialButtonsBlockButtonText: "font-medium text-sm text-zinc-700",
+              socialButtonsBlockButtonArrow: "hidden",
+              socialButtonsProviderIcon: "w-5 h-5",
+              
+              // Divider
+              dividerRow: "w-full my-6 flex items-center gap-4",
+              dividerLine: "flex-1 bg-zinc-200 h-px",
+              dividerText: "text-zinc-400 text-xs font-medium uppercase tracking-wider",
+              
+              // Form
+              form: "w-full space-y-4",
+              formFieldRow: "w-full",
+              formFieldLabel: "block text-zinc-700 text-sm font-medium mb-2",
+              formFieldInput: "w-full h-12 px-4 bg-white border border-zinc-200 text-zinc-900 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-zinc-400 outline-none text-sm",
+              formFieldAction: "text-indigo-600 hover:text-indigo-700 text-sm font-medium",
+              formFieldHintText: "text-xs text-zinc-500 mt-1",
+              
+              // Submit Button
+              formButtonPrimary: "w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 mt-4",
+              
+              // Footer
+              footer: "mt-6 text-center",
+              footerActionText: "text-sm text-zinc-500",
+              footerActionLink: "text-indigo-600 hover:text-indigo-700 font-medium ml-1",
+              
+              // Alerts
+              alert: "w-full bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm",
+              alertText: "text-red-700",
+              
+              // Other elements
+              identityPreview: "w-full bg-zinc-50 rounded-lg p-4",
+              identityPreviewText: "text-sm text-zinc-700",
+              identityPreviewEditButton: "text-indigo-600 hover:text-indigo-700 text-sm font-medium",
+              formResendCodeLink: "text-indigo-600 hover:text-indigo-700 text-sm font-medium",
+              otpCodeFieldInput: "w-12 h-12 text-center border border-zinc-200 rounded-lg text-lg font-semibold",
+            }
+          }}
+          routing="path"
+          path="/signup"
+          signInUrl="/signin"
+          redirectUrl="/"
+          afterSignUpUrl="/"
+        />
       </div>
     </div>
   );

@@ -18,7 +18,6 @@ import AgentEval from "./pages/AgentEval";
 import Settings from "./pages/Settings";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import Upgrade from "./pages/Upgrade";
 import UpgradeSuccess from "./pages/UpgradeSuccess";
 import "./App.css";
 
@@ -52,8 +51,7 @@ function App() {
               <Route path="/signin/*" element={<SignIn />} />
               <Route path="/signup/*" element={<SignUp />} />
               
-              {/* Upgrade Routes */}
-              <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+              {/* Upgrade Success Route */}
               <Route path="/upgrade/success" element={<ProtectedRoute><UpgradeSuccess /></ProtectedRoute>} />
               
               {/* Protected Routes */}

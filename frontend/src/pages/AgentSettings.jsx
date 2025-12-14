@@ -216,7 +216,9 @@ export default function AgentSettings() {
         max_tokens: currentAgent.chat_config?.max_tokens || 2048,
         stt_provider: currentAgent.voice_config?.stt_provider || "deepgram",
         tts_provider: currentAgent.voice_config?.tts_provider || "elevenlabs",
+        voice_id: currentAgent.voice_config?.voice_id || "11labs-Adrian",
       });
+      setSelectedVoiceId(currentAgent.voice_config?.voice_id || "11labs-Adrian");
     }
   }, [currentAgent]);
 

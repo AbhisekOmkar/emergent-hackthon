@@ -256,38 +256,13 @@ export default function FlowBuilder() {
         animated: true,
         markerEnd: { type: MarkerType.ArrowClosed },
         style: { stroke: "#6366f1", strokeWidth: 2 },
+        label: "Continue",
       };
       
       setEdges((eds) => addEdge(newEdge, eds));
-      
-      // Update source node's edges
-      setNodes((nds) => nds.map((node) => {
-        if (node.id === params.source) {
-          const currentEdges = node.data.edges || [];
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              edges: [
-                ...currentEdges,
-                {
-                  id: `edge_${Date.now()}`,
-                  destination_node_id: params.target,
-                  transition_condition: {
-                    type: "prompt",
-                    prompt: "Continue to next step"
-                  }
-                }
-              ]
-            }
-          };
-        }
-        return node;
-      }));
-      
       toast.success("Transition created");
     },
-    [setEdges, setNodes]
+    [setEdges]
   );
 
   const onDragOver = useCallback((event) => {

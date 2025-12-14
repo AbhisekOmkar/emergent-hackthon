@@ -37,6 +37,7 @@ export default function AgentSettings() {
     max_tokens: 2048,
     stt_provider: "deepgram",
     tts_provider: "elevenlabs",
+    voice_id: "11labs-Adrian",
   });
   
   // Knowledge Base state

@@ -293,20 +293,10 @@ export default function FlowBuilder() {
         data: {
           name: nodeTypeInfo.name,
           retellType: type,
-          instruction: type === "conversation" ? {
+          instruction: nodeTypeInfo.requiresInstruction ? {
             type: "prompt",
             text: "Enter your conversation prompt here..."
           } : null,
-          edges: [],
-          nodeData: {
-            id: newNodeId,
-            type: type,
-            instruction: type === "conversation" ? {
-              type: "prompt",
-              text: "Enter your conversation prompt here..."
-            } : null,
-            display_position: newPosition,
-          }
         },
       };
 

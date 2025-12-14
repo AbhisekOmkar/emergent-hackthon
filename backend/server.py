@@ -1126,6 +1126,10 @@ app.include_router(api_router)
 from routes.retell_routes import router as retell_router
 app.include_router(retell_router, prefix="/api")
 
+# Include Payments routes
+from routes.payments_routes import router as payments_router
+app.include_router(payments_router, prefix="/api")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

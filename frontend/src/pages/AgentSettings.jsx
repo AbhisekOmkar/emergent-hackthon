@@ -58,28 +58,6 @@ export default function AgentSettings() {
   const [playingVoiceId, setPlayingVoiceId] = useState(null);
   const audioRef = useRef(null);
 
-  useEffect(() => {
-    if (agentId) {
-      fetchAgent(agentId);
-    }
-  }, [agentId, fetchAgent]);
-
-  // Fetch knowledge bases
-  useEffect(() => {
-    fetchKnowledgeBases();
-    fetchAvailableVoices();
-  }, []);
-
-  // Update selected KBs when agent loads
-  useEffect(() => {
-    if (currentAgent?.knowledge_base_ids) {
-      setSelectedKBs(currentAgent.knowledge_base_ids);
-    }
-    if (currentAgent?.voice_config?.voice_id) {
-      setSelectedVoiceId(currentAgent.voice_config.voice_id);
-    }
-  }, [currentAgent]);
-
   const fetchKnowledgeBases = async () => {
     setLoadingKBs(true);
     try {
@@ -103,6 +81,28 @@ export default function AgentSettings() {
     }
     setLoadingVoices(false);
   };
+
+  useEffect(() => {
+    if (agentId) {
+      fetchAgent(agentId);
+    }
+  }, [agentId, fetchAgent]);
+
+  // Fetch knowledge bases and voices
+  useEffect(() => {
+    fetchKnowledgeBases();
+    fetchAvailableVoices();
+  }, []);
+
+  // Update selected KBs when agent loads
+  useEffect(() => {
+    if (currentAgent?.knowledge_base_ids) {
+      setSelectedKBs(currentAgent.knowledge_base_ids);
+    }
+    if (currentAgent?.voice_config?.voice_id) {
+      setSelectedVoiceId(currentAgent.voice_config.voice_id);
+    }
+  }, [currentAgent]);
 
   const playVoicePreview = (voice) => {
     if (playingVoiceId === voice.voice_id) {

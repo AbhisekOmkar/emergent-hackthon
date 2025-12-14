@@ -482,3 +482,12 @@ function FlowsContent() {
     </div>
   );
 }
+
+
+export default function Flows() {
+  return (
+    <FeatureGate feature="Conversation Flows">
+      <FlowsContent />
+    </FeatureGate>
+  );
+}

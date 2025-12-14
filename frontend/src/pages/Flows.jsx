@@ -36,7 +36,7 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 import { useSubscription } from "../context/SubscriptionContext";
-import { FeatureGate, PremiumBadge } from "../components/UpgradePrompt";
+// import { FeatureGate, PremiumBadge } from "../components/UpgradePrompt";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -486,8 +486,9 @@ function FlowsContent() {
 
 export default function Flows() {
   return (
-    <FeatureGate feature="Conversation Flows">
+    // PREMIUM FEATURE GATE TEMPORARILY DISABLED
+    // <FeatureGate feature="Conversation Flows">
       <FlowsContent />
-    </FeatureGate>
+    // </FeatureGate>
   );
 }

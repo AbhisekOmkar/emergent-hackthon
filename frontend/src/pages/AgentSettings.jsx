@@ -244,6 +244,7 @@ export default function AgentSettings() {
           ...currentAgent.voice_config,
           stt_provider: formData.stt_provider,
           tts_provider: formData.tts_provider,
+          voice_id: selectedVoiceId || formData.voice_id,
         } : null,
       };
 

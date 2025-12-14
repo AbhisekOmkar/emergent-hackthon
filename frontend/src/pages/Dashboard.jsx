@@ -73,7 +73,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-3">
-                    Welcome to <span className="gradient-text">Intelliax</span>
+                    Welcome to <span className="gradient-text">IntelliAX</span>
                   </h1>
                   <p className="text-lg text-gray-600 leading-relaxed">
                     Build, deploy, and manage intelligent AI agents that automate your workflows and enhance productivity.

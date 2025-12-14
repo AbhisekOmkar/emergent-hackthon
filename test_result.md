@@ -303,6 +303,31 @@ frontend:
         agent: "main"
         comment: "UPDATED - Dark sidebar with Flows section, better icons, pro upgrade card, top navbar"
 
+  - task: "Prompt Lab Feature"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/PromptLab.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "PARTIAL VERIFICATION - Backend API endpoints tested and working correctly (generate-prompt, generate-test-qa both return valid responses). Frontend code structure verified: 3-column layout, tabs (Website/PDF/Text), configuration form, and test sections all implemented. UI cannot be fully tested due to Clerk authentication requirement (Google/GitHub OAuth). Backend logs show successful OpenAI API integration. Code review shows proper implementation of all required features: content extraction, agent configuration, XML prompt generation, test question generation, and test execution with expandable results. Color scheme uses indigo for generate buttons and emerald for test button as specified."
+
+backend:
+  - task: "Prompt Lab API Endpoints"
+    implemented: true
+    working: true
+    file: "backend/routes/prompt_lab_routes.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All Prompt Lab API endpoints verified working: /api/prompt-lab/generate-prompt returns valid XML-structured prompts with persona, guardrails, context, instructions, and examples sections. /api/prompt-lab/generate-test-qa returns 5 test questions with categories and expected behaviors. OpenAI GPT-4o integration working correctly. Response times: ~10 seconds for prompt generation, ~3 seconds for question generation."
+
 metadata:
   created_by: "main_agent"
   version: "1.1"

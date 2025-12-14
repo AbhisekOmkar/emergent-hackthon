@@ -662,7 +662,7 @@ export default function AgentSettings() {
                 <CardTitle className="text-gray-900">Voice Configuration</CardTitle>
                 <CardDescription className="text-gray-500">Configure speech-to-text and text-to-speech settings</CardDescription>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="p-6 space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-gray-700">STT Provider</Label>
@@ -698,6 +698,114 @@ export default function AgentSettings() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                {/* Voice Selection Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-gray-700 font-medium">Select Voice</Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={fetchAvailableVoices}
+                      disabled={loadingVoices}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <RefreshCw className={`w-4 h-4 mr-1 ${loadingVoices ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  </div>
+                  
+                  {loadingVoices ? (
+                    <div className="flex items-center justify-center py-8">
+                      <RefreshCw className="w-6 h-6 animate-spin text-indigo-500" />
+                      <span className="ml-2 text-gray-500">Loading voices...</span>
+                    </div>
+                  ) : availableVoices.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                      <Volume2 className="w-10 h-10 mx-auto text-gray-300 mb-2" />
+                      <p className="text-gray-500 text-sm">No voices available</p>
+                      <p className="text-gray-400 text-xs mt-1">Make sure your Retell API key is configured</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-2">
+                      {availableVoices.map((voice) => (
+                        <div
+                          key={voice.voice_id}
+                          onClick={() => selectVoice(voice.voice_id)}
+                          className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
+                            selectedVoiceId === voice.voice_id
+                              ? 'border-indigo-500 bg-indigo-50'
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                        >
+                          {selectedVoiceId === voice.voice_id && (
+                            <div className="absolute top-2 right-2">
+                              <Check className="w-5 h-5 text-indigo-600" />
+                            </div>
+                          )}
+                          <div className="flex items-start gap-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                              voice.gender === 'male' ? 'bg-blue-100' : 'bg-pink-100'
+                            }`}>
+                              <Volume2 className={`w-5 h-5 ${
+                                voice.gender === 'male' ? 'text-blue-600' : 'text-pink-600'
+                              }`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-gray-900 truncate">{voice.voice_name}</h4>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                                  {voice.provider}
+                                </span>
+                                {voice.gender && (
+                                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                    voice.gender === 'male' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'
+                                  }`}>
+                                    {voice.gender}
+                                  </span>
+                                )}
+                                {voice.accent && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">
+                                    {voice.accent}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          {voice.preview_audio_url && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                playVoicePreview(voice);
+                              }}
+                              className="mt-3 w-full text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
+                            >
+                              {playingVoiceId === voice.voice_id ? (
+                                <>
+                                  <Pause className="w-4 h-4 mr-2" />
+                                  Stop Preview
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="w-4 h-4 mr-2" />
+                                  Play Preview
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {selectedVoiceId && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      Selected voice: <span className="font-medium text-gray-700">{selectedVoiceId}</span>
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

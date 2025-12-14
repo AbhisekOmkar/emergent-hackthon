@@ -441,18 +441,26 @@ export default function AgentEval() {
       return;
     }
 
+    console.log('=== handleGenerateScenarios called ===');
+    console.log('forVoiceTest parameter:', forVoiceTest);
+    console.log('Type of forVoiceTest:', typeof forVoiceTest);
+    
     setGeneratingScenarios(true);
     try {
       console.log('Generating scenarios for agent:', selectedAgent);
       const response = await axios.post(`${API}/retell/generate-test-scenarios?agent_id=${selectedAgent}&num_scenarios=5`);
       console.log('Generated scenarios response:', response.data);
       
-      if (forVoiceTest) {
+      console.log('Checking branch - forVoiceTest:', forVoiceTest);
+      
+      if (forVoiceTest === true) {
+        console.log('>>> BRANCH: Voice Test (forVoiceTest = true)');
         // For voice tests, populate the textarea with user messages
         const userMessages = response.data.scenarios.map(s => s.user_message).join('\n');
         setVoiceTestMessage(userMessages);
         toast.success(`Generated ${response.data.scenarios.length} test scenarios for voice testing!`);
       } else {
+        console.log('>>> BRANCH: Test Case Form (forVoiceTest = false)');
         // For test case creation form
         const scenarios = response.data.scenarios.map(s => ({
           name: s.name || "",
@@ -463,11 +471,15 @@ export default function AgentEval() {
         
         console.log('Mapped scenarios:', scenarios);
         
-        setNewTestCase(prev => ({
-          ...prev,
-          name: `Auto-generated tests for ${response.data.agent_name || 'Agent'}`,
-          scenarios
-        }));
+        setNewTestCase(prev => {
+          const updated = {
+            ...prev,
+            name: `Auto-generated tests for ${response.data.agent_name || 'Agent'}`,
+            scenarios: scenarios
+          };
+          console.log('Setting newTestCase to:', updated);
+          return updated;
+        });
         
         toast.success(`Generated ${scenarios.length} test scenarios!`);
       }
@@ -527,8 +539,20 @@ export default function AgentEval() {
   };
 
   // Get all agents - support both voice and chat
+  // Use Set to avoid duplicates in case an agent appears in both lists
   const voiceAgents = agents.filter(a => a.retell_agent_id);
   const chatAgents = agents.filter(a => !a.retell_agent_id);
+  
+  // Remove any duplicates based on retell_agent_id for voice agents
+  const uniqueVoiceAgents = Array.from(
+    new Map(voiceAgents.map(a => [a.retell_agent_id, a])).values()
+  );
+  
+  // Remove any duplicates based on id for chat agents  
+  const uniqueChatAgents = Array.from(
+    new Map(chatAgents.map(a => [a.id, a])).values()
+  );
+  
   const allAgents = agents;
 
   // Stats
@@ -567,10 +591,10 @@ export default function AgentEval() {
               <SelectValue placeholder="Select an agent to test" />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              {voiceAgents.length > 0 && (
+              {uniqueVoiceAgents.length > 0 && (
                 <>
                   <div className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50">Voice Agents</div>
-                  {voiceAgents.map(agent => (
+                  {uniqueVoiceAgents.map(agent => (
                     <SelectItem key={`voice-${agent.retell_agent_id}`} value={agent.retell_agent_id}>
                       <span className="flex items-center gap-2">
                         {agent.name}
@@ -580,10 +604,10 @@ export default function AgentEval() {
                   ))}
                 </>
               )}
-              {chatAgents.length > 0 && (
+              {uniqueChatAgents.length > 0 && (
                 <>
                   <div className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 mt-1">Chat Agents</div>
-                  {chatAgents.map(agent => (
+                  {uniqueChatAgents.map(agent => (
                     <SelectItem key={`chat-${agent.id}`} value={agent.id}>
                       <span className="flex items-center gap-2">
                         {agent.name}

@@ -41,8 +41,10 @@ export default function PromptLab() {
   
   // Generated prompt
   const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [promptId, setPromptId] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
   
   // Test Q&A
   const [testQuestions, setTestQuestions] = useState([]);
@@ -136,7 +138,9 @@ export default function PromptLab() {
       });
       
       setGeneratedPrompt(response.data.prompt);
-      toast.success("Prompt generated successfully!");
+      setPromptId(response.data.prompt_id);
+      setSaved(true);
+      toast.success("Prompt generated and saved!");
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to generate prompt");
     }
@@ -458,27 +462,37 @@ export default function PromptLab() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyPrompt}
-                    className="flex-1"
-                  >
-                    {copied ? (
-                      <><Check className="w-4 h-4 mr-1" /> Copied</>
-                    ) : (
-                      <><Copy className="w-4 h-4 mr-1" /> Copy</>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDownloadPrompt}
-                    className="flex-1"
-                  >
-                    <Download className="w-4 h-4 mr-1" /> Download
-                  </Button>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyPrompt}
+                      className="flex-1"
+                    >
+                      {copied ? (
+                        <><Check className="w-4 h-4 mr-1" /> Copied</>
+                      ) : (
+                        <><Copy className="w-4 h-4 mr-1" /> Copy</>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownloadPrompt}
+                      className="flex-1"
+                    >
+                      <Download className="w-4 h-4 mr-1" /> Download
+                    </Button>
+                  </div>
+                  {saved && (
+                    <div className="p-2 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-xs text-green-700">
+                        Saved! You can load this prompt in Agent Settings
+                      </span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -1,7 +1,6 @@
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
-import { toast } from "sonner";
 import {
   LayoutDashboard,
   Bot,
@@ -35,13 +34,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Badge } from "../ui/badge";
-import { useSubscription } from "../../context/SubscriptionContext";
 
 const buildItems = [
   { path: "/agents", icon: Bot, label: "Agents", description: "AI assistants" },
   { path: "/prompt-lab", icon: Wand2, label: "Prompt Lab", description: "AI prompt generator" },
-  { path: "/flows", icon: Workflow, label: "Flows", description: "Visual builder", premium: true },
-  { path: "/tools", icon: Wrench, label: "Tools", description: "Custom actions", premium: true },
+  { path: "/flows", icon: Workflow, label: "Flows", description: "Visual builder" },
+  { path: "/tools", icon: Wrench, label: "Tools", description: "Custom actions" },
 ];
 
 const manageItems = [
@@ -49,63 +47,23 @@ const manageItems = [
 ];
 
 const monitorItems = [
-  { path: "/analytics", icon: BarChart3, label: "Analytics", description: "Performance", premium: true },
+  { path: "/analytics", icon: BarChart3, label: "Analytics", description: "Performance" },
   { path: "/history", icon: History, label: "Call History", description: "Call logs & recordings" },
-  { path: "/eval", icon: FlaskConical, label: "Agent Eval", description: "Test & evaluate", premium: true },
+  { path: "/eval", icon: FlaskConical, label: "Agent Eval", description: "Test & evaluate" },
   { path: "/settings", icon: Settings, label: "Settings", description: "Configuration" },
 ];
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isUpgrading, setIsUpgrading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useUser();
   const { signOut } = useClerk();
-  const { isPremium, isLoading } = useSubscription();
-
-  const handleUpgradeClick = async () => {
-    setIsUpgrading(true);
-    try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/api/payments/create-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-          user_email: user.primaryEmailAddress?.emailAddress || '',
-          user_name: user.fullName || user.username || '',
-          return_url: window.location.origin + '/',
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      const data = await response.json();
-      
-      if (data.checkout_url) {
-        // Redirect to Dodo Payments checkout page
-        window.location.href = data.checkout_url;
-      } else {
-        toast.error('Failed to get checkout URL');
-        setIsUpgrading(false);
-      }
-    } catch (error) {
-      console.error('Upgrade error:', error);
-      toast.error('Failed to start checkout process');
-      setIsUpgrading(false);
-    }
-  };
 
   const NavItem = ({ item }) => {
     const Icon = item.icon;
     const isActive = location.pathname === item.path || 
       (item.path !== "/" && location.pathname.startsWith(item.path));
-    const showPremiumBadge = item.premium && !isPremium && !isLoading;
     
     return (
       <NavLink
@@ -125,9 +83,6 @@ export default function DashboardLayout() {
                 <span className="text-xs opacity-60 block truncate">{item.description}</span>
               )}
             </div>
-            {showPremiumBadge && (
-              <Crown className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-            )}
           </div>
         )}
       </NavLink>
@@ -206,43 +161,6 @@ export default function DashboardLayout() {
           {/* Footer */}
           {sidebarOpen && (
             <div className="p-3 border-t border-white/5">
-              {/* Upgrade Banner */}
-              {!isPremium && !isLoading && (
-                <div className="p-3 mx-2 mb-3 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                      <Crown className="w-4 h-4 text-amber-400" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="text-sm font-semibold text-white block">Upgrade to Premium</span>
-                      <span className="text-[10px] text-gray-400">Unlock all features</span>
-                    </div>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    onClick={handleUpgradeClick}
-                    disabled={isUpgrading}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs h-8 rounded-md font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isUpgrading ? 'Processing...' : 'Upgrade Now'}
-                  </Button>
-                </div>
-              )}
-              
-              {isPremium && (
-                <div className="p-3 mx-2 mb-3 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                      <Crown className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="text-sm font-semibold text-white block">Premium Active</span>
-                      <span className="text-[10px] text-gray-400">All features unlocked</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
               {/* Status */}
               <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

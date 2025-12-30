@@ -584,9 +584,5 @@ function AnalyticsContent() {
 }
 
 export default function Analytics() {
-  return (
-    <FeatureGate feature="Analytics Dashboard">
-      <AnalyticsContent />
-    </FeatureGate>
-  );
+  return <AnalyticsContent />;
 }
